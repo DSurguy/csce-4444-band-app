@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">
+            .page{
+                display: none;
+            }
+            .page.active{
+                display: block;
+            }
+            .button-bands {
+                text-decoration: underline;
+                color: blue;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <div id="mainPage" class="page">
+            <h1>I'm The Main Page</h1>
+            <div class="button-bands">Go To Bands</div>
+        </div>
+        
+        <div id="bandsPage" class="page">
+            <h1>I'm The Bands Page</h1>
+            <div class="bands"></div>
+        </div>
+        
+        <script type="text/javascript" src="jquery-3.2.0.min.js"></script>
+        <script type="text/javascript">
+            /*global $*/
+            function App(){
+                this.currentPage = undefined;
+                this.pageHistory = [];
+            }
+            App.prototype.init = function (initialPageId){
+                this.changePage(initialPageId);
+            };
+            App.prototype.changePage = function (page, data){
+                if( this.currentPage ){
+                    //store the constructor for the last page
+                    this.pageHistory.push(this.currentPage.constructor);
+                    $(this.currentPage.elem).removeClass('active');
+                }
+                //create a new instance of the next page
+                this.currentPage = new page(this);
+                $(this.currentPage.elem).addClass('active');
+                this.currentPage.init();
+            };
+            
+            /** Inheritable Classes **/
+            function Page(app, elem, ctrlConstructor, viewConstructor){
+                this.app = app;
+                this.elem = elem;
+                this.ctrl = new ctrlConstructor(this);
+                this.view = new viewConstructor(this);
+            }
+            Page.prototype.init = function (){
+                var that = this;
+                this.ctrl.init();
+            };
+            
+            function PageCtrl(page){
+                this.page = page;
+            }
+            PageCtrl.prototype.init = function (){
+                this.page.view.init();
+            };
+            
+            function PageView(page){
+                this.page = page;
+            }
+            PageView.prototype.init = function (){};
+            
+            /** App Classes **/
+            
+            /** Main Page **/
+            function MainPage(app, data){
+                Page.call(this, app, $('#mainPage')[0], MainCtrl, MainView);
+            }
+            MainPage.prototype = Object.create(Page.prototype);
+            MainPage.prototype.constructor = MainPage;
+            
+            function MainCtrl(page){
+                PageCtrl.call(this, page);
+            }
+            MainCtrl.prototype = Object.create(PageCtrl.prototype);
+            MainCtrl.prototype.constructor = MainCtrl;
+            
+            function MainView(page){
+                PageView.call(this, page);
+            }
+            MainView.prototype = Object.create(PageView.prototype);
+            MainView.prototype.constructor = MainView;
+            MainView.prototype.init = function (){
+                var page = this.page;
+                $(page.elem).on('click', '.button-bands', function (e){
+                    page.app.changePage(BandsPage);
+                });
+            };
+            
+            /** Bands Page **/
+            function BandsPage(app, data){
+                Page.call(this, app, $('#bandsPage')[0], BandsCtrl, BandsView);
+            }
+            BandsPage.prototype = Object.create(Page.prototype);
+            BandsPage.prototype.constructor = BandsPage;
+            
+            function BandsCtrl(page){
+                PageCtrl.call(this, page);
+            }
+            BandsCtrl.prototype = Object.create(PageCtrl.prototype);
+            BandsCtrl.prototype.constructor = BandsCtrl;
+            BandsCtrl.prototype.init = function (){
+                var that = this;
+                $.ajax('/bands', {
+                    method: 'GET'
+                }).then(function (data){
+                    that.bands = data.bands;
+                    that.page.view.init();
+                });
+            };
+            
+            function BandsView(page){
+                PageView.call(this, page);
+            }
+            BandsView.prototype = Object.create(PageView.prototype);
+            BandsView.prototype.constructor = BandsView;
+            BandsView.prototype.init = function (){
+                var bandsElem = $(this.page.elem).find('.bands');
+                for( var i=0; i<this.page.ctrl.bands.length; i++ ){
+                    bandsElem.append('<div class="band">'+this.page.ctrl.bands[i].name+' <small>(owned by: '+this.page.ctrl.bands[i].ownerName+')</small></div>');
+                }
+            }
+            
+            /** RUNTIME **/
+            var myApp = new App();
+            myApp.init(MainPage);
+        </script>
+    </body>
+</html>
