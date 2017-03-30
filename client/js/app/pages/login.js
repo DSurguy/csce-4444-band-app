@@ -28,9 +28,9 @@ LoginCtrl.prototype.login = function (username, password){
         type: 'POST',
         data: $(this).serialize()
     }).then(function (result){
-        alert('success');
+        defer.resolve();
     }).fail(function (result){
-        alert('Failure');
+        defer.reject();
     });*/
     setTimeout(function (){
         defer.resolve();
