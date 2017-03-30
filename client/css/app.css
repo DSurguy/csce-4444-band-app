@@ -4,13 +4,33 @@ html, body, .page{
     padding: 0;
     margin: 0;
     overflow: auto;
-    font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
-
-button, input, optgroup, select, textarea {
-    font-family: sans-serif
+.animation-spin {
+    -webkit-animation-name: animation-spin;
+    -webkit-animation-duration: 1000ms;
+    -webkit-animation-iteration-count: infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-name: animation-spin;
+    -moz-animation-duration: 1000ms;
+    -moz-animation-iteration-count: infinite;
+    -moz-animation-timing-function: linear;
+    -ms-animation-name: animation-spin;
+    -ms-animation-duration: 1000ms;
+    -ms-animation-iteration-count: infinite;
+    -ms-animation-timing-function: linear;
 }
-
+@-moz-keyframes animation-spin {
+    from { -moz-transform: rotate(0deg); }
+    to { -moz-transform: rotate(360deg); }
+}
+@-webkit-keyframes animation-spin {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+@keyframes animation-spin {
+    from {transform:rotate(0deg);}
+    to {transform:rotate(360deg);}
+}
 #loginPage{
     /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#78478c+0,470c56+99 */
     background: #78478c; /* Old browsers */
@@ -27,17 +47,16 @@ button, input, optgroup, select, textarea {
 
 #loginPage form {
     width: 320px;
-    height: 180px;
+    min-height: 180px;
     margin: 100px auto;
     padding: 20px;
-    box-sizing: border-box;
     background-color: rgba(0,0,0,0.5);
     border-width: 1px;
     border-style: solid;
     border-color: #777;
     border-color: rgba(0,0,0,0.25);
     border-radius: 10px;
-    overflow: hidden;
+    overflow: auto;
 }
 
 #loginPage form input {
