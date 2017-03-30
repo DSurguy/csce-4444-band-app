@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css" />
+        <link rel="stylesheet" href="/css/app.css" type="text/css" />
         <style type="text/css">
             .page{
                 display: none;
@@ -19,7 +21,12 @@
         
         <div id="mainPage" class="page">
             <h1>I'm The Main Page</h1>
-            <div class="button-bands">Go To Bands</div>
+            <div class="actions">
+                <div class="action profile">Profile</div>
+                <div class="action friends">Friends</div>
+                <div class="action notifications">Notifications</div>
+                <div class="action bands">Bands</div>
+            </div>
         </div>
         
         <div id="bandsPage" class="page">
@@ -29,19 +36,22 @@
         
         <div id="loginPage" class="page">
             <form class="loginForm">
-                <input type="text" name="username" placeholder="Username" />
-                <input type="password" name="password" placeholder="Password" />
-                <input type="submit" name="submit" value="Login" />
+                <div class="form-group">
+                    <input class="form-control" type="text" name="username" placeholder="Username" />
+                    <input class="form-control" type="password" name="password" placeholder="Password" />
+                    <input class="btn btn-primary" type="submit" name="submit" value="Login" />
+                </div>
             </form>
         </div>
         
-        <script type="text/javascript" src="jquery-3.2.0.min.js"></script>
-        <script type="text/javascript" src="/Pages/App.js"></script>
-        <script type="text/javascript" src="/Pages/Page.js"></script>
-        <script type="text/javascript" src="/Pages/Menu.js"></script>
-        <script type="text/javascript" src="/Pages/Bands.js"></script>
-        <script type="text/javascript" src="/Pages/Login.js"></script>
-        <script type="text/javascript" src="/Pages/Main.js"></script>
+        <script type="text/javascript" src="/js/third-party/jquery-3.2.0.min.js"></script>
+        <script type="text/javascript" src="/js/third-party/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/js/app/app.js"></script>
+        <script type="text/javascript" src="/js/app/page.js"></script>
+        <script type="text/javascript" src="/js/app/pages/menu.js"></script>
+        <script type="text/javascript" src="/js/app/pages/bands.js"></script>
+        <script type="text/javascript" src="/js/app/pages/login.js"></script>
+        <script type="text/javascript" src="/js/app/pages/main.js"></script>
         <script type="text/javascript">
             /* global LoginPage */
             
