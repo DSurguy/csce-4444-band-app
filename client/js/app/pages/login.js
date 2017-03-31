@@ -22,19 +22,17 @@ function LoginCtrl(page){
 LoginCtrl.prototype = Object.create(PageCtrl.prototype);
 LoginCtrl.prototype.constructor = LoginCtrl;
 
-LoginCtrl.prototype.login = function (username, password){
+LoginCtrl.prototype.login = function (form){
     var defer = $.Deferred();
-    /*$.ajax('/login', {
+    $.ajax({
+        url: '/api/login',
         type: 'POST',
-        data: $(this).serialize()
+        data: $(form).serialize()
     }).then(function (result){
         defer.resolve();
     }).fail(function (result){
         defer.reject();
-    });*/
-    setTimeout(function (){
-        defer.resolve();
-    },1000);
+    });
     return defer.promise();
 };
 
@@ -68,7 +66,7 @@ LoginView.prototype.bindEvents = function (){
         submitButton.html('<div class="fa fa-spinner animation-spin"></div>');
         
         //actually try to login
-        page.ctrl.login()
+        page.ctrl.login(this)
         .then(function (){
             submitButton.removeClass('btn-primary').addClass('btn-success');
             submitButton.find('div').removeClass('fa-spinner animation-spin').addClass('fa-check');
