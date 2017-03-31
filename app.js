@@ -36,7 +36,6 @@ app.get('/bands/:id', function (req, res) {
 });
 
 app.post('/api/login', function (req, res) {
-    console.log('USERNAME: ' + req.body.username);
     if (!req.body) {
         res.sendStatus(400)
         res.send(false);
