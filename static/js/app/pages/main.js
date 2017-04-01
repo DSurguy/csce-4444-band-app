@@ -1,4 +1,8 @@
-/** Main Page **/
+/* global Page */
+/* global PageView */
+/* global PageCtrl */
+/* global $ */
+
 function MainPage(app, data){
     Page.call(this, app, $('#mainPage')[0], MainCtrl, MainView);
 }
@@ -19,6 +23,6 @@ MainView.prototype.constructor = MainView;
 MainView.prototype.init = function (){
     var page = this.page;
     $(page.elem).on('click', '.button-bands', function (e){
-        page.app.changePage(BandsPage);
+        window.location = '/bands';
     });
 };
