@@ -36,6 +36,7 @@ app.set('views', __dirname + '/views');
 
 // parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static('static'));
 
 var connection = mysql.createConnection(config.db);
 
@@ -57,7 +58,7 @@ app.get('/bands', function (req, res) {
     bandService.getAllBands(req.query.userid, connection)
     .then(function (result) {
         if (result != false) {
-            res.sendStatus(200);
+            res.status(200);
             res.send(result);
         }
         else {
@@ -90,7 +91,13 @@ app.get('/main', function (req, res){
     res.render('main');
 });
 
-app.use(express.static('static'));
+app.get('/bands', function (req, res){
+    res.render('bands');
+});
+
+app.get('/bands/register', function (req, res){
+    res.render('registerBand');
+});
 
 app.post('/api/login', function (req, res){
     if (!req.body) {
@@ -139,8 +146,7 @@ app.post('/api/bands/register', function (req, res){
         res.sendStatus(400);
         res.send(false);
     }
-    //bandService.registerBand(req.body.userId, req.body.bandName, req.body.description, connection)
-    bandService.registerBand(1, 'Destriers Gait', 'Cool band', connection)
+    bandService.registerBand(req.body.userId, req.body.bandName, req.body.description, connection)
     .then(function (result) {
         if (result == true) {
             res.sendStatus(200);

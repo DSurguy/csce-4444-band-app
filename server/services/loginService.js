@@ -37,11 +37,7 @@ function getUserSaltAndPassword(data) {
         		return;
         	}
 
-        	var dbSalt = results[0].SALT;
-        	var dbPassword = results[0].PASSWORD;
-        	var testPassword = data.password;
-
-        	var result = {dbSalt, testPassword, dbPassword};
+        	var result = {dbSalt : results[0].SALT, testPassword : data.password, dbPassword : results[0].PASSWORD};
         	
         	resolve(result);
 		});

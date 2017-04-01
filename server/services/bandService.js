@@ -1,4 +1,4 @@
-var SimpleBand = require('./shared/classes/simpleBand.js');
+var SimpleBand = require('../../shared/classes/simpleBand.js');
 
 function registerBand(userId, bandName, description, connection) {
 	return new Promise((resolve, reject) => {
@@ -58,13 +58,11 @@ function createBand(data) {
 	});
 }
 
-function getAllBands(userId) {
+function getAllBands(userId, connection) {
 	return new Promise((resolve, reject) => {
-		var query = 'SELECT BANDID, BANDNAME, ONWERID, USERNAME FROM BAND B' + 
+		var query = 'SELECT BANDID, BANDNAME, OWNERID, USERNAME FROM BAND B ' + 
 					'JOIN USER U ON U.USERID = B.OWNERID ' +
-					'WHERE OWNERID = \'' + userId + '\'';
-
-		var connection = data.connection;
+					'WHERE B.OWNERID = \'' + userId + '\'';
         
         connection.query(query, function(err, results, fields) {
         	if (err) {
@@ -72,10 +70,8 @@ function getAllBands(userId) {
             	return;
         	}
 
-            json = JSON.stringify(results, null, 2);
-
             var bands = results.map(function (resultRow) {
-            	return new SimpleBand(resultRow.BANDID, resultRow.USERNAME, resultRow.OWNERID, resultRow.BANDNAME);
+            	return new SimpleBand({id : resultRow.BANDID, ownerName : resultRow.USERNAME, ownerId : resultRow.OWNERID, bandName : resultRow.BANDNAME});
             })
 
         	resolve(bands);

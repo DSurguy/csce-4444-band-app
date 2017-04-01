@@ -87,7 +87,13 @@ function hashPassword(data) {
 	    	var password = hashedPassword.toString('hex');
 	    	var connection = data.connection;
 
-	    	var obj = {username, password, salt, email, connection};
+	    	var obj = {	
+	    				username : data.username, 
+	    				password : hashedPassword.toString('hex'), 
+	    				salt, 
+	    				email : data.email, 
+	    				connection : data.connection
+    				  };
 
 	    	resolve(obj);
 		});
