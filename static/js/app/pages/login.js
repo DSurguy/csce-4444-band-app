@@ -72,7 +72,7 @@ LoginView.prototype.bindEvents = function (){
             submitButton.find('div').removeClass('fa-spinner animation-spin').addClass('fa-check');
             //change page
             setTimeout(function (){
-                page.app.changePage(MainPage, {user: {}});
+                window.location = '/main';
             }, 500);
         }).fail(function (err){
             submitButton.removeClass('btn-primary').addClass('btn-danger');
