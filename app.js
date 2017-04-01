@@ -4,6 +4,7 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser')
 var authLogin = require('./server/services/loginService.js');
 var hbs = require('express-hbs');
+var authUserRegistration = require('./server/services/userRegistrationService.js');
 
 var app = express();
 
@@ -60,7 +61,7 @@ app.post('/api/login', function (req, res) {
         else {
             res.sendStatus(400);
         }
-   })
+    })
     .catch(function (e) {
         res.sendStatus(500, {
             error: e
@@ -77,6 +78,28 @@ app.get('/main', function (req, res){
 });
 
 app.use(express.static('static'));
+
+app.post('/api/registration', function (req, res) {
+    if (!req.body) {
+        res.sendStatus(400)
+        res.send(false);
+    }
+    authLogin(req.body.username, req.body.password, req.body.email, connection)
+    .then(function (result) {
+        if (result == true) {
+            res.sendStatus(200);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.sendStatus(500, {
+            error: e
+        });
+    });
+})
+
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');
 });
