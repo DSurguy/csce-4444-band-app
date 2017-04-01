@@ -6,26 +6,26 @@
 /**
  * PAGE
  * */
-function LoginPage(app, data){
-    Page.call(this, app, $('#loginPage')[0], LoginCtrl, LoginView);
+function RegisterPage(app, data){
+    Page.call(this, app, $('#registerPage')[0], RegisterCtrl, RegisterView);
 }
-LoginPage.prototype = Object.create(Page.prototype);
-LoginPage.prototype.constructor = LoginPage;
+RegisterPage.prototype = Object.create(Page.prototype);
+RegisterPage.prototype.constructor = RegisterPage;
 
 /**
  * CONTROLLER
  * */
-function LoginCtrl(page){
+function RegisterCtrl(page){
     PageCtrl.call(this, page);
-    this.loggingIn = false;
+    this.registering = false;
 }
-LoginCtrl.prototype = Object.create(PageCtrl.prototype);
-LoginCtrl.prototype.constructor = LoginCtrl;
+RegisterCtrl.prototype = Object.create(PageCtrl.prototype);
+RegisterCtrl.prototype.constructor = RegisterCtrl;
 
-LoginCtrl.prototype.login = function (form){
+RegisterCtrl.prototype.register = function (form){
     var defer = $.Deferred();
     $.ajax({
-        url: '/api/login',
+        url: '/api/register',
         type: 'POST',
         data: $(form).serialize()
     }).then(function (result){
@@ -39,29 +39,28 @@ LoginCtrl.prototype.login = function (form){
 /**
  * VIEWER
  * */
-function LoginView(page){
+function RegisterView(page){
     PageView.call(this, page);
 }
-LoginView.prototype = Object.create(PageView.prototype);
-LoginView.prototype.constructor = LoginView;
-LoginView.prototype.init = function (){
+RegisterView.prototype = Object.create(PageView.prototype);
+RegisterView.prototype.constructor = RegisterView;
+RegisterView.prototype.init = function (){
     this.bindEvents();
 };
 
-LoginView.prototype.bindEvents = function (){
+RegisterView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
         page = this.page;
         
     pageElem.on('submit', 'form', function (e){
         e.preventDefault();
         e.stopPropagation();
-        if( page.ctrl.loggingIn ){
+        if( page.ctrl.registering ){
             return false;
         }
         else{
-            page.ctrl.loggingIn = true;
+            page.ctrl.registering = true;
         }
-        
         //show spinner
         var form = $(this),
             submitButton = form.find('[type=submit]');
@@ -73,21 +72,28 @@ LoginView.prototype.bindEvents = function (){
         submitButton.html('<div class="fa fa-spinner animation-spin"></div>');
         
         //actually try to login
-        page.ctrl.login(this)
+        page.ctrl.register(this)
         .then(function (){
             submitButton.removeClass('btn-primary').addClass('btn-success');
             submitButton.find('div').removeClass('fa-spinner animation-spin').addClass('fa-check');
+            //display register failure
+            form.prepend('<div class="alert alert-success alert-dismissible fade show" role="alert">'
+              +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                +'<span aria-hidden="true">&times;</span>'
+              +'</button>'
+              +'<strong>Registration Successful!</strong> Redirecting in 2 seconds...'
+            +'</div>');
             //change page
             setTimeout(function (){
-                window.location = '/main';
-            }, 500);
+                window.location = '/login';
+            }, 2000);
         }).fail(function (err){
             submitButton.removeClass('btn-primary').addClass('btn-danger');
             submitButton.find('div').removeClass('fa-spinner animation-spin').addClass('fa-times');
-            //change page
+            
             setTimeout(function (){
-                submitButton.html('Login').addClass('btn-primary').removeClass('btn-danger');
-                page.ctrl.loggingIn = false;
+                submitButton.html('Login').addClass('btn-primary').removeClass('btn-danger')
+                page.ctrl.registering = false;
             }, 1000);
             //display login failure
             form.prepend('<div class="alert alert-danger alert-dismissible fade show" role="alert">'
@@ -98,4 +104,4 @@ LoginView.prototype.bindEvents = function (){
             +'</div>');
         });
     });
-};
+}

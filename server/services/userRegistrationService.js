@@ -44,8 +44,8 @@ function checkUsername(data) {
     		}	
 
     		resolve(data);
-    	})       
-	})
+    	});
+	});
 }
 
 function checkEmail(data) {
@@ -65,8 +65,8 @@ function checkEmail(data) {
     		}	
 
     		resolve(data);
-    	})       
-	})
+        });
+	});
 }
 
 function hashPassword(data) {
@@ -85,7 +85,7 @@ function hashPassword(data) {
 	    	var password = hashedPassword.toString('hex');
 	    	var connection = data.connection;
 
-	    	var obj = {username, password, salt, email, connection}
+	    	var obj = {username, password, salt, email, connection};
 
 	    	resolve(obj);
 		});
@@ -104,8 +104,8 @@ function createUser(data) {
         	}
 
         	resolve(true);
-    	})
-	})
+    	});
+	});
 }
 
 module.exports = authUserRegistration;

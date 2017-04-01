@@ -1,9 +1,13 @@
 {{#contentFor "page-constructor"}}LoginPage{{/contentFor}}
 <div id="loginPage" class="page">
+    <h1>Login</h1>
     <form class="loginForm" onsubmit="return">
         <div class="form-group">
             <input class="form-control" type="text" name="username" placeholder="Username" />
             <input class="form-control" type="password" name="password" placeholder="Password" />
+            <a href="/register">
+                New user? Register here!
+            </a>
             <button class="btn btn-primary" type="submit" name="submit">
                 Login
             </button>

@@ -16,7 +16,7 @@ function authLogin(username, password, connection) {
 		.catch(reject);
 
 	});
-};
+}
 
 function getUserSaltAndPassword(data) {
 	return new Promise((resolve, reject) => {
@@ -26,6 +26,7 @@ function getUserSaltAndPassword(data) {
         
         connection.query(query, function(err, results, fields) {
         	if (err) {
+        		console.error(err);
             	reject(err);
         	}
 
