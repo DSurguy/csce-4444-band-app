@@ -1,0 +1,14 @@
+{{#contentFor "page-constructor"}}RegisterPage{{/contentFor}}
+<div id="registerPage" class="page">
+    <h1>Register New User</h1>
+    <form class="registerForm" onsubmit="return">
+        <div class="form-group">
+            <input required class="form-control" type="text" name="username" placeholder="Username" />
+            <input required class="form-control" type="email" name="email" placeholder="Email" />
+            <input required class="form-control" type="password" name="password" placeholder="Password" />
+            <button class="btn btn-primary" type="submit" name="submit">
+                Register
+            </button>
+        </div>
+    </form>
+</div>

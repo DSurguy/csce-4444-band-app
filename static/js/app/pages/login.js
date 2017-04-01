@@ -55,6 +55,13 @@ LoginView.prototype.bindEvents = function (){
     pageElem.on('submit', 'form', function (e){
         e.preventDefault();
         e.stopPropagation();
+        if( page.ctrl.loggingIn ){
+            return false;
+        }
+        else{
+            page.ctrl.loggingIn = true;
+        }
+        
         //show spinner
         var form = $(this),
             submitButton = form.find('[type=submit]');
@@ -72,14 +79,15 @@ LoginView.prototype.bindEvents = function (){
             submitButton.find('div').removeClass('fa-spinner animation-spin').addClass('fa-check');
             //change page
             setTimeout(function (){
-                page.app.changePage(MainPage, {user: {}});
+                window.location = '/main';
             }, 500);
         }).fail(function (err){
             submitButton.removeClass('btn-primary').addClass('btn-danger');
             submitButton.find('div').removeClass('fa-spinner animation-spin').addClass('fa-times');
             //change page
             setTimeout(function (){
-                submitButton.html('Login').addClass('btn-primary').removeClass('btn-danger')
+                submitButton.html('Login').addClass('btn-primary').removeClass('btn-danger');
+                page.ctrl.loggingIn = false;
             }, 1000);
             //display login failure
             form.prepend('<div class="alert alert-danger alert-dismissible fade show" role="alert">'
@@ -90,4 +98,4 @@ LoginView.prototype.bindEvents = function (){
             +'</div>');
         });
     });
-}
+};

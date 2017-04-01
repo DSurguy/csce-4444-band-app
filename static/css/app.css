@@ -80,7 +80,9 @@ html, body, .page{
     background: linear-gradient(135deg, #78478c 0%,#470c56 99%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#78478c', endColorstr='#470c56',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
 }
-#mainPage h1 {
+#mainPage h1,
+#loginPage h1,
+#registerPage h1{
     color: #fff;
     margin: 20px;
 }
@@ -89,4 +91,40 @@ html, body, .page{
 }
 #mainPage .action{
     cursor: pointer;
+}
+
+#registerPage{
+    /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#78478c+0,470c56+99 */
+    background: #78478c; /* Old browsers */
+    /* IE9 SVG, needs conditional override of 'filter' to 'none' */
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNzg0NzhjIiBzdG9wLW9wYWNpdHk9IjEiLz4KICAgIDxzdG9wIG9mZnNldD0iOTklIiBzdG9wLWNvbG9yPSIjNDcwYzU2IiBzdG9wLW9wYWNpdHk9IjEiLz4KICA8L2xpbmVhckdyYWRpZW50PgogIDxyZWN0IHg9IjAiIHk9IjAiIHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9InVybCgjZ3JhZC11Y2dnLWdlbmVyYXRlZCkiIC8+Cjwvc3ZnPg==);
+    background: -moz-linear-gradient(-45deg, #78478c 0%, #470c56 99%); /* FF3.6-15 */
+    background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,#78478c), color-stop(99%,#470c56)); /* Chrome4-9,Safari4-5 */
+    background: -webkit-linear-gradient(-45deg, #78478c 0%,#470c56 99%); /* Chrome10-25,Safari5.1-6 */
+    background: -o-linear-gradient(-45deg, #78478c 0%,#470c56 99%); /* Opera 11.10-11.50 */
+    background: -ms-linear-gradient(-45deg, #78478c 0%,#470c56 99%); /* IE10 preview */
+    background: linear-gradient(135deg, #78478c 0%,#470c56 99%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#78478c', endColorstr='#470c56',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
+}
+
+#registerPage form {
+    width: 320px;
+    min-height: 180px;
+    margin: 100px auto;
+    padding: 20px;
+    background-color: rgba(0,0,0,0.5);
+    border-width: 1px;
+    border-style: solid;
+    border-color: #777;
+    border-color: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    overflow: auto;
+}
+
+#registerPage form input {
+    margin-bottom: 10px;
+}
+#registerPage form [type=submit]{
+    cursor: pointer;
+    float: right;
 }
