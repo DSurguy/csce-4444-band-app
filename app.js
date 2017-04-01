@@ -35,27 +35,9 @@ app.set('views', __dirname + '/views');
 // parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({ extended: false }));
 
+app.use(express.static('static'));
+
 var connection = mysql.createConnection(config.db);
-
-var fakeBands = {
-    1: new Band({
-        id: 1,
-        name: 'TestBand',
-        ownerId: 0, //owned by user with id 0
-        ownerName: 'Jimbo'
-    })
-};
-
-app.get('/bands', function (req, res) {
-    var bandIds = Object.keys(fakeBands);
-    res.send({bands:bandIds.map(function (id){
-        return fakeBands[id];
-    })});
-});
-
-app.get('/bands/:id', function (req, res) {
-    res.send({band: fakeBands[req.params.id]});
-});
 
 app.post('/api/login', function (req, res) {
     if (!req.body) {
@@ -93,7 +75,13 @@ app.get('/main', function (req, res){
     res.render('main');
 });
 
-app.use(express.static('static'));
+app.get('/bands', function (req, res){
+    res.render('bands');
+});
+
+app.get('/bands/register', function (req, res){
+    res.render('registerBand');
+});
 
 app.post('/api/register', function (req, res) {
     if (!req.body) {

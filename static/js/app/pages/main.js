@@ -22,7 +22,7 @@ MainView.prototype = Object.create(PageView.prototype);
 MainView.prototype.constructor = MainView;
 MainView.prototype.init = function (){
     var page = this.page;
-    $(page.elem).on('click', '.button-bands', function (e){
+    $(page.elem).on('click', '.bands', function (e){
         window.location = '/bands';
     });
 };
