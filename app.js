@@ -53,7 +53,6 @@ app.get('/bands', function (req, res) {
     req.query.userid;
     if (req.query.userid == undefined) {
         res.sendStatus(400);
-        res.send(false);
     }
     bandService.getAllBands(req.query.userid, connection)
     .then(function (result) {
@@ -102,7 +101,6 @@ app.get('/bands/register', function (req, res){
 app.post('/api/login', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
-        res.send(false);
     }
     authLogin(req.body.username, req.body.password, connection)
     .then(function (result) {
@@ -123,7 +121,6 @@ app.post('/api/login', function (req, res){
 app.post('/api/register', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
-        res.send(false);
     }
     registerUser(req.body.username, req.body.password, req.body.email, connection)
     .then(function (result) {
@@ -131,7 +128,8 @@ app.post('/api/register', function (req, res){
             res.sendStatus(200);
         }
         else {
-            res.sendStatus(400);
+            res.status(400);
+            res.send(result);
         }
     })
     .catch(function (e) {
@@ -144,7 +142,6 @@ app.post('/api/register', function (req, res){
 app.post('/api/bands/register', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
-        res.send(false);
     }
     bandService.registerBand(req.body.userId, req.body.bandName, req.body.description, connection)
     .then(function (result) {

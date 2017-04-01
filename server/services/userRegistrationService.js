@@ -7,7 +7,7 @@ function registerUser(username, password, email, connection) {
 		checkUsername(obj)
 		.then(function (result) {
 			if (result == false) {
-				resolve("Username already exists");
+				resolve("Username already exists.");
 				return;
 			}
 
@@ -15,7 +15,7 @@ function registerUser(username, password, email, connection) {
 		})
 		.then(function (result) {
 			if (result == false) {
-				resolve("Email already exists");
+				resolve("Email already exists.");
 				return;
 			}
 
