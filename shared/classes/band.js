@@ -11,7 +11,8 @@ function Band(json){
     this.id = json.id || 0;
     this.ownerName = json.ownerName || '';
     this.ownerId = json.ownerId || undefined;
-    this.name = json.name || '';
+    this.bandName = json.bandName || '';
+    this.description = json.description || '';
     this.userRole = json.userRole || USERROLES.NONE;
     this.events = json.events || [];
     this.songs = json.songs || [];
