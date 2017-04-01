@@ -4,6 +4,7 @@ var Band = require('./shared/classes/band.js');
 var mysql = require('mysql');
 var bodyParser = require('body-parser')
 var authLogin = require('./server/services/loginService.js');
+var authUserRegistration = require('./server/services/userRegistrationService.js');
 
 // parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -48,13 +49,34 @@ app.post('/api/login', function (req, res) {
         else {
             res.sendStatus(400);
         }
-   })
+    })
     .catch(function (e) {
         res.sendStatus(500, {
             error: e
         });
     });
 });
+
+app.post('/api/registration', function (req, res) {
+    if (!req.body) {
+        res.sendStatus(400)
+        res.send(false);
+    }
+    authLogin(req.body.username, req.body.password, req.body.email, connection)
+    .then(function (result) {
+        if (result == true) {
+            res.sendStatus(200);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.sendStatus(500, {
+            error: e
+        });
+    });
+})
 
 app.use(express.static('client'));
 app.listen(8080, function () {

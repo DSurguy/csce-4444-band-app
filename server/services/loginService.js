@@ -5,7 +5,13 @@ function authLogin(username, password, connection) {
 		var obj = {username, password, connection};
 		
 		getUserSaltAndPassword(obj)
-		.then(checkPassword)
+		.then(function (result) {
+			if (result == false) {
+				resolve(false);
+				return;
+			}
+			return checkPassword(result);
+		})
 		.then(resolve)
 		.catch(reject);
 
@@ -13,14 +19,13 @@ function authLogin(username, password, connection) {
 };
 
 function getUserSaltAndPassword(data) {
-	return new Promise(function(resolve, reject) {
+	return new Promise((resolve, reject) => {
 		var query = 'SELECT SALT, PASSWORD FROM USER WHERE USERNAME = \'' + data.username + '\'';
 		
 		var connection = data.connection;
         
         connection.query(query, function(err, results, fields) {
         	if (err) {
-        		console.log("ERROR AT 71: " + err);
             	reject(err);
         	}
 
@@ -30,15 +35,11 @@ function getUserSaltAndPassword(data) {
         		return;
         	}
 
-        	dbSalt = results[0].SALT;
-        	dbPassword = results[0].PASSWORD;
-        	testPassword = data.password;
+        	var dbSalt = results[0].SALT;
+        	var dbPassword = results[0].PASSWORD;
+        	var testPassword = data.password;
 
-        	var result = 	{
-	        				dbSalt, 
-	        				testPassword, 
-	        				dbPassword
-        				};
+        	var result = {dbSalt, testPassword, dbPassword};
         	
         	resolve(result);
 		});
@@ -46,11 +47,11 @@ function getUserSaltAndPassword(data) {
 }
 
 function checkPassword(data) {
-	return new Promise(function(resolve, reject) {
-		if (data == false) {
+	return new Promise((resolve, reject) => {
+/*		if (data == false) {
 			resolve(false);
 			return;
-		}
+		}*/
 
 /*   		var salt = crypto.randomBytes(10).toString('base64');*/
 
@@ -59,7 +60,6 @@ function checkPassword(data) {
 	    // Salt hash the testPassword to determine if it is valid
 	    crypto.pbkdf2(data.testPassword, data.dbSalt, iterations, 10, 'sha512', function(err, key) {
 	    	if (err) {
-	    		console.log("ERROR AT 14: " + err);
 	    		reject(err);
 	    	} 
 
