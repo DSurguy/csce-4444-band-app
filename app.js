@@ -1,11 +1,24 @@
 var express = require('express');
 var Band = require('./shared/classes/band.js');
 var mysql = require('mysql');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
 var authLogin = require('./server/services/loginService.js');
 var hbs = require('express-hbs');
 var authUserRegistration = require('./server/services/userRegistrationService.js');
-var config = require('./config.json');
+var config;
+try{
+    config = require('./config.json');
+}
+catch (e){
+    config = {
+        db: {
+            host: 'localhost',
+            user: 'root',
+            password: 'test',
+            database: 'band'
+        }
+    };
+}
 
 var app = express();
 
@@ -84,7 +97,7 @@ app.post('/api/registration', function (req, res) {
         res.sendStatus(400);
         res.send(false);
     }
-    authLogin(req.body.username, req.body.password, req.body.email, connection)
+    authUserRegistration(req.body.username, req.body.password, req.body.email, connection)
     .then(function (result) {
         if (result == true) {
             res.sendStatus(200);
