@@ -1,6 +1,6 @@
 var crypto = require('crypto');
 
-function authUserRegistration(username, password, email, connection) {
+function registerUser(username, password, email, connection) {
 	return new Promise((resolve, reject) => {
 		var obj = {username, password, email, connection};
 
@@ -36,6 +36,7 @@ function checkUsername(data) {
         connection.query(query, function(err, results, fields) {
         	if (err) {
             	reject(err);
+            	return;
         	}
 
 	    	if (results.length > 0) {
@@ -57,6 +58,7 @@ function checkEmail(data) {
         connection.query(query, function(err, results, fields) {
         	if (err) {
             	reject(err);
+            	return;
         	}
 
 	    	if (results.length > 0) {
@@ -108,4 +110,4 @@ function createUser(data) {
 	});
 }
 
-module.exports = authUserRegistration;
+module.exports = registerUser;

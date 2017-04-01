@@ -27,8 +27,8 @@ function getUserSaltAndPassword(data) {
         
         connection.query(query, function(err, results, fields) {
         	if (err) {
-        		console.error(err);
             	reject(err);
+            	return;
         	}
 
         	// If username is invalid, return
@@ -56,6 +56,7 @@ function checkPassword(data) {
 	    crypto.pbkdf2(data.testPassword, data.dbSalt, iterations, 10, 'sha512', function(err, key) {
 	    	if (err) {
 	    		reject(err);
+	    		return;
 	    	} 
 
 	    	if (key.toString('hex') === data.dbPassword) {

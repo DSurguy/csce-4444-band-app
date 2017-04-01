@@ -4,7 +4,9 @@ var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var authLogin = require('./server/services/loginService.js');
 var hbs = require('express-hbs');
-var authUserRegistration = require('./server/services/userRegistrationService.js');
+var registerUser = require('./server/services/userRegistrationService.js');
+var bandService = require('./server/services/bandService.js');
+
 var config;
 try{
     config = require('./config.json');
@@ -47,17 +49,50 @@ var fakeBands = {
 };
 
 app.get('/bands', function (req, res) {
-    var bandIds = Object.keys(fakeBands);
-    res.send({bands:bandIds.map(function (id){
-        return fakeBands[id];
-    })});
+    req.query.userid;
+    if (req.query.userid == undefined) {
+        res.sendStatus(400);
+        res.send(false);
+    }
+    bandService.getAllBands(req.query.userid, connection)
+    .then(function (result) {
+        if (result != false) {
+            res.sendStatus(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.sendStatus(500, {
+            error: e
+        });
+    });
 });
 
 app.get('/bands/:id', function (req, res) {
     res.send({band: fakeBands[req.params.id]});
 });
 
-app.post('/api/login', function (req, res) {
+app.get('/', function (req, res){
+    res.redirect('/login');
+});
+app.get('/login', function (req, res){
+    res.render('login');
+});
+
+app.get('/register', function (req, res){
+    res.render('register');
+});
+
+app.get('/main', function (req, res){
+    res.render('main');
+});
+
+app.use(express.static('static'));
+
+app.post('/api/login', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
         res.send(false);
@@ -78,29 +113,34 @@ app.post('/api/login', function (req, res) {
     });
 });
 
-app.get('/', function (req, res){
-    res.redirect('/login');
-});
-app.get('/login', function (req, res){
-    res.render('login');
-});
-
-app.get('/register', function (req, res){
-    res.render('register');
-});
-
-app.get('/main', function (req, res){
-    res.render('main');
-});
-
-app.use(express.static('static'));
-
-app.post('/api/registration', function (req, res) {
+app.post('/api/register', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
         res.send(false);
     }
-    authUserRegistration(req.body.username, req.body.password, req.body.email, connection)
+    registerUser(req.body.username, req.body.password, req.body.email, connection)
+    .then(function (result) {
+        if (result == true) {
+            res.sendStatus(200);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.sendStatus(500, {
+            error: e
+        });
+    });
+});
+
+app.post('/api/bands/register', function (req, res){
+    if (!req.body) {
+        res.sendStatus(400);
+        res.send(false);
+    }
+    //bandService.registerBand(req.body.userId, req.body.bandName, req.body.description, connection)
+    bandService.registerBand(1, 'Destriers Gait', 'Cool band', connection)
     .then(function (result) {
         if (result == true) {
             res.sendStatus(200);
