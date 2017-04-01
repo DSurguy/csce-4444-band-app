@@ -95,7 +95,7 @@ app.get('/main', function (req, res){
 
 app.use(express.static('static'));
 
-app.post('/api/registration', function (req, res) {
+app.post('/api/register', function (req, res) {
     if (!req.body) {
         res.sendStatus(400);
         res.send(false);
