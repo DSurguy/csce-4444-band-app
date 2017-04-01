@@ -4,7 +4,7 @@
 /* global $ */
 
 function RegisterBandPage(app, data){
-    Page.call(this, app, $('#RegisterBandPage')[0], RegisterBandCtrl, RegisterBandView);
+    Page.call(this, app, $('#registerBandPage')[0], RegisterBandCtrl, RegisterBandView);
 }
 RegisterBandPage.prototype = Object.create(Page.prototype);
 RegisterBandPage.prototype.constructor = RegisterBandPage;

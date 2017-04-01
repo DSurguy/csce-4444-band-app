@@ -40,41 +40,6 @@ app.use(express.static('static'));
 
 var connection = mysql.createConnection(config.db);
 
-var fakeBands = {
-    1: new Band({
-        id: 1,
-        name: 'TestBand',
-        ownerId: 0, //owned by user with id 0
-        ownerName: 'Jimbo'
-    })
-};
-
-app.get('/bands', function (req, res) {
-    req.query.userid;
-    if (req.query.userid == undefined) {
-        res.sendStatus(400);
-    }
-    bandService.getAllBands(req.query.userid, connection)
-    .then(function (result) {
-        if (result != false) {
-            res.status(200);
-            res.send(result);
-        }
-        else {
-            res.sendStatus(400);
-        }
-    })
-    .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
-    });
-});
-
-app.get('/bands/:id', function (req, res) {
-    res.send({band: fakeBands[req.params.id]});
-});
-
 app.get('/', function (req, res){
     res.redirect('/login');
 });
@@ -147,6 +112,28 @@ app.post('/api/bands/register', function (req, res){
     .then(function (result) {
         if (result == true) {
             res.sendStatus(200);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.sendStatus(500, {
+            error: e
+        });
+    });
+});
+
+app.get('/api/bands', function (req, res) {
+    req.query.userid;
+    if (req.query.userid == undefined) {
+        res.sendStatus(400);
+    }
+    bandService.getAllBands(req.query.userid, connection)
+    .then(function (result) {
+        if (result != false) {
+            res.status(200);
+            res.send(result);
         }
         else {
             res.sendStatus(400);

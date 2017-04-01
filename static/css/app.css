@@ -45,7 +45,11 @@ html, body, .page{
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#78478c', endColorstr='#470c56',GradientType=1 ); /* IE6-8 fallback on horizontal gradient */
 }
 
-h1{
+.btn{
+    cursor: pointer;
+}
+
+h1, h2{
     color: #fff;
     margin: 20px;
 }
@@ -121,4 +125,10 @@ h1{
 #registerBandPage form [type=submit]{
     cursor: pointer;
     float: right;
+}
+
+#bandsPage .band{
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
 }
