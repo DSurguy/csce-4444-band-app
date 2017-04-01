@@ -20,6 +20,7 @@ function authLogin(username, password, connection) {
 
 function getUserSaltAndPassword(data) {
 	return new Promise((resolve, reject) => {
+		// Get the user's salt and password to compare the inputted password
 		var query = 'SELECT SALT, PASSWORD FROM USER WHERE USERNAME = \'' + data.username + '\'';
 		
 		var connection = data.connection;
@@ -48,13 +49,6 @@ function getUserSaltAndPassword(data) {
 
 function checkPassword(data) {
 	return new Promise((resolve, reject) => {
-/*		if (data == false) {
-			resolve(false);
-			return;
-		}*/
-
-/*   		var salt = crypto.randomBytes(10).toString('base64');*/
-
 	    var iterations = 10000;
 
 	    // Salt hash the testPassword to determine if it is valid
