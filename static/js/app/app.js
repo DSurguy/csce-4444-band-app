@@ -2,12 +2,14 @@
 
 function App(){
     this.currentPage = undefined;
-    this.pageHistory = [];
+    //this.pageHistory = [];
 }
-App.prototype.init = function (initialPageId){
-    this.changePage(initialPageId);
+App.prototype.init = function (PageConstructor){
+    this.currentPage = new PageConstructor(this);
+    $(this.currentPage.elem).addClass('active');
+    this.currentPage.init();
 };
-App.prototype.changePage = function (page, data){
+/*App.prototype.changePage = function (page, data){
     if( this.currentPage ){
         //store the constructor for the last page
         this.pageHistory.push(this.currentPage.constructor);
@@ -17,4 +19,4 @@ App.prototype.changePage = function (page, data){
     this.currentPage = new page(this);
     $(this.currentPage.elem).addClass('active');
     this.currentPage.init();
-};
+};*/
