@@ -4,7 +4,11 @@
 /* global $ */
 
 function RegisterBandPage(app, data){
-    Page.call(this, app, $('#registerBandPage')[0], RegisterBandCtrl, RegisterBandView);
+    Page.call(this, app, $('#registerBandPage')[0], RegisterBandCtrl, RegisterBandView, {
+        menu: new MenuComponent(app, {
+            element: '.menu-button-container'
+        })
+    });
 }
 RegisterBandPage.prototype = Object.create(Page.prototype);
 RegisterBandPage.prototype.constructor = RegisterBandPage;

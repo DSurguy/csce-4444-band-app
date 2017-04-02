@@ -4,7 +4,11 @@
 /* global $ */
 
 function BandsPage(app, data){
-    Page.call(this, app, $('#bandsPage')[0], BandsCtrl, BandsView);
+    Page.call(this, app, $('#bandsPage')[0], BandsCtrl, BandsView, {
+        menu: new MenuComponent(app, {
+            element: '.menu-button-container'
+        })
+    });
 }
 BandsPage.prototype = Object.create(Page.prototype);
 BandsPage.prototype.constructor = BandsPage;
