@@ -1,13 +1,19 @@
 /* global $ */
 /** Inheritable Classes **/
-function Page(app, elem, ctrlConstructor, viewConstructor){
+function Page(app, elem, ctrlConstructor, viewConstructor, childComponents){
     this.app = app;
     this.elem = elem;
     this.ctrl = new ctrlConstructor(this);
     this.view = new viewConstructor(this);
+    this.childComponents = childComponents || {};
 }
 Page.prototype.init = function (){
     var that = this;
+    
+    for( var component in this.childComponents ){
+        this.childComponents[component].init();
+    }
+    
     this.ctrl.init()
     .then(function (){
         that.view.init.apply(that.view, arguments);

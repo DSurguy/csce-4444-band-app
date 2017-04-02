@@ -111,6 +111,11 @@ app.post('/api/login', function (req, res){
     });
 });
 
+app.post('/api/logout', function (req, res){
+    req.session.destroy();
+    res.status(200).redirect('/login');
+});
+
 app.post('/api/register', function (req, res){
     if (!req.body) {
         res.sendStatus(400);

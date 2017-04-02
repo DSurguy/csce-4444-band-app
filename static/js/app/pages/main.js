@@ -1,10 +1,15 @@
 /* global Page */
 /* global PageView */
 /* global PageCtrl */
+/* global MenuComponent */
 /* global $ */
 
 function MainPage(app, data){
-    Page.call(this, app, $('#mainPage')[0], MainCtrl, MainView);
+    Page.call(this, app, $('#mainPage')[0], MainCtrl, MainView, {
+        menu: new MenuComponent(app, {
+            element: '.menu-button-container'
+        })
+    });
 }
 MainPage.prototype = Object.create(Page.prototype);
 MainPage.prototype.constructor = MainPage;
