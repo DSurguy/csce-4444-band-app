@@ -21,7 +21,7 @@ function authLogin(username, password, connection) {
 function getUserSaltAndPassword(data) {
 	return new Promise((resolve, reject) => {
 		// Get the user's salt and password to compare the inputted password
-		var query = 'SELECT SALT, PASSWORD FROM USER WHERE USERNAME = \'' + data.username + '\'';
+		var query = 'SELECT SALT, PASSWORD, USERID FROM USER WHERE USERNAME = \'' + data.username + '\'';
 		
 		var connection = data.connection;
         
@@ -37,7 +37,12 @@ function getUserSaltAndPassword(data) {
         		return;
         	}
 
-        	var result = {dbSalt : results[0].SALT, testPassword : data.password, dbPassword : results[0].PASSWORD};
+        	var result = {
+        					dbSalt : results[0].SALT, 
+        					testPassword : data.password, 
+        					dbPassword : results[0].PASSWORD,
+        					userId : results[0].USERID
+        				};
         	
         	resolve(result);
 		});
@@ -56,7 +61,7 @@ function checkPassword(data) {
 	    	} 
 
 	    	if (key.toString('hex') === data.dbPassword) {
-	    		resolve(true);
+	    		resolve(data.userId);
 	    	}
 	    	else {
 	    		resolve(false);

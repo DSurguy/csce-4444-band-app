@@ -95,8 +95,8 @@ app.post('/api/login', function (req, res){
     }
     authLogin(req.body.username, req.body.password, connection)
     .then(function (result) {
-        if (result == true) {
-            req.session.userId = 1; //TODO: Un-Hardcode me pls
+        if (result != false) {
+            req.session.userId = result; 
             res.sendStatus(200);
         }
         else {
