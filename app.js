@@ -59,6 +59,9 @@ app.use(session({
 app.get('/login', function (req, res){
     res.render('login');
 });
+app.get('/register', function (req, res){
+    res.render('register');
+});
 
 var checkSession = function (req, res, next){
     if( req.session.userId === undefined ){
@@ -73,9 +76,6 @@ app.get('/', checkSession, function (req, res){
     res.redirect('/main');
 });
 
-app.get('/register', checkSession, function (req, res){
-    res.render('register');
-});
 
 app.get('/main', checkSession, function (req, res){
     res.render('main');
@@ -141,7 +141,7 @@ app.post('/api/bands/register', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
     }
-    bandService.registerBand(req.body.userId, req.body.bandName, req.body.description, connection)
+    bandService.registerBand(req.session.userId, req.body.bandName, req.body.description, connection)
     .then(function (result) {
         if (result == true) {
             res.sendStatus(200);
@@ -158,10 +158,7 @@ app.post('/api/bands/register', function (req, res){
 });
 
 app.get('/api/bands', function (req, res) {
-    if (req.query.userid == undefined) {
-        res.sendStatus(400);
-    }
-    bandService.getAllBands(req.query.userid, connection)
+    bandService.getAllBands(req.session.userId, connection)
     .then(function (result) {
         if (result != false) {
             res.status(200);

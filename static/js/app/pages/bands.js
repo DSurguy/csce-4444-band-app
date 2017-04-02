@@ -22,7 +22,7 @@ BandsCtrl.prototype.constructor = BandsCtrl;
 BandsCtrl.prototype.init = function (){
     var defer = $.Deferred();
     var that = this;
-    $.ajax('/api/bands?userid=1', {
+    $.ajax('/api/bands', {
         method: 'GET'
     }).then(function (data){
         that.bands = data;
