@@ -153,11 +153,31 @@ app.post('/api/bands/register', function (req, res){
 });
 
 app.get('/api/bands', function (req, res) {
-    req.query.userid;
     if (req.query.userid == undefined) {
         res.sendStatus(400);
     }
     bandService.getAllBands(req.query.userid, connection)
+    .then(function (result) {
+        if (result != false) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.sendStatus(500, {
+            error: e
+        });
+    });
+});
+
+app.get('/api/bands/:bandId', function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    bandService.getBand(req.params.bandId, connection)
     .then(function (result) {
         if (result != false) {
             res.status(200);
