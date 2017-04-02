@@ -43,7 +43,7 @@ BandsView.prototype.constructor = BandsView;
 BandsView.prototype.init = function (){
     var bandsElem = $(this.page.elem).find('.bands');
     for( var i=0; i<this.page.ctrl.bands.length; i++ ){
-        bandsElem.append('<div class="band btn btn-secondary">'+this.page.ctrl.bands[i].bandName+' <small>(owned by: '+this.page.ctrl.bands[i].ownerName+')</small></div>');
+        bandsElem.append('<div class="band btn btn-secondary" id='+this.page.ctrl.bands[i].id+'>'+this.page.ctrl.bands[i].bandName+' <small>(owned by: '+this.page.ctrl.bands[i].ownerName+')</small></div>');
     }
     
     this.bindEvents();
@@ -55,4 +55,7 @@ BandsView.prototype.bindEvents = function (){
     pageElem.on('click', '.register-band', function (e){
         window.location = '/bands/register';
     });
+    pageElem.on('click', '.band', function (e){
+        window.location = '/bands/' + e.target.id;
+    })
 };

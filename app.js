@@ -89,6 +89,10 @@ app.get('/bands/register', checkSession, function (req, res){
     res.render('registerBand');
 });
 
+app.get('/bands/:bandId', checkSession, function (req, res){
+    res.render('band');
+})
+
 app.post('/api/login', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
