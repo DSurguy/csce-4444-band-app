@@ -6,6 +6,8 @@ var authLogin = require('./server/services/loginService.js');
 var hbs = require('express-hbs');
 var registerUser = require('./server/services/userRegistrationService.js');
 var bandService = require('./server/services/bandService.js');
+var session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
 
 var config;
 try{
@@ -38,28 +40,52 @@ app.set('views', __dirname + '/views');
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('static'));
 
+//db connection
 var connection = mysql.createConnection(config.db);
 
-app.get('/', function (req, res){
-    res.redirect('/login');
-});
+//session setup
+var sessionStore = new MySQLStore({}, connection);
+ 
+app.use(session({
+    secret: "omgthisissosecret23847wdfh28wbervw34a87gvbarev",
+    store: sessionStore,
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+        maxAge: 360000
+    }
+}));
+
 app.get('/login', function (req, res){
     res.render('login');
 });
 
-app.get('/register', function (req, res){
+var checkSession = function (req, res, next){
+    if( req.session.userId === undefined ){
+        res.redirect('/login');
+    }
+    else{
+        return next();
+    }
+};
+
+app.get('/', checkSession, function (req, res){
+    res.redirect('/main');
+});
+
+app.get('/register', checkSession, function (req, res){
     res.render('register');
 });
 
-app.get('/main', function (req, res){
+app.get('/main', checkSession, function (req, res){
     res.render('main');
 });
 
-app.get('/bands', function (req, res){
+app.get('/bands', checkSession, function (req, res){
     res.render('bands');
 });
 
-app.get('/bands/register', function (req, res){
+app.get('/bands/register', checkSession, function (req, res){
     res.render('registerBand');
 });
 
@@ -70,9 +96,11 @@ app.post('/api/login', function (req, res){
     authLogin(req.body.username, req.body.password, connection)
     .then(function (result) {
         if (result == true) {
+            req.session.userId = 1; //TODO: Un-Hardcode me pls
             res.sendStatus(200);
         }
         else {
+            req.session.userId = undefined;
             res.sendStatus(400);
         }
     })
