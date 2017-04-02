@@ -46,12 +46,12 @@ BandView.prototype = Object.create(PageView.prototype);
 BandView.prototype.constructor = BandView;
 BandView.prototype.init = function (){
     var bandElem = $(this.page.elem).find('.band');
-    bandElem.append('<div class="band">Band name: '+this.page.ctrl.band[0].bandName+'</div>');
-    bandElem.append('<div class="band">Owner: '+this.page.ctrl.band[0].ownerName+'</div>')
-    bandElem.append('<div class="band">Description: '+this.page.ctrl.band[0].description+'</div>')
+    bandElem.append('<h2 class="card-title">My Band</h2>');
+    bandElem.append('<div class="card-block"></div>');
+    bandElem.find('.card-block').append('<p class="info card-text"><strong>Band Name</strong>: '+this.page.ctrl.band[0].bandName+'</p>');
+    bandElem.find('.card-block').append('<p class="info card-text"><strong>Owner</strong>: '+this.page.ctrl.band[0].ownerName+'</p>');
+    bandElem.find('.card-block').append('<p class="info card-text"><strong>Description</strong>: '+this.page.ctrl.band[0].description+'</p>');
     this.bindEvents();
 };
 
-BandView.prototype.bindEvents = function (){
-    var pageElem = $(this.page.elem);
-};
+BandView.prototype.bindEvents = function (){};
