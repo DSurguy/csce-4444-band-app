@@ -70,4 +70,4 @@ function checkPassword(data) {
 	});  
 };
 
-module.exports = authLogin;
+module.exports = {authLogin: authLogin, checkPassword: checkPassword};
