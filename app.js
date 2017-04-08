@@ -133,7 +133,7 @@ app.post('/api/register', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
     }
-    registerUser(req.body.username, req.body.password, req.body.email, connection)
+    registerUser(req.body.username, req.body.password, req.body.firstName, req.body.lastName, req.body.bio, req.body.email, connection)
     .then(function (result) {
         if (result == true) {
             res.sendStatus(200);

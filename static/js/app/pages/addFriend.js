@@ -60,6 +60,7 @@ AddFriendView.prototype.bindEvents = function (){
         window.location = '/bands/' + e.target.id;
     });
 
+    // This will run a search every second when the user presses a key. 
     $(document).on('keypress', 'form', function (e){
         if (searching === false) {
             searching = true;
@@ -79,8 +80,6 @@ AddFriendView.prototype.bindEvents = function (){
         })
         .fail(function (err) {
         });
-
-        console.log('submitted')
     });
 
 
@@ -93,10 +92,12 @@ AddFriendView.prototype.updateUsers = function (){
     var colorSchema = '';
     var badge = '';
 
+    // Clear any current cards from previous search
     $('.card').remove();
     $('.modal').remove();
 
     for( var i=0; i<this.page.ctrl.friends.length; i++ ){
+        // Determine how to style each card and modal based on status
         if (this.page.ctrl.friends[i].status === 'friend') {
             colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
             modalButtons = '';
@@ -118,6 +119,7 @@ AddFriendView.prototype.updateUsers = function (){
             modalButtons = '<button type="button" class="btn btn-success" data-dismiss="modal">Send Friend Request</button>';
         }
 
+        // Add card for each user
         friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+i+'">'+
                                 '<div class="card-block">'+
                                     '<h2 class="card-title">'+this.page.ctrl.friends[i].userName+
@@ -127,14 +129,7 @@ AddFriendView.prototype.updateUsers = function (){
                                     '</h2>'+
                                 '</div>'+
                             '</div><p/>');
-
-/*                            '<div class="card-block bands'+i+'">');
-        var bandsElem = $(this.page.elem).find('.bands'+i);
-        for( var j=0; j<this.page.ctrl.friends[i].bands.length; j++ ){
-            bandsElem.append('<div class="band btn btn-secondary" id='+this.page.ctrl.friends[i].bands[j].id+'>'+this.page.ctrl.friends[i].bands[j].bandName+'</div><span style="display:inline-block; width: 1rem;"></span>');
-        }   */ 
-       // friendsElem.append('</div></div><p/>');
-
+        // Add modal for each user
         friendModal.append('<div id="modal'+i+'" class="modal fade" role="dialog">'+
                                 '<div class="modal-dialog">'+
                                     '<div class="modal-content">'+

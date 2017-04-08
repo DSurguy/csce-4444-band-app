@@ -1,8 +1,8 @@
 var crypto = require('crypto');
 
-function registerUser(username, password, email, connection) {
+function registerUser(username, password, firstName, lastName, bio, email, connection) {
 	return new Promise((resolve, reject) => {
-		var obj = {username, password, email, connection};
+		var obj = {username, password, firstName, lastName, bio, email, connection};
 
 		checkUsername(obj)
 		.then(function (result) {
@@ -91,6 +91,9 @@ function hashPassword(data) {
 	    				username : data.username, 
 	    				password : hashedPassword.toString('hex'), 
 	    				salt, 
+	    				firstName : data.firstName,
+	    				lastName : data.lastName,
+	    				bio : data.bio,
 	    				email : data.email, 
 	    				connection : data.connection
     				  };
@@ -102,7 +105,14 @@ function hashPassword(data) {
 
 function createUser(data) {
 	return new Promise((resolve, reject) => {
-		var query = 'INSERT INTO USER (USERNAME, PASSWORD, SALT, EMAIL) VALUES ( \'' + data.username + '\',\'' + data.password + '\',\'' + data.salt + '\',\'' + data.email + '\')';
+		var query = 'INSERT INTO USER (USERNAME, PASSWORD, SALT, FIRSTNAME, LASTNAME, BIO, EMAIL) VALUES ( \'' + 
+					data.username + '\',\'' + 
+					data.password + '\',\'' + 
+					data.salt + '\',\'' + 
+					data.firstName + '\',\''+ 
+					data.lastName + '\',\''+ 
+					data.bio + '\',\''+ 
+					data.email + '\')';
 
 		var connection = data.connection;
         
