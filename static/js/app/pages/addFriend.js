@@ -2,69 +2,120 @@
 /* global PageView */
 /* global PageCtrl */
 /* global $ */
+var searching = false;
 
-function FriendsPage(app, data){
-    Page.call(this, app, $('#friendsPage')[0], FriendsCtrl, FriendsView, {
+function AddFriendPage(app, data){
+    Page.call(this, app, $('#addFriendPage')[0], AddFriendCtrl, AddFriendView, {
         menu: new MenuComponent(app, {
             element: '.menu-button-container'
         })
     });
 }
-FriendsPage.prototype = Object.create(Page.prototype);
-FriendsPage.prototype.constructor = FriendsPage;
+AddFriendPage.prototype = Object.create(Page.prototype);
+AddFriendPage.prototype.constructor = AddFriendPage;
 
-function FriendsCtrl(page){
+function AddFriendCtrl(page){
     PageCtrl.call(this, page);
     this.friends = [];
 }
-FriendsCtrl.prototype = Object.create(PageCtrl.prototype);
-FriendsCtrl.prototype.constructor = FriendsCtrl;
-FriendsCtrl.prototype.init = function (){
+AddFriendCtrl.prototype = Object.create(PageCtrl.prototype);
+AddFriendCtrl.prototype.constructor = AddFriendCtrl;
+
+AddFriendCtrl.prototype.search = function (form){
     var defer = $.Deferred();
     var that = this;
-    $.ajax('/api/friends', {
-        method: 'GET'
+    $.ajax({
+        url: '/api/friends/search',
+        type: 'POST',
+        data: $(form).serialize()
     }).then(function (data){
         that.friends = data;
+        that.page.view.updateUsers();
         defer.resolve();
     }).catch(function (err){
         that.friends = [];
         defer.resolve();
     });
-
     return defer.promise();
 };
 
-function FriendsView(page){
+
+function AddFriendView(page){
     PageView.call(this, page);
 }
-FriendsView.prototype = Object.create(PageView.prototype);
-FriendsView.prototype.constructor = FriendsView;
-FriendsView.prototype.init = function (){
+AddFriendView.prototype = Object.create(PageView.prototype);
+AddFriendView.prototype.constructor = AddFriendView;
+AddFriendView.prototype.init = function (){   
+    this.bindEvents();
+};
+
+AddFriendView.prototype.bindEvents = function (){
+    var pageElem = $(this.page.elem),
+    page = this.page;
+    
+    pageElem.on('click', '.register-band', function (e){
+        window.location = '/bands/register';
+    });
+    pageElem.on('click', '.andrew', function (e){
+        window.location = '/bands/' + e.target.id;
+    });
+
+    $(document).on('keypress', 'form', function (e){
+        if (searching === false) {
+            searching = true;
+            setTimeout(function () {
+                searching = false;
+                console.log('in keypress')
+                pageElem.find('form').submit();
+            }, 1000);
+        }
+    });
+
+    pageElem.on('submit', 'form', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        page.ctrl.search(this)
+        .then(function (result) {
+        })
+        .fail(function (err) {
+        });
+
+        console.log('submitted')
+    });
+
+
+};
+
+AddFriendView.prototype.updateUsers = function (){
     var friendsElem = $(this.page.elem).find('.friends');
     var friendModal = $(this.page.elem).find('.friend-modal');
     var modalButtons = '';
     var colorSchema = '';
     var badge = '';
 
+    $('.card').remove();
+    $('.modal').remove();
+
     for( var i=0; i<this.page.ctrl.friends.length; i++ ){
         if (this.page.ctrl.friends[i].status === 'friend') {
             colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Remove Friend</button>';
+            modalButtons = '';
         }
         else if (this.page.ctrl.friends[i].status === 'requested') { 
             colorSchema = '"card card-info" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Remove Request</button>';
+            modalButtons = '';
         }
         else if (this.page.ctrl.friends[i].status === 'pending') { 
             colorSchema = '"card card-warning" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-success" data-dismiss="modal">Accept</button>'+
-                           '<button type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'+
-                           '<button type="button" class="btn btn-danger" data-dismiss="modal">Block</button>';
+            modalButtons = '';
         }
         else if (this.page.ctrl.friends[i].status === 'blocked') {
             colorSchema = '"card card-inverse" style="background-color: #333; border-color: #333; width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-default" data-dismiss="modal">Unblock</button>';
+            modalButtons = '';
+        }
+        else if (this.page.ctrl.friends[i].status === 'none') {
+            colorSchema = '"card card-primary" style="width: 50rem; cursor: pointer"';
+            modalButtons = '<button type="button" class="btn btn-success" data-dismiss="modal">Send Friend Request</button>';
         }
 
         friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+i+'">'+
@@ -76,12 +127,13 @@ FriendsView.prototype.init = function (){
                                     '</h2>'+
                                 '</div>'+
                             '</div><p/>');
+
 /*                            '<div class="card-block bands'+i+'">');
         var bandsElem = $(this.page.elem).find('.bands'+i);
         for( var j=0; j<this.page.ctrl.friends[i].bands.length; j++ ){
             bandsElem.append('<div class="band btn btn-secondary" id='+this.page.ctrl.friends[i].bands[j].id+'>'+this.page.ctrl.friends[i].bands[j].bandName+'</div><span style="display:inline-block; width: 1rem;"></span>');
         }   */ 
-    //    friendsElem.append('</div></div><p/>');
+       // friendsElem.append('</div></div><p/>');
 
         friendModal.append('<div id="modal'+i+'" class="modal fade" role="dialog">'+
                                 '<div class="modal-dialog">'+
@@ -101,17 +153,4 @@ FriendsView.prototype.init = function (){
                                 '</div>'+
                             '</div>');
     }
-   
-    this.bindEvents();
-};
-
-FriendsView.prototype.bindEvents = function (){
-    var pageElem = $(this.page.elem);
-    
-    pageElem.on('click', '.add-friend', function (e){
-        window.location = '/friends/add';
-    });
-    pageElem.on('click', '.friend', function (e){
-        window.location = '/friends/' + e.target.id;
-    })
 };

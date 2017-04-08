@@ -156,3 +156,26 @@ h1, h2{
     color: inherit;
 }
 
+#friendsPage .card{
+    margin: 0 auto;
+    float: none; 
+    margin-bottom: 10px; 
+}
+
+#friendsPage .fa-plus{
+    background-color: #B291A2;
+}
+
+#addFriendPage .search-user{
+    width: 50rem;
+    margin: 0 auto;
+    float: none; 
+    margin-bottom: 10px; 
+}
+
+#addFriendPage .card{
+    width: 50rem;
+    margin: 0 auto;
+    float: none; 
+    margin-bottom: 10px;    
+}

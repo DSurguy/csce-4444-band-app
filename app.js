@@ -98,6 +98,10 @@ app.get('/friends', checkSession, function (req, res){
     res.render('friends');
 });
 
+app.get('/friends/add', checkSession, function (req, res){
+    res.render('addFriend');
+});
+
 app.post('/api/login', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
@@ -209,6 +213,27 @@ app.get('/api/friends', function (req, res) {
     friendService.getAllFriends(req.session.userId, connection)
     .then(function (result) {
         if (result != false) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.sendStatus(500, {
+            error: e
+        });
+    });
+});
+
+app.post('/api/friends/search', function (req, res) {
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    friendService.search(req.session.userId, req.body.searchString, connection)
+    .then(function (result) {
+        if (result != true) {
             res.status(200);
             res.send(result);
         }
