@@ -86,11 +86,11 @@ FriendsView.prototype.init = function (){
 
         friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+this.page.ctrl.friends[i].id+'">'+
                                 '<div class="card-block">'+
-                                    '<h2 class="card-title">'+this.page.ctrl.friends[i].userName+
+                                    '<h4 class="card-title">'+this.page.ctrl.friends[i].userName+
                                         '<span style="display:inline-block; width: 10rem;"></span>'+
                                         '<small>('+this.page.ctrl.friends[i].name+')</small>'+
                                         '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status+
-                                    '</h2>'+
+                                    '</h4>'+
                                 '</div>'+
                             '</div><p/>');
 /*                            '<div class="card-block bands'+i+'">');
