@@ -2,6 +2,7 @@
 /* global PageView */
 /* global PageCtrl */
 /* global $ */
+/* global MenuComponent */
 
 function FriendsPage(app, data){
     Page.call(this, app, $('#friendsPage')[0], FriendsCtrl, FriendsView, {
@@ -22,14 +23,14 @@ FriendsCtrl.prototype.constructor = FriendsCtrl;
 FriendsCtrl.prototype.init = function (){
     var defer = $.Deferred();
     var that = this;
+    that.friends = [];
     $.ajax('/api/friends', {
         method: 'GET'
     }).then(function (data){
         that.friends = data;
         defer.resolve();
     }).catch(function (err){
-        that.friends = [];
-        defer.resolve();
+        defer.reject(err);
     });
 
     return defer.promise();
@@ -37,8 +38,6 @@ FriendsCtrl.prototype.init = function (){
 
 FriendsCtrl.prototype.updateStatus = function (toUserId, status){
     var defer = $.Deferred();
-    var that = this;
-    var postResult;
     $.ajax({
         url: '/api/friends/updatestatus',
         type: 'POST',
@@ -46,10 +45,10 @@ FriendsCtrl.prototype.updateStatus = function (toUserId, status){
     }).then(function (result){
         defer.resolve(result);
     }).catch(function (err){
-        defer.resolve(result);
+        defer.reject(err);
     });
     return defer.promise();
-}
+};
 
 function FriendsView(page){
     PageView.call(this, page);

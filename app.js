@@ -212,7 +212,7 @@ app.get('/api/bands/:bandId', function (req, res) {
 app.get('/api/friends', function (req, res) {
     friendService.getAllFriends(req.session.userId, connection)
     .then(function (result) {
-        if (result != false) {
+        if (result) {
             res.status(200);
             res.send(result);
         }
@@ -221,7 +221,7 @@ app.get('/api/friends', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
+        res.status(500).send({
             error: e
         });
     });
@@ -233,7 +233,7 @@ app.post('/api/friends/search', function (req, res) {
     }
     friendService.search(req.session.userId, req.body.searchString, connection)
     .then(function (result) {
-        if (result != true) {
+        if (result) {
             res.status(200);
             res.send(result);
         }
@@ -242,7 +242,7 @@ app.post('/api/friends/search', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
+        res.status(500).send({
             error: e
         });
     });
@@ -254,7 +254,8 @@ app.post('/api/friends/updatestatus', function (req, res) {
     }
     friendService.updateFriendStatus(req.session.userId, (req.body.toUserId).replace('modal',''), req.body.status, connection)
     .then(function (result) {
-        if (result != true) {
+        console.log(result);
+        if (result) {
             res.status(200);
             res.send(result);
         }

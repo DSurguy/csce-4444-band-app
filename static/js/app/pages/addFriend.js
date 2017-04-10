@@ -2,6 +2,7 @@
 /* global PageView */
 /* global PageCtrl */
 /* global $ */
+/* global MenuComponent */
 var searching = false;
 
 function AddFriendPage(app, data){
@@ -24,6 +25,7 @@ AddFriendCtrl.prototype.constructor = AddFriendCtrl;
 AddFriendCtrl.prototype.search = function (form){
     var defer = $.Deferred();
     var that = this;
+    that.friends = [];
     $.ajax({
         url: '/api/friends/search',
         type: 'POST',
@@ -33,8 +35,7 @@ AddFriendCtrl.prototype.search = function (form){
         that.page.view.updateUsers();
         defer.resolve();
     }).catch(function (err){
-        that.friends = [];
-        defer.resolve();
+        defer.reject(err);
     });
     return defer.promise();
 };
@@ -42,8 +43,6 @@ AddFriendCtrl.prototype.search = function (form){
 // This method will update the relation between the current user and the "to" user
 AddFriendCtrl.prototype.updateStatus = function (toUserId, status){
     var defer = $.Deferred();
-    var that = this;
-    var postResult;
     $.ajax({
         url: '/api/friends/updatestatus',
         type: 'POST',
@@ -51,10 +50,10 @@ AddFriendCtrl.prototype.updateStatus = function (toUserId, status){
     }).then(function (result){
         defer.resolve(result);
     }).catch(function (err){
-        defer.resolve(result);
+        defer.reject(err);
     });
     return defer.promise();
-}
+};
 
 function AddFriendView(page){
     PageView.call(this, page);
@@ -82,7 +81,7 @@ AddFriendView.prototype.bindEvents = function (){
             searching = true;
             setTimeout(function () {
                 searching = false;
-                console.log('in keypress')
+                console.log('in keypress');
                 pageElem.find('form').submit();
             }, 1000);
         }

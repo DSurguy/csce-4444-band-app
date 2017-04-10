@@ -4,22 +4,23 @@ function getAllFriends(userId, connection) {
 	return new Promise((resolve, reject) => {
         // This query finds all users with which the current user has a relation. It will not return users that have 
         // blocked the current user.
-        var query = 'SELECT CASE WHEN FROMUSERID <> \'\' THEN FROMUSERID ELSE TOUSERID END AS USERID, '+
-                    '       STATUS, USERNAME, CONCAT(FIRSTNAME,\' \', LASTNAME) AS NAME, BIO '+
-                    'FROM '+
-                    '(SELECT CASE WHEN FROMUSERID = '+userId+' THEN \'\' ELSE FROMUSERID END AS FROMUSERID, '+
-                    '        CASE WHEN TOUSERID = '+userId+' THEN \'\' ELSE TOUSERID END AS TOUSERID, '+
-                    '        CASE WHEN STATUS = 2 AND FROMUSERID = '+userId+' THEN \'requested\' '+
-                    '             WHEN STATUS = 2 AND TOUSERID = '+userId+' THEN \'pending\' '+
-                    '             WHEN STATUS = 1 THEN \'friend\' '+
-                    '             WHEN STATUS = 3 THEN \'blocked\' '+
-                    '             WHEN STATUS = 0 THEN \'none\' END AS STATUS '+
-                    'FROM FRIEND F '+
-                    'JOIN USER U ON U.USERID = F.FROMUSERID OR U.USERID = F.TOUSERID '+
-                    'WHERE USERID = '+userId+' AND (STATUS IN (1,2) OR (STATUS = 3 AND FROMUSERID = '+userId+'))) F '+
-                    'JOIN USER U ON USERID = FROMUSERID OR USERID = TOUSERID '+
-                    'ORDER BY FIELD(STATUS,\'friend\',\'requested\',\'pending\',\'blocked\'), USERNAME';
-        
+        var query = ""+
+        "SELECT CASE WHEN FROMUSERID <> '' THEN FROMUSERID ELSE TOUSERID END AS USERID, "+
+            "STATUS, USERNAME, CONCAT(FIRSTNAME,' ', LASTNAME) AS NAME, BIO "+
+        "FROM "+
+        "(SELECT CASE WHEN FROMUSERID = '"+userId+"' THEN '' ELSE FROMUSERID END AS FROMUSERID, "+
+                "CASE WHEN TOUSERID = '"+userId+"' THEN '' ELSE TOUSERID END AS TOUSERID, "+
+                "CASE WHEN STATUS = 2 AND FROMUSERID = '"+userId+"' THEN 'requested' "+
+                     "WHEN STATUS = 2 AND TOUSERID = '"+userId+"' THEN 'pending' "+
+                     "WHEN STATUS = 1 THEN 'friend' "+
+                     "WHEN STATUS = 3 THEN 'blocked' "+
+                     "WHEN STATUS = 0 THEN 'none' END AS STATUS "+
+        "FROM FRIEND F "+
+        "JOIN USER U ON U.USERID = F.FROMUSERID OR U.USERID = F.TOUSERID "+
+        "WHERE USERID = '"+userId+"' AND (STATUS IN (1,2) OR (STATUS = 3 AND FROMUSERID = '"+userId+"'))) F "+
+        "JOIN USER U ON USERID = FROMUSERID OR USERID = TOUSERID "+
+        "ORDER BY FIELD(STATUS,'friend','requested','pending','blocked'), USERNAME";
+        console.log(query);
         connection.query(query, function(err, results, fields) {
         	if (err) {
             	reject(err);
@@ -29,12 +30,12 @@ function getAllFriends(userId, connection) {
             // We got some users, so transform the results into friends and return
             var friends = results.map(function (resultRow) {
             	return new Friend({id : resultRow.USERID, 
-            						userName : resultRow.USERNAME, 
-            						bio : resultRow.BIO, 
-            						name : resultRow.NAME,
-            						status : resultRow.STATUS
-            					});
-            })
+					userName : resultRow.USERNAME, 
+					bio : resultRow.BIO, 
+					name : resultRow.NAME,
+					status : resultRow.STATUS
+				});
+            });
 
         	resolve(friends);
     	});
@@ -44,30 +45,30 @@ function getAllFriends(userId, connection) {
 function search(userId, searchString, connection) {
     return new Promise((resolve, reject) => {
         // This query finds all users that have not blocked the current user. It also will not return the current user.
-        var query = 'SELECT CASE WHEN FROMUSERID <> \'\' THEN FROMUSERID ELSE TOUSERID END AS USERID, '+
-                    '       STATUS, USERNAME, CONCAT(FIRSTNAME,\' \', LASTNAME) AS NAME, BIO '+
-                    'FROM '+
-                    '(SELECT CASE WHEN FROMUSERID = '+userId+' THEN \'\' ELSE FROMUSERID END AS FROMUSERID, '+
-                    '        CASE WHEN TOUSERID = '+userId+' THEN \'\' ELSE TOUSERID END AS TOUSERID, '+
-                    '        CASE WHEN STATUS = 2 AND FROMUSERID = '+userId+' THEN \'requested\' '+
-                    '             WHEN STATUS = 2 AND TOUSERID = '+userId+' THEN \'pending\' '+
-                    '             WHEN STATUS = 1 THEN \'friend\' '+
-                    '             WHEN STATUS = 3 THEN \'blocked\' '+
-                    '             WHEN STATUS = 0 THEN \'none\' END AS STATUS '+
-                    'FROM FRIEND F '+
-                    'JOIN USER U ON U.USERID = F.FROMUSERID OR U.USERID = F.TOUSERID '+
-                    'WHERE USERID = '+userId+' AND (STATUS <> 3 OR (STATUS = 3 AND FROMUSERID = '+userId+'))) F '+
-                    'JOIN USER U ON USERID = FROMUSERID OR USERID = TOUSERID '+
-                    'WHERE USERNAME LIKE \'%'+searchString+'%\' AND (STATUS <> 3 OR (STATUS = 3 AND FROMUSERID = '+userId+')) '+
-                    'UNION '+
-                    'SELECT USERID, \'none\' AS STATUS, USERNAME, CONCAT(FIRSTNAME,\' \', LASTNAME) AS NAME, BIO '+
-                    'FROM USER ' +
-                    'WHERE USERID NOT IN (SELECT FROMUSERID FROM FRIEND WHERE TOUSERID = \''+userId+'\' '+
-                    '                       UNION '+
-                    '                       SELECT TOUSERID FROM FRIEND WHERE FROMUSERID = \''+userId+'\') '+
-                    'AND USERNAME LIKE \'%'+searchString+'%\' AND USERID <> '+userId+' '+
-                    'ORDER BY FIELD(STATUS,\'friend\',\'requested\',\'pending\',\'blocked\'), USERNAME ';
-        
+        var query = ""+
+        "SELECT CASE WHEN FROMUSERID <> '' THEN FROMUSERID ELSE TOUSERID END AS USERID, "+
+               "STATUS, USERNAME, CONCAT(FIRSTNAME,' ', LASTNAME) AS NAME, BIO "+
+        "FROM "+
+        "(SELECT CASE WHEN FROMUSERID = '"+userId+"' THEN '' ELSE FROMUSERID END AS FROMUSERID, "+
+                "CASE WHEN TOUSERID = '"+userId+"' THEN '' ELSE TOUSERID END AS TOUSERID, "+
+                "CASE WHEN STATUS = 2 AND FROMUSERID = '"+userId+"' THEN 'requested' "+
+                     "WHEN STATUS = 2 AND TOUSERID = '"+userId+"' THEN 'pending' "+
+                     "WHEN STATUS = 1 THEN 'friend' "+
+                     "WHEN STATUS = 3 THEN 'blocked' "+
+                     "WHEN STATUS = 0 THEN 'none' END AS STATUS "+
+        "FROM FRIEND F "+
+        "JOIN USER U ON U.USERID = F.FROMUSERID OR U.USERID = F.TOUSERID "+
+        "WHERE USERID = '"+userId+"' AND (STATUS <> 3 OR (STATUS = 3 AND FROMUSERID = '"+userId+"'))) F "+
+        "JOIN USER U ON USERID = FROMUSERID OR USERID = TOUSERID "+
+        "WHERE USERNAME LIKE '%"+searchString+"%' AND (STATUS <> 3 OR (STATUS = 3 AND FROMUSERID = '"+userId+"')) "+
+        "UNION "+
+        "SELECT USERID, 'none' AS STATUS, USERNAME, CONCAT(FIRSTNAME,' ', LASTNAME) AS NAME, BIO "+
+        "FROM USER "+
+        "WHERE USERID NOT IN (SELECT FROMUSERID FROM FRIEND WHERE TOUSERID = '"+userId+"' "+
+                               "UNION "+
+                               "SELECT TOUSERID FROM FRIEND WHERE FROMUSERID = '"+userId+"') "+
+        "AND USERNAME LIKE '%"+searchString+"%' AND USERID <> '"+userId+"' "+
+        "ORDER BY FIELD(STATUS,'friend','requested','pending','blocked'), USERNAME ";
         connection.query(query, function(err, results, fields) {
             if (err) {
                 reject(err);
@@ -77,12 +78,12 @@ function search(userId, searchString, connection) {
             // We got some users, so transform the results into friends and return
             var friends = results.map(function (resultRow) {
                 return new Friend({id : resultRow.USERID, 
-                                    userName : resultRow.USERNAME, 
-                                    bio : resultRow.BIO, 
-                                    name : resultRow.NAME,
-                                    status : resultRow.STATUS
-                                });
-            })
+                    userName : resultRow.USERNAME, 
+                    bio : resultRow.BIO, 
+                    name : resultRow.NAME,
+                    status : resultRow.STATUS
+                });
+            });
 
             resolve(friends);
         });
