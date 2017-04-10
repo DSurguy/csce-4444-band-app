@@ -39,6 +39,22 @@ AddFriendCtrl.prototype.search = function (form){
     return defer.promise();
 };
 
+// This method will update the relation between the current user and the "to" user
+AddFriendCtrl.prototype.updateStatus = function (toUserId, status){
+    var defer = $.Deferred();
+    var that = this;
+    var postResult;
+    $.ajax({
+        url: '/api/friends/updatestatus',
+        type: 'POST',
+        data: {toUserId : toUserId, status : status}
+    }).then(function (result){
+        defer.resolve(result);
+    }).catch(function (err){
+        defer.resolve(result);
+    });
+    return defer.promise();
+}
 
 function AddFriendView(page){
     PageView.call(this, page);
@@ -72,6 +88,7 @@ AddFriendView.prototype.bindEvents = function (){
         }
     });
 
+    // Submitting the search string
     pageElem.on('submit', 'form', function (e){
         e.preventDefault();
         e.stopPropagation();
@@ -82,7 +99,138 @@ AddFriendView.prototype.bindEvents = function (){
         });
     });
 
+    // Handle friend request
+    pageElem.on('click', '#btnRequestModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'requested')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    })
 
+    // Handle block request
+    pageElem.on('click', '#btnBlockModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'blocked')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    })
+
+    // Handle unblock request
+    pageElem.on('click', '#btnUnblockModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'none')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    })
+
+    // Handle cancel request
+    pageElem.on('click', '#btnCancelRequestModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'none')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    })
+
+    // Handle friend accept
+    pageElem.on('click', '#btnAcceptModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'friend')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    })
+
+    // Handle friend reject
+    pageElem.on('click', '#btnRejectModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'none')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    })
+
+    // Handle unfriend
+    pageElem.on('click', '#btnUnfriendModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'none')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    })    
 };
 
 AddFriendView.prototype.updateUsers = function (){
@@ -100,27 +248,32 @@ AddFriendView.prototype.updateUsers = function (){
         // Determine how to style each card and modal based on status
         if (this.page.ctrl.friends[i].status === 'friend') {
             colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
-            modalButtons = '';
+            modalButtons = '<button id="btnUnfriendModal" type="button" class="btn btn-danger" data-dismiss="modal">Unfriend</button>'+
+                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
         }
         else if (this.page.ctrl.friends[i].status === 'requested') { 
             colorSchema = '"card card-info" style="width: 50rem; cursor: pointer"';
-            modalButtons = '';
+            modalButtons = '<button id="btnCancelRequestModal" type="button" class="btn btn-default" data-dismiss="modal">Cancel Request</button>'+
+                           '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
         }
         else if (this.page.ctrl.friends[i].status === 'pending') { 
             colorSchema = '"card card-warning" style="width: 50rem; cursor: pointer"';
-            modalButtons = '';
+            modalButtons = '<button id="btnAcceptModal" type="button" class="btn btn-success" data-dismiss="modal">Accept</button>'+
+                            '<button id="btnRejectModal" type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'+
+                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
         }
         else if (this.page.ctrl.friends[i].status === 'blocked') {
             colorSchema = '"card card-inverse" style="background-color: #333; border-color: #333; width: 50rem; cursor: pointer"';
-            modalButtons = '';
+            modalButtons = '<button id="btnUnblockModal" type="button" class="btn btn-default" data-dismiss="modal">Unblock User</button>';
         }
         else if (this.page.ctrl.friends[i].status === 'none') {
             colorSchema = '"card card-primary" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-success" data-dismiss="modal">Send Friend Request</button>';
+            modalButtons = '<button id="btnRequestModal" type="button" class="btn btn-success" data-dismiss="modal">Send Friend Request</button>'+
+                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
         }
 
         // Add card for each user
-        friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+i+'">'+
+        friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+this.page.ctrl.friends[i].id+'">'+
                                 '<div class="card-block">'+
                                     '<h2 class="card-title">'+this.page.ctrl.friends[i].userName+
                                         '<span style="display:inline-block; width: 10rem;"></span>'+
@@ -130,7 +283,7 @@ AddFriendView.prototype.updateUsers = function (){
                                 '</div>'+
                             '</div><p/>');
         // Add modal for each user
-        friendModal.append('<div id="modal'+i+'" class="modal fade" role="dialog">'+
+        friendModal.append('<div id="modal'+this.page.ctrl.friends[i].id+'" class="modal fade" role="dialog">'+
                                 '<div class="modal-dialog">'+
                                     '<div class="modal-content">'+
                                         '<div class="modal-header">'+

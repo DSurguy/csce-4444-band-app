@@ -35,6 +35,22 @@ FriendsCtrl.prototype.init = function (){
     return defer.promise();
 };
 
+FriendsCtrl.prototype.updateStatus = function (toUserId, status){
+    var defer = $.Deferred();
+    var that = this;
+    var postResult;
+    $.ajax({
+        url: '/api/friends/updatestatus',
+        type: 'POST',
+        data: {toUserId : toUserId, status : status}
+    }).then(function (result){
+        defer.resolve(result);
+    }).catch(function (err){
+        defer.resolve(result);
+    });
+    return defer.promise();
+}
+
 function FriendsView(page){
     PageView.call(this, page);
 }
@@ -50,24 +66,25 @@ FriendsView.prototype.init = function (){
     for( var i=0; i<this.page.ctrl.friends.length; i++ ){
         if (this.page.ctrl.friends[i].status === 'friend') {
             colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Remove Friend</button>';
+            modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Unfriend</button>';
         }
-        else if (this.page.ctrl.friends[i].status === 'requested') { 
+   else if (this.page.ctrl.friends[i].status === 'requested') { 
             colorSchema = '"card card-info" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Remove Request</button>';
+            modalButtons = '<button id="btnCancelRequestModal" type="button" class="btn btn-default" data-dismiss="modal">Cancel Request</button>'+
+                           '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
         }
         else if (this.page.ctrl.friends[i].status === 'pending') { 
             colorSchema = '"card card-warning" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-success" data-dismiss="modal">Accept</button>'+
-                           '<button type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'+
-                           '<button type="button" class="btn btn-danger" data-dismiss="modal">Block</button>';
+            modalButtons = '<button id="btnAcceptModal" type="button" class="btn btn-success" data-dismiss="modal">Accept</button>'+
+                            '<button id="btnRejectModal" type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'+
+                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
         }
         else if (this.page.ctrl.friends[i].status === 'blocked') {
             colorSchema = '"card card-inverse" style="background-color: #333; border-color: #333; width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-default" data-dismiss="modal">Unblock</button>';
+            modalButtons = '<button type="button" class="btn btn-default" data-dismiss="modal">Unblock User</button>';
         }
 
-        friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+i+'">'+
+        friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+this.page.ctrl.friends[i].id+'">'+
                                 '<div class="card-block">'+
                                     '<h2 class="card-title">'+this.page.ctrl.friends[i].userName+
                                         '<span style="display:inline-block; width: 10rem;"></span>'+
@@ -83,7 +100,7 @@ FriendsView.prototype.init = function (){
         }   */ 
     //    friendsElem.append('</div></div><p/>');
 
-        friendModal.append('<div id="modal'+i+'" class="modal fade" role="dialog">'+
+        friendModal.append('<div id="modal'+this.page.ctrl.friends[i].id+'" class="modal fade" role="dialog">'+
                                 '<div class="modal-dialog">'+
                                     '<div class="modal-content">'+
                                         '<div class="modal-header">'+
@@ -106,12 +123,140 @@ FriendsView.prototype.init = function (){
 };
 
 FriendsView.prototype.bindEvents = function (){
-    var pageElem = $(this.page.elem);
+    var pageElem = $(this.page.elem),
+    page = this.page;
     
     pageElem.on('click', '.add-friend', function (e){
         window.location = '/friends/add';
     });
+
     pageElem.on('click', '.friend', function (e){
         window.location = '/friends/' + e.target.id;
-    })
+    });
+
+    pageElem.on('click', '#btnRequestModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'requested')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    });
+
+    pageElem.on('click', '#btnBlockModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'blocked')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    });
+
+    pageElem.on('click', '#btnUnblockModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'none')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    });
+
+    pageElem.on('click', '#btnCancelRequestModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'none')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    });
+
+    pageElem.on('click', '#btnAcceptModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'friend')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    });
+
+    pageElem.on('click', '#btnRejectModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'none')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    });
+
+    pageElem.on('click', '#btnUnfriendModal', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        page.ctrl.updateStatus(toUserId, 'none')
+        .then(function (result) {
+            if (result === true) {
+                alert("Success!");    
+            }
+            else {
+                alert("Failure!");
+            }
+        })
+        .fail(function (err) {
+            alert("Error!");
+        });
+    });        
 };

@@ -248,6 +248,27 @@ app.post('/api/friends/search', function (req, res) {
     });
 });
 
+app.post('/api/friends/updatestatus', function (req, res) {
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    friendService.updateFriendStatus(req.session.userId, (req.body.toUserId).replace('modal',''), req.body.status, connection)
+    .then(function (result) {
+        if (result != true) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.sendStatus(500, {
+            error: e
+        });
+    });
+});
+
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');
 });
