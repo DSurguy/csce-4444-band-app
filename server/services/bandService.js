@@ -48,7 +48,7 @@ function createBand(data) {
 
 		var connection = data.connection;
         
-        connection.query(query, function(err, results, fields) {
+        connection.query(query, function (err, results, fields) {
         	if (err) {
             	reject(err);
             	return;
