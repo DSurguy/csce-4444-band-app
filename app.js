@@ -254,7 +254,6 @@ app.post('/api/friends/updatestatus', function (req, res) {
     }
     friendService.updateFriendStatus(req.session.userId, (req.body.toUserId).replace('modal',''), req.body.status, connection)
     .then(function (result) {
-        console.log(result);
         if (result) {
             res.status(200);
             res.send(result);

@@ -20,7 +20,7 @@ function getAllFriends(userId, connection) {
         "WHERE USERID = '"+userId+"' AND (STATUS IN (1,2) OR (STATUS = 3 AND FROMUSERID = '"+userId+"'))) F "+
         "JOIN USER U ON USERID = FROMUSERID OR USERID = TOUSERID "+
         "ORDER BY FIELD(STATUS,'friend','requested','pending','blocked'), USERNAME";
-        console.log(query);
+
         connection.query(query, function(err, results, fields) {
         	if (err) {
             	reject(err);

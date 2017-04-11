@@ -65,7 +65,7 @@ FriendsView.prototype.init = function (){
     for( var i=0; i<this.page.ctrl.friends.length; i++ ){
         if (this.page.ctrl.friends[i].status === 'friend') {
             colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-danger" data-dismiss="modal">Unfriend</button>';
+            modalButtons = '<button id="btnUnfriendModal" type="button" class="btn btn-danger" data-dismiss="modal">Unfriend</button>';
         }
    else if (this.page.ctrl.friends[i].status === 'requested') { 
             colorSchema = '"card card-info" style="width: 50rem; cursor: pointer"';
@@ -80,7 +80,7 @@ FriendsView.prototype.init = function (){
         }
         else if (this.page.ctrl.friends[i].status === 'blocked') {
             colorSchema = '"card card-inverse" style="background-color: #333; border-color: #333; width: 50rem; cursor: pointer"';
-            modalButtons = '<button type="button" class="btn btn-default" data-dismiss="modal">Unblock User</button>';
+            modalButtons = '<button id="btnUnblockModal" type="button" class="btn btn-default" data-dismiss="modal">Unblock User</button>';
         }
 
         friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+this.page.ctrl.friends[i].id+'">'+
@@ -140,7 +140,8 @@ FriendsView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'requested')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");   
+                location.reload(); 
             }
             else {
                 alert("Failure!");
@@ -158,7 +159,8 @@ FriendsView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'blocked')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");  
+                location.reload();   
             }
             else {
                 alert("Failure!");
@@ -176,7 +178,8 @@ FriendsView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'none')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");  
+                location.reload();   
             }
             else {
                 alert("Failure!");
@@ -194,7 +197,8 @@ FriendsView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'none')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");  
+                location.reload();   
             }
             else {
                 alert("Failure!");
@@ -212,7 +216,8 @@ FriendsView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'friend')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");  
+                location.reload();   
             }
             else {
                 alert("Failure!");
@@ -230,7 +235,8 @@ FriendsView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'none')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");  
+                location.reload();   
             }
             else {
                 alert("Failure!");
@@ -248,7 +254,8 @@ FriendsView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'none')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");   
+                location.reload();  
             }
             else {
                 alert("Failure!");

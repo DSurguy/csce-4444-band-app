@@ -106,7 +106,8 @@ AddFriendView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'requested')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");  
+                pageElem.find('form').submit();  
             }
             else {
                 alert("Failure!");
@@ -126,6 +127,7 @@ AddFriendView.prototype.bindEvents = function (){
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
+                pageElem.find('form').submit();
             }
             else {
                 alert("Failure!");
@@ -145,6 +147,7 @@ AddFriendView.prototype.bindEvents = function (){
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
+                pageElem.find('form').submit();
             }
             else {
                 alert("Failure!");
@@ -163,7 +166,8 @@ AddFriendView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'none')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");   
+                pageElem.find('form').submit(); 
             }
             else {
                 alert("Failure!");
@@ -183,6 +187,7 @@ AddFriendView.prototype.bindEvents = function (){
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
+                pageElem.find('form').submit();
             }
             else {
                 alert("Failure!");
@@ -201,7 +206,8 @@ AddFriendView.prototype.bindEvents = function (){
         page.ctrl.updateStatus(toUserId, 'none')
         .then(function (result) {
             if (result === true) {
-                alert("Success!");    
+                alert("Success!");   
+                pageElem.find('form').submit(); 
             }
             else {
                 alert("Failure!");
@@ -221,6 +227,7 @@ AddFriendView.prototype.bindEvents = function (){
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
+                pageElem.find('form').submit();
             }
             else {
                 alert("Failure!");
