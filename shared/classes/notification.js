@@ -11,7 +11,10 @@ Notification.MSG_TYPE = {
     BAND_INVITE: 3,
     REMOVED_FROM_BAND: 4,
     EVENT_INVITE: 5,
-    EVENT_REMINDER: 6
+    EVENT_REMINDER: 6,
+    ERROR: 7,
+    SUCCESS: 8,
+    WARNING: 9
 };
 
 if( module ){

@@ -20,7 +20,13 @@ catch (e){
 
 var connection = mysql.createConnection(config.db);
 
-var myService = new NotificationService();
-myService.notifyUser(connection)
-.then(console.log)
+NotificationService.notifyUser(connection, {
+    userId: 1,
+    message: 'This is a test notification',
+    link: '/profile',
+    type: Notification.MSG_TYPE.ERROR
+})
+.then(function (){
+    console.log('Success');
+})
 .catch(console.error);
