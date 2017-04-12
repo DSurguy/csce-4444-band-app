@@ -118,9 +118,7 @@ app.post('/api/login', function (req, res){
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -144,9 +142,7 @@ app.post('/api/register', function (req, res){
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -164,9 +160,7 @@ app.post('/api/bands/register', function (req, res){
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -182,9 +176,7 @@ app.get('/api/bands', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -203,9 +195,7 @@ app.get('/api/bands/:bandId', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -221,9 +211,7 @@ app.get('/api/friends', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -242,9 +230,7 @@ app.post('/api/friends/search', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -263,9 +249,7 @@ app.post('/api/friends/updatestatus', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e});
     });
 });
 

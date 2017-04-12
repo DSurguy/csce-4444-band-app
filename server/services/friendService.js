@@ -1,7 +1,7 @@
 var Friend = require('../../shared/classes/friend.js');
 
 function getAllFriends(userId, connection) {
-	return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         // This query finds all users with which the current user has a relation. It will not return users that have 
         // blocked the current user.
         var query = ""+
@@ -22,24 +22,24 @@ function getAllFriends(userId, connection) {
         "ORDER BY FIELD(STATUS,'friend','requested','pending','blocked'), USERNAME";
 
         connection.query(query, function(err, results, fields) {
-        	if (err) {
-            	reject(err);
-            	return;
-        	}
+            if (err) {
+                reject(err);
+                return;
+            }
 
             // We got some users, so transform the results into friends and return
             var friends = results.map(function (resultRow) {
-            	return new Friend({id : resultRow.USERID, 
-					userName : resultRow.USERNAME, 
-					bio : resultRow.BIO, 
-					name : resultRow.NAME,
-					status : resultRow.STATUS
-				});
+                return new Friend({id : resultRow.USERID, 
+                    userName : resultRow.USERNAME, 
+                    bio : resultRow.BIO, 
+                    name : resultRow.NAME,
+                    status : resultRow.STATUS
+                });
             });
 
-        	resolve(friends);
-    	});
-	});
+            resolve(friends);
+        });
+    });
 }
 
 function search(userId, searchString, connection) {
