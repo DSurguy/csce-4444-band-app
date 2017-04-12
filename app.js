@@ -2,10 +2,11 @@ var express = require('express');
 var Band = require('./shared/classes/band.js');
 var mysql = require('mysql');
 var bodyParser = require('body-parser');
-var authLogin = require('./server/services/loginService.js');
+var loginService = require('./server/services/loginService.js');
 var hbs = require('express-hbs');
 var registerUser = require('./server/services/userRegistrationService.js');
 var bandService = require('./server/services/bandService.js');
+var friendService = require('./server/services/friendService.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 
@@ -52,7 +53,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true,
     cookie: {
-        maxAge: 360000
+        maxAge: 3600000
     }
 }));
 
@@ -91,13 +92,21 @@ app.get('/bands/register', checkSession, function (req, res){
 
 app.get('/bands/:bandId', checkSession, function (req, res){
     res.render('band');
-})
+});
+
+app.get('/friends', checkSession, function (req, res){
+    res.render('friends');
+});
+
+app.get('/friends/add', checkSession, function (req, res){
+    res.render('addFriend');
+});
 
 app.post('/api/login', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
     }
-    authLogin(req.body.username, req.body.password, connection)
+    loginService.authLogin(req.body.username, req.body.password, connection)
     .then(function (result) {
         if (result != false) {
             req.session.userId = result; 
@@ -109,9 +118,7 @@ app.post('/api/login', function (req, res){
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -124,7 +131,7 @@ app.post('/api/register', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
     }
-    registerUser(req.body.username, req.body.password, req.body.email, connection)
+    registerUser(req.body.username, req.body.password, req.body.firstName, req.body.lastName, req.body.bio, req.body.email, connection)
     .then(function (result) {
         if (result == true) {
             res.sendStatus(200);
@@ -135,9 +142,7 @@ app.post('/api/register', function (req, res){
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -155,9 +160,7 @@ app.post('/api/bands/register', function (req, res){
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -173,9 +176,7 @@ app.get('/api/bands', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
     });
 });
 
@@ -194,9 +195,61 @@ app.get('/api/bands/:bandId', function (req, res) {
         }
     })
     .catch(function (e) {
-        res.sendStatus(500, {
-            error: e
-        });
+        res.status(500).send({error:e})
+    });
+});
+
+app.get('/api/friends', function (req, res) {
+    friendService.getAllFriends(req.session.userId, connection)
+    .then(function (result) {
+        if (result) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e})
+    });
+});
+
+app.post('/api/friends/search', function (req, res) {
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    friendService.search(req.session.userId, req.body.searchString, connection)
+    .then(function (result) {
+        if (result) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e})
+    });
+});
+
+app.post('/api/friends/updatestatus', function (req, res) {
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    friendService.updateFriendStatus(req.session.userId, (req.body.toUserId).replace('modal',''), req.body.status, connection)
+    .then(function (result) {
+        if (result) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
     });
 });
 

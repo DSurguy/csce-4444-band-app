@@ -30,4 +30,7 @@ MainView.prototype.init = function (){
     $(page.elem).on('click', '.bands', function (e){
         window.location = '/bands';
     });
+    $(page.elem).on('click', '.friends', function (e){
+        window.location = '/friends';
+    });
 };
