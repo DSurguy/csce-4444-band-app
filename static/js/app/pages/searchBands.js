@@ -5,34 +5,34 @@
 /* global MenuComponent */
 var searching = false;
 
-function AddFriendPage(app, data){
-    Page.call(this, app, $('#addFriendPage')[0], AddFriendCtrl, AddFriendView, {
+function SearchBandsPage(app, data){
+    Page.call(this, app, $('#searchBandsPage')[0], SearchBandsCtrl, SearchBandsView, {
         menu: new MenuComponent(app, {
             element: '.menu-button-container'
         })
     });
 }
-AddFriendPage.prototype = Object.create(Page.prototype);
-AddFriendPage.prototype.constructor = AddFriendPage;
+SearchBandsPage.prototype = Object.create(Page.prototype);
+SearchBandsPage.prototype.constructor = SearchBandsPage;
 
-function AddFriendCtrl(page){
+function SearchBandsCtrl(page){
     PageCtrl.call(this, page);
-    this.friends = [];
+    this.bands = [];
 }
-AddFriendCtrl.prototype = Object.create(PageCtrl.prototype);
-AddFriendCtrl.prototype.constructor = AddFriendCtrl;
+SearchBandsCtrl.prototype = Object.create(PageCtrl.prototype);
+SearchBandsCtrl.prototype.constructor = SearchBandsCtrl;
 
-AddFriendCtrl.prototype.search = function (form){
+SearchBandsCtrl.prototype.search = function (form){
     var defer = $.Deferred();
     var that = this;
-    that.friends = [];
+    that.bands = [];
     $.ajax({
-        url: '/api/friends/search',
+        url: '/api/bands/search',
         type: 'POST',
         data: $(form).serialize()
     }).then(function (data){
-        that.friends = data;
-        that.page.view.updateUserList();
+        that.bands = data;
+        that.page.view.updateBandList();
         defer.resolve();
     }).catch(function (err){
         defer.reject(err);
@@ -40,31 +40,16 @@ AddFriendCtrl.prototype.search = function (form){
     return defer.promise();
 };
 
-// This method will update the relation between the current user and the "to" user
-AddFriendCtrl.prototype.updateStatus = function (toUserId, status){
-    var defer = $.Deferred();
-    $.ajax({
-        url: '/api/friends/updatestatus',
-        type: 'POST',
-        data: {toUserId : toUserId, status : status}
-    }).then(function (result){
-        defer.resolve(result);
-    }).catch(function (err){
-        defer.reject(err);
-    });
-    return defer.promise();
-};
-
-function AddFriendView(page){
+function SearchBandsView(page){
     PageView.call(this, page);
 }
-AddFriendView.prototype = Object.create(PageView.prototype);
-AddFriendView.prototype.constructor = AddFriendView;
-AddFriendView.prototype.init = function (){   
+SearchBandsView.prototype = Object.create(PageView.prototype);
+SearchBandsView.prototype.constructor = SearchBandsView;
+SearchBandsView.prototype.init = function (){   
     this.bindEvents();
 };
 
-AddFriendView.prototype.bindEvents = function (){
+SearchBandsView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
     page = this.page;
     
@@ -90,7 +75,7 @@ AddFriendView.prototype.bindEvents = function (){
         });
     });
 
-    // Handle friend request
+/*    // Handle friend request
     pageElem.on('click', '#btnRequestModal', function (e){
         e.preventDefault();
         e.stopPropagation();
@@ -228,12 +213,12 @@ AddFriendView.prototype.bindEvents = function (){
         .fail(function (err) {
             alert("Error!");
         });
-    })    
+    })   */ 
 };
 
-AddFriendView.prototype.updateUserList = function (){
-    var friendsElem = $(this.page.elem).find('.friends');
-    var friendModal = $(this.page.elem).find('.friend-modal');
+SearchBandsView.prototype.updateBandList = function (){
+    var bandsElem = $(this.page.elem).find('.bands');
+    var bandModal = $(this.page.elem).find('.band-modal');
     var modalButtons = '';
     var colorSchema = '';
     var badge = '';
@@ -242,59 +227,46 @@ AddFriendView.prototype.updateUserList = function (){
     $('.card').remove();
     $('.modal').remove();
 
-    for( var i=0; i<this.page.ctrl.friends.length; i++ ){
+    for( var i=0; i<this.page.ctrl.bands.length; i++ ){
         // Determine how to style each card and modal based on status
-        if (this.page.ctrl.friends[i].status === 'friend') {
-            colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnUnfriendModal" type="button" class="btn btn-danger" data-dismiss="modal">Unfriend</button>'+
-                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
-            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
-        }
-        else if (this.page.ctrl.friends[i].status === 'requested') { 
-            colorSchema = '"card card-info" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnCancelRequestModal" type="button" class="btn btn-default" data-dismiss="modal">Cancel Request</button>'+
-                           '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
-            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
-        }
-        else if (this.page.ctrl.friends[i].status === 'pending') { 
+        if (this.page.ctrl.bands[i].applicationStatus === 'applied') {
             colorSchema = '"card card-warning" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnAcceptModal" type="button" class="btn btn-success" data-dismiss="modal">Accept</button>'+
-                            '<button id="btnRejectModal" type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'+
-                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
-            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
+            modalButtons = '<button id="btnCancelApplicationModal" type="button" class="btn btn-default" data-dismiss="modal">Cancel Application</button>';
+
         }
-        else if (this.page.ctrl.friends[i].status === 'blocked') {
-            colorSchema = '"card card-inverse" style="background-color: #333; border-color: #333; width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnUnblockModal" type="button" class="btn btn-default" data-dismiss="modal">Unblock User</button>';
-            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
+        else if (this.page.ctrl.bands[i].applicationStatus === 'accepted') { 
+            colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
+            modalButtons = '<button id="btnCancelRequestModal" type="button" class="btn btn-default" data-dismiss="modal">Cancel Request</button>';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.bands[i].role;
         }
-        else if (this.page.ctrl.friends[i].status === 'none') {
+        else if (this.page.ctrl.bands[i].applicationStatus === 'rejected') { 
             colorSchema = '"card card-primary" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnRequestModal" type="button" class="btn btn-success" data-dismiss="modal">Send Friend Request</button>'+
-                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
-            badge = '';
+        }
+        else if (this.page.ctrl.bands[i].applicationStatus === 'none') {
+            colorSchema = '"card card-primary" style="width: 50rem; cursor: pointer"';
+            modalButtons = '<button id="btnApplyMemberModal" type="button" class="btn btn-success" data-dismiss="modal">Apply as Member</button>'+
+                           '<button id="btnApplyPromoterModal" type="button" class="btn btn-success" data-dismiss="modal">Apply as Promoter</button>';
         }
 
         // Add card for each user
-        friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+this.page.ctrl.friends[i].id+'">'+
+        bandsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+this.page.ctrl.bands[i].id+'">'+
                                 '<div class="card-block">'+
-                                    '<h4 class="card-title">'+this.page.ctrl.friends[i].userName+
+                                    '<h4 class="card-title">'+this.page.ctrl.bands[i].bandName+
                                         '<span style="display:inline-block; width: 10rem;"></span>'+
-                                        '<small>('+this.page.ctrl.friends[i].name+')</small>'+badge+                                        
+                                        '<small>('+this.page.ctrl.bands[i].genre+')</small>'+badge+
                                     '</h4>'+
                                 '</div>'+
                             '</div><p/>');
         // Add modal for each user
-        friendModal.append('<div id="modal'+this.page.ctrl.friends[i].id+'" class="modal fade" role="dialog">'+
+        bandModal.append('<div id="modal'+this.page.ctrl.bands[i].id+'" class="modal fade" role="dialog">'+
                                 '<div class="modal-dialog">'+
                                     '<div class="modal-content">'+
                                         '<div class="modal-header">'+
                                             '<button type="button" class="close" data-dismiss="modal">&times;</button>'+
-                                            '<h4 class="modal-title">'+this.page.ctrl.friends[i].userName+'</h4>'+
+                                            '<h4 class="modal-title">'+this.page.ctrl.bands[i].bandName+'</h4>'+
                                         '</div>'+
                                         '<div class="modal-body">'+
-                                            '<p>'+this.page.ctrl.friends[i].name+'</p>'+
-                                            '<p>'+this.page.ctrl.friends[i].bio+'</p>'+
+                                            '<p>'+this.page.ctrl.bands[i].description+'</p>'+
                                         '</div>'+
                                         '<div class="modal-footer">'+modalButtons+
                                             '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+

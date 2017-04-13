@@ -180,3 +180,16 @@ h1, h2{
     margin-bottom: 10px;    
 }
 
+#searchBandsPage .search-bands{
+    width: 50rem;
+    margin: 0 auto;
+    float: none; 
+    margin-bottom: 10px; 
+}
+
+#searchBandsPage .card{
+    width: 50rem;
+    margin: 0 auto;
+    float: none; 
+    margin-bottom: 10px;    
+}

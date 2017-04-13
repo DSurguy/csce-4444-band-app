@@ -1,12 +1,12 @@
-{{#contentFor "page-title"}}Add Friend{{/contentFor}}
-{{#contentFor "page-constructor"}}AddFriendPage{{/contentFor}}
-<div id="addFriendPage" class="page">
+{{#contentFor "page-title"}}Search Bands{{/contentFor}}
+{{#contentFor "page-constructor"}}SearchBandsPage{{/contentFor}}
+<div id="searchBandsPage" class="page">
     <div class="menu-button-container"></div>
-    <h1>search musicians</h1>
+    <h1>band search</h1>
     <div class="container">
-        <form class="search-user">
+        <form class="search-bands">
            <div class="input-group col-xs-2">
-                <input type="text" class="form-control" placeholder="Username" name="searchString" id="search-users">
+                <input type="text" class="form-control" placeholder="Band Name" name="searchString" id="search-bands">
                 <div class="input-group-btn">
                     <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
                 </div>
@@ -14,9 +14,9 @@
         </form>
     </div>
     <div class="container">
-        <div class="friends"></div>
+        <div class="bands"></div>
     </div>
     <div class="container">
-    	<div class="friend-modal"></div>
+    	<div class="band-modal"></div>
     </div>
 </div>
