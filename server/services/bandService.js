@@ -89,12 +89,14 @@ function getAllBands(userId, connection) {
 function getBand(bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
-        "SELECT BANDID, BANDNAME, OWNERID, USERNAME, DESCRIPTION, FROM BAND B " + 
+        "SELECT BANDID, BANDNAME, OWNERID, USERNAME, DESCRIPTION FROM BAND B " + 
         "JOIN USER U ON U.USERID = B.OWNERID " +
         "WHERE B.BANDID = '"+bandId+"'";
         
         connection.query(query, function(err, results, fields) {
             if (err) {
+                console.log(err);
+                console.log(query);
                 reject(err);
                 return;
             }
