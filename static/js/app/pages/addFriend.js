@@ -95,7 +95,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'requested')
+        page.ctrl.updateStatus(toUserId, 2)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");  
@@ -115,7 +115,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'blocked')
+        page.ctrl.updateStatus(toUserId, 3)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
@@ -135,7 +135,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'none')
+        page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
@@ -155,7 +155,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'none')
+        page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");   
@@ -175,7 +175,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'friend')
+        page.ctrl.updateStatus(toUserId, 1)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
@@ -195,7 +195,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'none')
+        page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");   
@@ -215,7 +215,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'none')
+        page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    

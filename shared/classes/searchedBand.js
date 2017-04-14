@@ -9,10 +9,11 @@ function SearchedBand(json){
 
 SearchedBand.STATUS = {
 	NONE: 0, 
-	APPLIED: 1, 
-	ACCEPTED: 2, 
-	REJECTED: 3, 
-	BLOCKED: 4 
+	APPLIED_MEMBER: 1,
+    APPLIED_PROMOTER: 2, 
+	ACCEPTED: 3, 
+	REJECTED: 4, 
+	BLOCKED: 5 
 }
 
 SearchedBand.ROLE = {
