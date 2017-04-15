@@ -167,29 +167,22 @@ h1, h2{
 }
 
 #addFriendPage .search-user{
-    width: 50rem;
-    margin: 0 auto;
-    float: none; 
-    margin-bottom: 10px; 
+    margin: 0 auto 10px auto;
 }
 
 #addFriendPage .card{
-    width: 50rem;
-    margin: 0 auto;
-    float: none; 
-    margin-bottom: 10px;    
+    margin: 0 auto 10px auto;    
 }
 
 #searchBandsPage .search-form{
-    width: 50rem;
-    margin: 0 auto;
-    float: none; 
-    margin-bottom: 10px; 
+    margin: 0 auto 10px auto; 
 }
 
-#searchBandsPage .card{
-    width: 50rem;
-    margin: 0 auto;
-    float: none; 
-    margin-bottom: 10px;    
+#searchBandsPage .band{
+    margin: 0 auto 10px auto;
+    cursor: pointer;
+}
+
+#searchBandsPage .band-modal .dynamic-buttons button {
+    margin-right: 0.25rem;
 }
