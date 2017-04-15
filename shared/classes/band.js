@@ -20,4 +20,4 @@ function Band(json){
     this.members = json.members || [];
 }
 
-module.exports = Band;
+if( typeof module !== 'undefined' ){ module.exports = Band; }

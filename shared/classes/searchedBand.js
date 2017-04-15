@@ -23,4 +23,4 @@ SearchedBand.ROLE = {
     PROMOTER: 3
 }
 
-module.exports = SearchedBand;
+if( typeof module !== 'undefined' ){ module.exports = SearchedBand; }
