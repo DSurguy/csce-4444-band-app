@@ -32,7 +32,7 @@ AddFriendCtrl.prototype.search = function (form){
         data: $(form).serialize()
     }).then(function (data){
         that.friends = data;
-        that.page.view.updateUsers();
+        that.page.view.updateUserList();
         defer.resolve();
     }).catch(function (err){
         defer.reject(err);
@@ -68,20 +68,12 @@ AddFriendView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
     page = this.page;
     
-    pageElem.on('click', '.register-band', function (e){
-        window.location = '/bands/register';
-    });
-    pageElem.on('click', '.andrew', function (e){
-        window.location = '/bands/' + e.target.id;
-    });
-
     // This will run a search every second when the user presses a key. 
     $(document).on('keypress', 'form', function (e){
         if (searching === false) {
             searching = true;
             setTimeout(function () {
                 searching = false;
-                console.log('in keypress');
                 pageElem.find('form').submit();
             }, 1000);
         }
@@ -103,7 +95,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'requested')
+        page.ctrl.updateStatus(toUserId, 2)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");  
@@ -123,7 +115,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'blocked')
+        page.ctrl.updateStatus(toUserId, 3)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
@@ -143,7 +135,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'none')
+        page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
@@ -163,7 +155,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'none')
+        page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");   
@@ -183,7 +175,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'friend')
+        page.ctrl.updateStatus(toUserId, 1)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
@@ -203,7 +195,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'none')
+        page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");   
@@ -223,7 +215,7 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 'none')
+        page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
             if (result === true) {
                 alert("Success!");    
@@ -239,7 +231,7 @@ AddFriendView.prototype.bindEvents = function (){
     })    
 };
 
-AddFriendView.prototype.updateUsers = function (){
+AddFriendView.prototype.updateUserList = function (){
     var friendsElem = $(this.page.elem).find('.friends');
     var friendModal = $(this.page.elem).find('.friend-modal');
     var modalButtons = '';
@@ -256,26 +248,31 @@ AddFriendView.prototype.updateUsers = function (){
             colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
             modalButtons = '<button id="btnUnfriendModal" type="button" class="btn btn-danger" data-dismiss="modal">Unfriend</button>'+
                             '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
         }
         else if (this.page.ctrl.friends[i].status === 'requested') { 
             colorSchema = '"card card-info" style="width: 50rem; cursor: pointer"';
             modalButtons = '<button id="btnCancelRequestModal" type="button" class="btn btn-default" data-dismiss="modal">Cancel Request</button>'+
                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
         }
         else if (this.page.ctrl.friends[i].status === 'pending') { 
             colorSchema = '"card card-warning" style="width: 50rem; cursor: pointer"';
             modalButtons = '<button id="btnAcceptModal" type="button" class="btn btn-success" data-dismiss="modal">Accept</button>'+
                             '<button id="btnRejectModal" type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'+
                             '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
         }
         else if (this.page.ctrl.friends[i].status === 'blocked') {
             colorSchema = '"card card-inverse" style="background-color: #333; border-color: #333; width: 50rem; cursor: pointer"';
             modalButtons = '<button id="btnUnblockModal" type="button" class="btn btn-default" data-dismiss="modal">Unblock User</button>';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
         }
         else if (this.page.ctrl.friends[i].status === 'none') {
             colorSchema = '"card card-primary" style="width: 50rem; cursor: pointer"';
             modalButtons = '<button id="btnRequestModal" type="button" class="btn btn-success" data-dismiss="modal">Send Friend Request</button>'+
                             '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
+            badge = '';
         }
 
         // Add card for each user
@@ -283,8 +280,7 @@ AddFriendView.prototype.updateUsers = function (){
                                 '<div class="card-block">'+
                                     '<h4 class="card-title">'+this.page.ctrl.friends[i].userName+
                                         '<span style="display:inline-block; width: 10rem;"></span>'+
-                                        '<small>('+this.page.ctrl.friends[i].name+')</small>'+
-                                        '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status+
+                                        '<small>('+this.page.ctrl.friends[i].name+')</small>'+badge+                                        
                                     '</h4>'+
                                 '</div>'+
                             '</div><p/>');

@@ -97,19 +97,6 @@ function updateFriendStatus(fromUserId, toUserId, status, connection) {
                     'WHERE (FROMUSERID = '+fromUserId+' AND TOUSERID = '+toUserId+') '+
                     'OR (FROMUSERID = '+toUserId+' AND TOUSERID = '+fromUserId+')';
         
-        var statusNum;
-        if (status === 'friend') {
-            statusNum = 1;
-        }
-        else if (status === 'requested' || status === 'pending') {
-            statusNum = 2;
-        }
-        else if (status === 'blocked') {
-            statusNum = 3;
-        }
-        else if (status === 'none') {
-            statusNum = 0;
-        }
 
         connection.query(query, function(err, results, fields) {
             if (err) {
@@ -118,13 +105,13 @@ function updateFriendStatus(fromUserId, toUserId, status, connection) {
             }
             // If there is already a relation between the two users, update that relation
             if (results.length > 0){
-                query = 'UPDATE FRIEND SET STATUS = '+statusNum+', FROMUSERID = '+fromUserId+', TOUSERID = '+toUserId+' '+
+                query = 'UPDATE FRIEND SET STATUS = '+status+', FROMUSERID = '+fromUserId+', TOUSERID = '+toUserId+' '+
                         'WHERE (FROMUSERID = '+fromUserId+' AND TOUSERID = '+toUserId+') '+
                         'OR (FROMUSERID = '+toUserId+' AND TOUSERID = '+fromUserId+')';
             }
             // Otherwise we are creating a new relation
             else {
-                query = 'INSERT INTO FRIEND (FROMUSERID, TOUSERID, STATUS) VALUES ('+fromUserId+', '+toUserId+', '+statusNum+')';
+                query = 'INSERT INTO FRIEND (FROMUSERID, TOUSERID, STATUS) VALUES ('+fromUserId+', '+toUserId+', '+status+')';
             }
 
             connection.query(query, function(err, results, fields) {

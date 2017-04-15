@@ -26,7 +26,7 @@ BandCtrl.prototype.init = function (){
    // var id = window.location.search.substr(1);
     var defer = $.Deferred();
     var that = this;
-    $.ajax('/api/bands/' + id, {
+    $.ajax('/api/bands/band/' + id, {
         method: 'GET'
     }).then(function (data){
         that.band = data;
