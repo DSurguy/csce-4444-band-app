@@ -56,6 +56,6 @@ BandsView.prototype.bindEvents = function (){
         window.location = '/bands/register';
     });
     pageElem.on('click', '.band', function (e){
-        window.location = '/bands/' + e.target.id;
+        window.location = '/bands/band/' + e.target.id;
     })
 };
