@@ -5,4 +5,4 @@ function SimpleBand(json){
     this.bandName = json.bandName || '';
 }
 
-module.exports = SimpleBand;
+if( typeof module !== 'undefined' ){ module.exports = SimpleBand; }
