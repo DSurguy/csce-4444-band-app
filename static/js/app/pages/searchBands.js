@@ -40,15 +40,40 @@ SearchBandsCtrl.prototype.search = function (form){
     return defer.promise();
 };
 
+SearchBandsCtrl.prototype.expandBandModal = function(applicationStatus) {
+    $('.modal-body').remove();
+    $('.modal-footer').remove();    
+
+    var bandModal = $(this.page.elem).find('.modal-content');
+
+
+    bandModal.append('<div class="modal-body">'+
+                        '<form class="apply-form" onsubmit="return">'+
+                            '<div class="form-group">'+
+                                '<input required class="form-control" type="text" name="instrument" placeholder="Instrument" />'+
+                                '<input required class="form-control" type="text" name="message" placeholder="Message" />'+
+                            '</div>'+
+                        '</form>'+
+                    '</div>'+
+                    '<div class="modal-footer">'+                        
+                            '<button class="btn btn-primary" data-dismiss="modal" type="submit" name="submit">'+
+                                'Submit'+
+                            '</button>'+
+                            '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
+                        '</div>'+                       
+                    '</div>');
+}
+
 // This method will update the relation the application for the current user and the selected band
-SearchBandsCtrl.prototype.updateApplication = function (bandId, status){
+SearchBandsCtrl.prototype.submitApplication = function (bandId, applicaitonStatus, form){
     var defer = $.Deferred();
     $.ajax({
-        url: '/api/bands/updateApplication',
+        url: '/api/bands/submitApplication',
         type: 'POST',
-        data: {bandId : bandId, status : status}
+        data: {bandId : bandId, status : applicationStatus}
     }).then(function (result){
         defer.resolve(result);
+        this.page.view.updateBandList();
     }).catch(function (err){
         defer.reject(err);
     });
@@ -64,12 +89,12 @@ SearchBandsCtrl.prototype.cancelApplication = function (bandId, status){
         data: {bandId : bandId}
     }).then(function (result){
         defer.resolve(result);
+        this.page.view.updateBandList();
     }).catch(function (err){
         defer.reject(err);
     });
     return defer.promise();
 };
-
 
 function SearchBandsView(page){
     PageView.call(this, page);
@@ -99,16 +124,27 @@ SearchBandsView.prototype.bindEvents = function (){
     pageElem.on('submit', 'form', function (e){
         e.preventDefault();
         e.stopPropagation();
-        page.ctrl.search(this)
-        .then(function (result) {
-        })
-        .fail(function (err) {
-        });
+        if ($(this).attr('class') === 'search-form') {
+            page.ctrl.search(this)
+            .then(function (result) {
+            })
+            .fail(function (err) {
+            });
+        }
+        else if ($(this).attr('class') === 'apply-form') { 
+            page.ctrl.sumbitApplication(this)
+            .then(function (result) {
+            })
+            .fail(function (err) {
+            });
+        }      
     });
 
     // Handle member application request
     pageElem.on('click', '#btnApplyMemberModal', function (e){
-        e.preventDefault();
+        page.ctrl.expandBandModal();
+        //page.ctrl.updateBandList();
+/*        e.preventDefault();
         e.stopPropagation();
         bandId = this.parentElement.parentElement.parentElement.parentElement.id;
         page.ctrl.updateApplication(bandId, 1)
@@ -123,7 +159,7 @@ SearchBandsView.prototype.bindEvents = function (){
         })
         .fail(function (err) {
             alert("Error!");
-        });
+        });*/
     })
 
     // Handle promoter application request
@@ -165,6 +201,10 @@ SearchBandsView.prototype.bindEvents = function (){
             alert("Error!");
         });
     })
+
+    pageElem.on('hidden.bs.modal', '#modal7', function (e){
+        this.updateBandList;
+    })
 };
 
 SearchBandsView.prototype.updateBandList = function (){
@@ -204,7 +244,7 @@ SearchBandsView.prototype.updateBandList = function (){
         }
         else if (this.page.ctrl.bands[i].applicationStatus === 'none') {
             colorSchema = '"card card-primary" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnApplyMemberModal" type="button" class="btn btn-success" data-dismiss="modal">Apply as Member</button>'+
+            modalButtons = '<button id="btnApplyMemberModal" type="button" class="btn btn-success">Apply as Member</button>'+
                            '<button id="btnApplyPromoterModal" type="button" class="btn btn-success" data-dismiss="modal">Apply as Promoter</button>';
             badge = '';
         }
