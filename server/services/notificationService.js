@@ -14,7 +14,6 @@ var NotificationService = {
             params.unread = true;
             
             var query = `INSERT INTO NOTIFICATION (UserId, Type, Message, Link, Unread) VALUES (${params.userId}, ${params.type}, '${params.message}', '${params.link}', 0)`;
-            
             console.log(query);
             connection.query(query, function (err, result, fields){
                 if( err ){

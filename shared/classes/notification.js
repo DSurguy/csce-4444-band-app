@@ -17,6 +17,4 @@ Notification.MSG_TYPE = {
     WARNING: 9
 };
 
-if( module ){
-    module.exports = Notification;
-}
+if( typeof module !== 'undefined' ){ module.exports = Notification; }

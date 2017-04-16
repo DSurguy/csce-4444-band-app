@@ -1,4 +1,6 @@
-var Friend = require('../../shared/classes/friend.js');
+var Friend = require('../../shared/classes/friend.js'),
+    NotificationService = require('./notificationService.js'),
+    Notification = require('../../shared/classes/notification.js');
 
 function getAllFriends(userId, connection) {
     return new Promise((resolve, reject) => {
@@ -90,21 +92,29 @@ function search(userId, searchString, connection) {
     });
 }
 
+function requestFriend(from, to, connection){
+    return new Promise((resolve, reject) =>{
+        updateFriendStatus(from, to, Friend.STATUS.REQUESTED, connection)
+        .then(function (){
+            NotificationService.notifyUser(connection, {
+                userId: to,
+                message: 'New Friend Request',
+                link: '/friends',
+                type: Notification.MSG_TYPE.FRIEND_REQUEST
+            });
+        })
+        .catch(reject);
+    });
+}
+
 function updateFriendStatus(fromUserId, toUserId, status, connection) {
+    var query;
     return new Promise((resolve, reject) => {
         // We're going to see if there is an existing relation between these users
-        var query = 'SELECT * FROM FRIEND '+
-                    'WHERE (FROMUSERID = '+fromUserId+' AND TOUSERID = '+toUserId+') '+
-                    'OR (FROMUSERID = '+toUserId+' AND TOUSERID = '+fromUserId+')';
-        
-
-        connection.query(query, function(err, results, fields) {
-            if (err) {
-                reject(err);
-                return;
-            }
+        _checkExistingRelation(fromUserId, toUserId, connection)
+        .then(function (relationExists){
             // If there is already a relation between the two users, update that relation
-            if (results.length > 0){
+            if (relationExists){
                 query = 'UPDATE FRIEND SET STATUS = '+status+', FROMUSERID = '+fromUserId+', TOUSERID = '+toUserId+' '+
                         'WHERE (FROMUSERID = '+fromUserId+' AND TOUSERID = '+toUserId+') '+
                         'OR (FROMUSERID = '+toUserId+' AND TOUSERID = '+fromUserId+')';
@@ -119,9 +129,58 @@ function updateFriendStatus(fromUserId, toUserId, status, connection) {
                     reject(err);
                     return;
                 }
-
-                resolve(true);
+                _notifyStatusUpdate(fromUserId, toUserId, status, connection).then(resolve).catch(reject);
             });
+        });
+    });
+}
+
+function _checkExistingRelation(from, to, connection){
+    return new Promise(function (resolve, reject){
+        var query = ''+
+        'SELECT * FROM FRIEND '+
+        'WHERE (FROMUSERID = '+from+' AND TOUSERID = '+to+') '+
+        'OR (FROMUSERID = '+to+' AND TOUSERID = '+from+')';
+        
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            else{
+                resolve(!!results.length);
+            }
+        });
+    });
+}
+
+function _notifyStatusUpdate(from, to, status, connection){
+    if( status !== Friend.STATUS.REQUESTED && status !== Friend.STATUS.FRIEND ){
+        return Promise.resolve();
+    }
+    return new Promise(function (resolve, reject){
+        var query = 'SELECT Username FROM USER where UserID = '+from;
+        connection.query(query, function (err, results){
+            if( err ){ reject(err); }
+            else{
+                var notificationParams = {
+                    userId: to,
+                    link: '/friends'
+                };
+                switch( status ){
+                    case Friend.STATUS.REQUESTED:
+                        notificationParams.message = `New friend request from ${results[0].Username}`;
+                        notificationParams.type = Notification.MSG_TYPE.FRIEND_REQUEST;
+                    break;
+                    case Friend.STATUS.FRIEND:
+                        notificationParams.message = `You are now friends with ${results[0].Username}!`;
+                        notificationParams.type = Notification.MSG_TYPE.FRIEND_ACCEPTED;
+                    break;
+                }
+                NotificationService.notifyUser(connection, notificationParams)
+                .then(resolve)
+                .catch(reject);
+            }
         });
     });
 }

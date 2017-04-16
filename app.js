@@ -240,21 +240,19 @@ app.post('/api/friends/search', function (req, res) {
 
 app.post('/api/friends/updatestatus', function (req, res) {
     if (!req.body) {
-        res.sendStatus(400);
+        res.status(500).send({
+            error: 'Bad Request'
+        });
     }
-    friendService.updateFriendStatus(req.session.userId, (req.body.toUserId).replace('modal',''), req.body.status, connection)
-    .then(function (result) {
-        if (result) {
-            res.status(200);
-            res.send(result);
-        }
-        else {
-            res.sendStatus(400);
-        }
-    })
-    .catch(function (e) {
-        res.status(500).send({error:e});
-    });
+    else{
+        friendService.updateFriendStatus(req.session.userId, parseInt(req.body.toUserId), parseInt(req.body.status), connection)
+        .then(function (result) {
+            res.status(200).end();
+        })
+        .catch(function (e) {
+            res.status(500).send({error:e});
+        });
+    }
 });
 
 app.post('/api/bands/search', function (req, res) {
