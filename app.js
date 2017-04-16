@@ -276,11 +276,12 @@ app.post('/api/bands/search', function (req, res) {
     });
 });
 
-app.post('/api/bands/updateApplication', function (req, res) {
+app.post('/api/bands/submitApplication', function (req, res) {
     if (!req.body) {
         res.sendStatus(400);
     }
-    bandService.updateApplication(req.session.userId, (req.body.bandId).replace('modal',''), req.body.status, connection)
+    console.log(req.body.instrument);
+    bandService.submitApplication(req.session.userId, req.body.bandId, req.body.instrument, req.body.message, req.body.applicationStatus, connection)
     .then(function (result) {
         if (result) {
             res.status(200);

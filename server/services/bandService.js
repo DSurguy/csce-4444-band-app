@@ -122,11 +122,12 @@ function search(userId, searchString, connection) {
         var query = ""+
         "SELECT B.BANDID, BANDNAME, DESCRIPTION, GENRE, "+
         "CASE WHEN STATUS = 0 THEN 'none' "+
-             "WHEN STATUS = 1 THEN 'applied (member)' "+
-             "WHEN STATUS = 2 THEN 'applied (promoter)' "+
-             "WHEN STATUS = 3 THEN 'accepted' "+
-             "WHEN STATUS = 4 THEN 'rejected' "+
-             "WHEN STATUS = 5 THEN 'blocked' "+ 
+            "WHEN STATUS = 1 THEN 'applied (manager)' "+
+             "WHEN STATUS = 2 THEN 'applied (member)' "+
+             "WHEN STATUS = 3 THEN 'applied (promoter)' "+
+             "WHEN STATUS = 4 THEN 'accepted' "+
+             "WHEN STATUS = 5 THEN 'rejected' "+
+             "WHEN STATUS = 6 THEN 'blocked' "+ 
              "ELSE 'none' END AS STATUS, "+
         "CASE WHEN ROLE = 0 THEN 'owner' "+
              "WHEN ROLE = 1 THEN 'manager' "+
@@ -136,7 +137,7 @@ function search(userId, searchString, connection) {
         "FROM BAND B " + 
         "LEFT JOIN APPLICATION A ON B.BANDID = A.BANDID AND A.USERID = '"+userId+"' " +
         "LEFT JOIN BANDMEMBER M ON B.BANDID = M.BANDID AND M.USERID = '"+userId+"' " +
-        "WHERE B.BANDNAME LIKE '%"+searchString+"%' AND (STATUS <> 5 OR STATUS IS NULL)";
+        "WHERE B.BANDNAME LIKE '%"+searchString+"%' AND (STATUS <> 6 OR STATUS IS NULL)";
 
         connection.query(query, function(err, results, fields) {
             if (err) {
@@ -158,7 +159,7 @@ function search(userId, searchString, connection) {
     });
 }
 
-function updateApplication(userId, bandId, status, connection) {
+function submitApplication(userId, bandId, instrument, message, applicationStatus, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
         "SELECT USERID, BANDID, STATUS FROM APPLICATION WHERE USERID = "+userId+" AND BANDID = "+bandId;
@@ -172,11 +173,11 @@ function updateApplication(userId, bandId, status, connection) {
 
             // If there is already an application then we are updating it
             if (results.length > 0){
-                query = "UPDATE APPLICATION SET STATUS = "+status+" WHERE USERID = "+userId+" AND BANDID = "+bandId;
+                query = "UPDATE APPLICATION SET STATUS = "+applicationStatus+", INSTRUMENT = "+instrument+", MESSAGE = "+message+" WHERE USERID = "+userId+" AND BANDID = "+bandId;
             }
             // We're creating a new application
             else {
-                query = "INSERT INTO APPLICATION (USERID, BANDID, STATUS) VALUES ("+userId+","+bandId+","+status+")";
+                query = "INSERT INTO APPLICATION (USERID, BANDID, STATUS, INSTRUMENT, MESSAGE) VALUES ("+userId+","+bandId+","+applicationStatus+",'"+instrument+"','"+message+"')";
             }
 
             connection.query(query, function(err, results, fields) {
@@ -225,4 +226,4 @@ function cancelApplication(userId, bandId, connection) {
     });
 }
 
-module.exports = {registerBand, getAllBands, getBand, search, updateApplication, cancelApplication};
+module.exports = {registerBand, getAllBands, getBand, search, submitApplication, cancelApplication};
