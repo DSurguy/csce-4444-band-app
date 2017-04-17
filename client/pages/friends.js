@@ -77,7 +77,7 @@ FriendsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
-        page.ctrl.updateStatus(toUserId, 'requested')
+        page.ctrl.updateStatus(toUserId, Friend.STATUS.REQUESTED)
         .then(function (result) {
             window.location.reload();  
         }).fail(console.error);
@@ -87,7 +87,7 @@ FriendsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
-        page.ctrl.updateStatus(toUserId, 3)
+        page.ctrl.updateStatus(toUserId, Friend.STATUS.PENDING)
         .then(function (result) {
             window.location.reload();  
         }).fail(console.error);
@@ -97,7 +97,7 @@ FriendsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
-        page.ctrl.updateStatus(toUserId, 0)
+        page.ctrl.updateStatus(toUserId, Friend.STATUS.NONE)
         .then(function (result) {
             window.location.reload();  
         }).fail(console.error);
@@ -107,7 +107,7 @@ FriendsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
-        page.ctrl.updateStatus(toUserId, 0)
+        page.ctrl.updateStatus(toUserId, Friend.STATUS.NONE)
         .then(function (result) {
             window.location.reload();  
         }).fail(console.error);
@@ -127,7 +127,7 @@ FriendsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
-        page.ctrl.updateStatus(toUserId, 0)
+        page.ctrl.updateStatus(toUserId, Friend.STATUS.NONE)
         .then(function (result) {
             window.location.reload();  
         }).fail(console.error);
@@ -137,7 +137,7 @@ FriendsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
-        page.ctrl.updateStatus(toUserId, 0)
+        page.ctrl.updateStatus(toUserId, Friend.STATUS.NONE)
         .then(function (result) {
             window.location.reload();  
         }).fail(console.error);
