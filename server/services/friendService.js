@@ -100,7 +100,7 @@ function requestFriend(from, to, connection){
                 userId: to,
                 message: 'New Friend Request',
                 link: '/friends',
-                type: Notification.MSG_TYPE.FRIEND_REQUEST
+                type: Notification.TYPE.FRIEND_REQUEST
             });
         })
         .catch(reject);
@@ -170,11 +170,11 @@ function _notifyStatusUpdate(from, to, status, connection){
                 switch( status ){
                     case Friend.STATUS.REQUESTED:
                         notificationParams.message = `New friend request from ${results[0].Username}`;
-                        notificationParams.type = Notification.MSG_TYPE.FRIEND_REQUEST;
+                        notificationParams.type = Notification.TYPE.FRIEND_REQUEST;
                     break;
                     case Friend.STATUS.FRIEND:
                         notificationParams.message = `You are now friends with ${results[0].Username}!`;
-                        notificationParams.type = Notification.MSG_TYPE.FRIEND_ACCEPTED;
+                        notificationParams.type = Notification.TYPE.FRIEND_ACCEPTED;
                     break;
                 }
                 NotificationService.notifyUser(connection, notificationParams)

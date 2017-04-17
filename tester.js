@@ -24,7 +24,7 @@ NotificationService.notifyUser(connection, {
     userId: 1,
     message: 'This is a test notification',
     link: '/profile',
-    type: Notification.MSG_TYPE.ERROR
+    type: Notification.TYPE.ERROR
 })
 .then(function (){
     console.log('Success');

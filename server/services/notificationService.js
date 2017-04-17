@@ -2,13 +2,27 @@ var extend = require('extend'),
     Notification = require('../../shared/classes/notification.js');
 
 var NotificationService = {
+    getNotifications: function (connection, userId){
+        return new Promise(function (resolve, reject){
+            var query = `SELECT * FROM NOTIFICATION WHERE UserId='${userId}'`;
+            
+            connection.query(query, function (err, result){
+                if( err ){
+                    reject(err);
+                }
+                else{
+                    resolve(Array.prototype.slice.call(result, 0));
+                }
+            });
+        });
+    },
     notifyUser: function (connection, params){
         return new Promise(function (resolve, reject){
             params = extend(true, {
                 userId: 1,
                 message: '',
                 link: '',
-                type: Notification.MSG_TYPE.NO_MESSAGE
+                type: Notification.TYPE.NO_MESSAGE
             }, params);
             
             params.unread = true;

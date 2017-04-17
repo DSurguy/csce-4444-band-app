@@ -39,4 +39,7 @@ MainView.prototype.init = function (){
     $(page.elem).on('click', '.search-bands', function (e){
         window.location = '/bands/search';
     });
+    $(page.elem).on('click', '.notifications', function (e){
+        window.location = '/notifications';
+    });
 };
