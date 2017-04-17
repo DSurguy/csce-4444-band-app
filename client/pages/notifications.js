@@ -31,7 +31,7 @@ NotificationsCtrl.prototype.constructor = NotificationsCtrl;
 NotificationsCtrl.prototype.init = function (){
     var ctrl = this;
     return new Promise(function (resolve, reject){
-        ctrl.getNotifications.then(resolve).catch(reject);
+        ctrl.getNotifications().then(resolve).catch(reject);
     });
 };
 NotificationsCtrl.prototype.getNotifications = function (){

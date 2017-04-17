@@ -3,6 +3,7 @@
 /* global PageCtrl */
 /* global $ */
 /* global MenuComponent */
+/* global Friend */
 
 function FriendsPage(app, data){
     Page.call(this, app, $('#friendsPage')[0], FriendsCtrl, FriendsView, {
@@ -56,69 +57,8 @@ function FriendsView(page){
 FriendsView.prototype = Object.create(PageView.prototype);
 FriendsView.prototype.constructor = FriendsView;
 FriendsView.prototype.init = function (){
-    var friendsElem = $(this.page.elem).find('.friends');
-    var friendModal = $(this.page.elem).find('.friend-modal');
-    var modalButtons = '';
-    var colorSchema = '';
-    var badge = '';
-
-    for( var i=0; i<this.page.ctrl.friends.length; i++ ){
-        if (this.page.ctrl.friends[i].status === 'friend') {
-            colorSchema = '"card card-success" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnUnfriendModal" type="button" class="btn btn-danger" data-dismiss="modal">Unfriend</button>';
-        }
-   else if (this.page.ctrl.friends[i].status === 'requested') { 
-            colorSchema = '"card card-info" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnCancelRequestModal" type="button" class="btn btn-default" data-dismiss="modal">Cancel Request</button>'+
-                           '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
-        }
-        else if (this.page.ctrl.friends[i].status === 'pending') { 
-            colorSchema = '"card card-warning" style="width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnAcceptModal" type="button" class="btn btn-success" data-dismiss="modal">Accept</button>'+
-                            '<button id="btnRejectModal" type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'+
-                            '<button id="btnBlockModal" type="button" class="btn btn-default" data-dismiss="modal">Block User</button>';
-        }
-        else if (this.page.ctrl.friends[i].status === 'blocked') {
-            colorSchema = '"card card-inverse" style="background-color: #333; border-color: #333; width: 50rem; cursor: pointer"';
-            modalButtons = '<button id="btnUnblockModal" type="button" class="btn btn-default" data-dismiss="modal">Unblock User</button>';
-        }
-
-        friendsElem.append('<div class='+colorSchema+' data-toggle="modal" data-target="#modal'+this.page.ctrl.friends[i].id+'">'+
-                                '<div class="card-block">'+
-                                    '<h4 class="card-title">'+this.page.ctrl.friends[i].userName+
-                                        '<span style="display:inline-block; width: 10rem;"></span>'+
-                                        '<small>('+this.page.ctrl.friends[i].name+')</small>'+
-                                        '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status+
-                                    '</h4>'+
-                                '</div>'+
-                            '</div><p/>');
-/*                            '<div class="card-block bands'+i+'">');
-        var bandsElem = $(this.page.elem).find('.bands'+i);
-        for( var j=0; j<this.page.ctrl.friends[i].bands.length; j++ ){
-            bandsElem.append('<div class="band btn btn-secondary" id='+this.page.ctrl.friends[i].bands[j].id+'>'+this.page.ctrl.friends[i].bands[j].bandName+'</div><span style="display:inline-block; width: 1rem;"></span>');
-        }   */ 
-    //    friendsElem.append('</div></div><p/>');
-
-        friendModal.append('<div id="modal'+this.page.ctrl.friends[i].id+'" class="modal fade" role="dialog">'+
-                                '<div class="modal-dialog">'+
-                                    '<div class="modal-content">'+
-                                        '<div class="modal-header">'+
-                                            '<button type="button" class="close" data-dismiss="modal">&times;</button>'+
-                                            '<h4 class="modal-title">'+this.page.ctrl.friends[i].userName+'</h4>'+
-                                        '</div>'+
-                                        '<div class="modal-body">'+
-                                            '<p>'+this.page.ctrl.friends[i].name+'</p>'+
-                                            '<p>'+this.page.ctrl.friends[i].bio+'</p>'+
-                                        '</div>'+
-                                        '<div class="modal-footer">'+modalButtons+
-                                            '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>'+
-                                        '</div>'+
-                                    '</div>'+
-                                '</div>'+
-                            '</div>');
-    }
-   
     this.bindEvents();
+    this.updateUserList();
 };
 
 FriendsView.prototype.bindEvents = function (){
@@ -130,139 +70,155 @@ FriendsView.prototype.bindEvents = function (){
     });
 
     pageElem.on('click', '.friend', function (e){
-        window.location = '/friends/' + e.target.id;
+        page.view.showFriendModal(parseInt($(this).attr('data-friend-id'),10));
     });
 
-    pageElem.on('click', '#btnRequestModal', function (e){
+    pageElem.on('click', '.btnRequestModal', function (e){
         e.preventDefault();
         e.stopPropagation();
-        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, 'requested')
         .then(function (result) {
-            if (result === true) {
-                alert("Success!");   
-                location.reload(); 
-            }
-            else {
-                alert("Failure!");
-            }
-        })
-        .fail(function (err) {
-            alert("Error!");
-        });
+            window.location.reload();  
+        }).fail(console.error);
     });
 
-    pageElem.on('click', '#btnBlockModal', function (e){
+    pageElem.on('click', '.btnBlockModal', function (e){
         e.preventDefault();
         e.stopPropagation();
-        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, 3)
         .then(function (result) {
-            if (result === true) {
-                alert("Success!");  
-                location.reload();   
-            }
-            else {
-                alert("Failure!");
-            }
-        })
-        .fail(function (err) {
-            alert("Error!");
-        });
+            window.location.reload();  
+        }).fail(console.error);
     });
 
-    pageElem.on('click', '#btnUnblockModal', function (e){
+    pageElem.on('click', '.btnUnblockModal', function (e){
         e.preventDefault();
         e.stopPropagation();
-        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
-            if (result === true) {
-                alert("Success!");  
-                location.reload();   
-            }
-            else {
-                alert("Failure!");
-            }
-        })
-        .fail(function (err) {
-            alert("Error!");
-        });
+            window.location.reload();  
+        }).fail(console.error);
     });
 
-    pageElem.on('click', '#btnCancelRequestModal', function (e){
+    pageElem.on('click', '.btnCancelRequestModal', function (e){
         e.preventDefault();
         e.stopPropagation();
-        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
-            if (result === true) {
-                alert("Success!");  
-                location.reload();   
-            }
-            else {
-                alert("Failure!");
-            }
-        })
-        .fail(function (err) {
-            alert("Error!");
-        });
+            window.location.reload();  
+        }).fail(console.error);
     });
 
-    pageElem.on('click', '#btnAcceptModal', function (e){
+    pageElem.on('click', '.btnAcceptModal', function (e){
         e.preventDefault();
         e.stopPropagation();
-        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
-        page.ctrl.updateStatus(toUserId, 1)
+        var toUserId = $(this).parents('.modal').attr('data-friend-id');
+        page.ctrl.updateStatus(toUserId, Friend.STATUS.FRIEND)
         .then(function (result) {
-            if (result === true) {
-                alert("Success!");  
-                location.reload();   
-            }
-            else {
-                alert("Failure!");
-            }
-        })
-        .fail(function (err) {
-            alert("Error!");
-        });
+            window.location.reload();  
+        }).fail(console.error);
     });
 
-    pageElem.on('click', '#btnRejectModal', function (e){
+    pageElem.on('click', '.btnRejectModal', function (e){
         e.preventDefault();
         e.stopPropagation();
-        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
-            if (result === true) {
-                alert("Success!");  
-                location.reload();   
-            }
-            else {
-                alert("Failure!");
-            }
-        })
-        .fail(function (err) {
-            alert("Error!");
-        });
+            window.location.reload();  
+        }).fail(console.error);
     });
 
-    pageElem.on('click', '#btnUnfriendModal', function (e){
+    pageElem.on('click', '.btnUnfriendModal', function (e){
         e.preventDefault();
         e.stopPropagation();
-        toUserId = this.parentElement.parentElement.parentElement.parentElement.id;
+        var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, 0)
         .then(function (result) {
-            if (result === true) {
-                alert("Success!");   
-                location.reload();  
-            }
-            else {
-                alert("Failure!");
-            }
-        })
-        .fail(function (err) {
-            alert("Error!");
-        });
+            window.location.reload();  
+        }).fail(console.error);
     });        
+};
+
+FriendsView.prototype.updateUserList = function (){
+    var friendsElem = $(this.page.elem).find('.friends');
+    var cardColor = '';
+    var badge = '';
+
+    // Clear any current cards from previous search
+    friendsElem.find('.card').remove();
+
+    for( var i=0; i<this.page.ctrl.friends.length; i++ ){
+        // Determine how to style each card and modal based on status
+        if (this.page.ctrl.friends[i].status === 'friend') {
+            cardColor = 'card-success';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
+        }
+        else if (this.page.ctrl.friends[i].status === 'requested') { 
+            cardColor = 'card-info';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
+        }
+        else if (this.page.ctrl.friends[i].status === 'pending') { 
+            cardColor = 'card-warning';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
+        }
+        else if (this.page.ctrl.friends[i].status === 'blocked') {
+            cardColor = 'card-inverse';
+            badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
+        }
+        else if (this.page.ctrl.friends[i].status === 'none') {
+            cardColor = 'card-primary';
+            badge = '';
+        }
+
+        // Add card for each user
+        friendsElem.append(''+
+        '<div class="friend card '+cardColor+'" data-friend-id="'+this.page.ctrl.friends[i].id+'">'+
+            '<div class="card-block">'+
+                '<h4 class="card-title">'+this.page.ctrl.friends[i].userName+
+                    '<span style="display:inline-block; width: 10rem;"></span>'+
+                    '<small>('+this.page.ctrl.friends[i].name+')</small>'+badge+                                        
+                '</h4>'+
+            '</div>'+
+        '</div><p/>');
+    }
+};
+
+FriendsView.prototype.showFriendModal = function (friendId){
+    var thisFriend = this.page.ctrl.friends.filter(function (friend){
+        return friend.id == friendId;
+    })[0],
+        modalButtons;
+        
+    if (thisFriend.status === 'friend') {
+        modalButtons = '<button type="button" class="btn btn-danger btnUnfriendModal" data-dismiss="modal">Unfriend</button>'+
+                        '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
+    }
+    else if (thisFriend.status === 'requested') { 
+        modalButtons = '<button type="button" class="btn btn-default btnCancelRequestModal" data-dismiss="modal">Cancel Request</button>'+
+                       '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
+    }
+    else if (thisFriend.status === 'pending') { 
+        modalButtons = '<button type="button" class="btn btn-success btnAcceptModal" data-dismiss="modal">Accept</button>'+
+                        '<button type="button" class="btn btn-danger btnRejectModal" data-dismiss="modal">Reject</button>'+
+                        '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
+    }
+    else if (thisFriend.status === 'blocked') {
+        modalButtons = '<button type="button" class="btn btn-default btnUnblockModal" data-dismiss="modal">Unblock User</button>';
+    }
+    else if (thisFriend.status === 'none') {
+        modalButtons = '<button type="button" class="btn btn-success btnRequestModal" data-dismiss="modal">Send Friend Request</button>'+
+                        '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
+    }
+    
+    var friendModal = $(this.page.elem).find('.friend-modal');
+    friendModal.find('.modal').attr('data-friend-id',thisFriend.id);
+    friendModal.find('.modal-title').html(thisFriend.userName);
+    friendModal.find('.modal-body').html('<p>'+thisFriend.name+'</p><p>'+thisFriend.bio+'</p>');
+    friendModal.find('.dynamic-buttons').html(modalButtons);
+    friendModal.find('.modal').modal();
 };
