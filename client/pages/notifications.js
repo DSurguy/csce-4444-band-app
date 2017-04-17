@@ -31,6 +31,12 @@ NotificationsCtrl.prototype.constructor = NotificationsCtrl;
 NotificationsCtrl.prototype.init = function (){
     var ctrl = this;
     return new Promise(function (resolve, reject){
+        ctrl.getNotifications.then(resolve).catch(reject);
+    });
+};
+NotificationsCtrl.prototype.getNotifications = function (){
+    var ctrl = this;
+    return new Promise(function (resolve, reject){
         //get notifications
         $.ajax({
             method: 'GET',
@@ -44,6 +50,10 @@ NotificationsCtrl.prototype.init = function (){
         })
         .catch(console.error);
     });
+};
+
+NotificationsCtrl.prototype.deleteNotification = function (){
+    return Promise.resolve();
 };
 
 /**
@@ -60,12 +70,23 @@ NotificationsView.prototype.init = function (){
 };
 
 NotificationsView.prototype.bindEvents = function (){
-    /*var pageElem = $(this.page.elem),
-        page = this.page;*/
-}
+    var pageElem = $(this.page.elem),
+        page = this.page;
+        
+    pageElem.on('close.bs.alert', function (e) {
+        //delete notification on the server
+        page.ctrl.deleteNotification($(this).attr('data-notification-id'))
+        .then(page.ctrl.getNotifications)
+        .then(page.view.render)
+        .catch(function (err){
+            alert(err.stack);
+            page.ctrl.getNotifications();
+        });
+    });
+};
 
 NotificationsView.prototype.render = function (){
-    var notificationElem = $('#notificationsPage').find('.notifications');
+    var notificationElem = $('#notificationsPage').find('.notifications').empty();
     this.page.ctrl.notifications.forEach(function (notification){
         var alertType;
         switch(notification.type){
@@ -84,6 +105,12 @@ NotificationsView.prototype.render = function (){
                 alertType = 'alert-info';
             break;
         }
-        notificationElem.append('<a href="'+notification.link+'" class="alert '+alertType+'" data-notification-id="'+notification.notificationId+'">'+notification.message+'</a>');
+        notificationElem.append(''+
+        '<a href="'+notification.link+'" class="notification alert alert-dismissable '+alertType+'" data-notification-id="'+notification.notificationId+'">'+
+            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">'+
+                '<span aria-hidden="true">&times;</span>'+
+            '</button>'+
+            notification.message+
+        '</a>');
     });
 };
