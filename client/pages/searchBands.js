@@ -171,7 +171,7 @@ SearchBandsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         bandId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-band-id'),10)
-        page.ctrl.expandBandModal('Manager', SearchedBand.APPLICATION_STATUS.APPLIED_MANAGER, bandId);
+        page.ctrl.expandBandModal('Manager', Application.STATUS.APPLIED_MANAGER, bandId);
     })
 
     // Handle member application request
@@ -179,7 +179,7 @@ SearchBandsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         bandId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-band-id'),10)
-        page.ctrl.expandBandModal('Member', SearchedBand.APPLICATION_STATUS.APPLIED_MEMBER, bandId);
+        page.ctrl.expandBandModal('Member', Application.STATUS.APPLIED_MEMBER, bandId);
     })
 
     // Handle promoter application request
@@ -187,7 +187,7 @@ SearchBandsView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         bandId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-band-id'),10)
-        page.ctrl.expandBandModal('Promoter', SearchedBand.APPLICATION_STATUS.APPLIED_PROMOTER, bandId);
+        page.ctrl.expandBandModal('Promoter', Application.STATUS.APPLIED_PROMOTER, bandId);
     });
 
     // Handle application cancel request
@@ -229,7 +229,7 @@ SearchBandsView.prototype.updateBandList = function (){
             badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.bands[i].role;
         }
         // Determine how to style each card and modal based on application status if they do not have a role in the band
-                else if (this.page.ctrl.bands[i].applicationStatus === 'applied (manager)') {
+        else if (this.page.ctrl.bands[i].applicationStatus === 'applied (manager)') {
             cardColor = 'card-info';
             badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.bands[i].applicationStatus;
 

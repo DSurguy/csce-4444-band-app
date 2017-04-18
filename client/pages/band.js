@@ -54,4 +54,13 @@ BandView.prototype.init = function (){
     this.bindEvents();
 };
 
-BandView.prototype.bindEvents = function (){};
+BandView.prototype.bindEvents = function (){
+    var pageElem = $(this.page.elem);
+
+     pageElem.on('click', '.applications', function (e){
+        var url = window.location.pathname;
+        var id = url.substring(url.lastIndexOf('/') + 1);
+
+        window.location = '/applications/' + id;
+    });
+};

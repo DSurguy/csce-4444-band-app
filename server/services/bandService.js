@@ -1,6 +1,8 @@
 var SimpleBand = require('../../shared/classes/simpleBand.js');
 var Band = require('../../shared/classes/band.js');
 var SearchedBand = require('../../shared/classes/searchedBand.js');
+var Application = require('../../shared/classes/application.js');
+var BandMember = require('../../shared/classes/bandMember.js');
 
 function registerBand(userId, bandName, description, genre, connection) {
     return new Promise((resolve, reject) => {
@@ -64,12 +66,16 @@ function createBand(data) {
 
 function getAllBands(userId, connection) {
     return new Promise((resolve, reject) => {
-        var query = 'SELECT BANDID, BANDNAME, OWNERID, USERNAME FROM BAND B ' + 
-                    'JOIN USER U ON U.USERID = B.OWNERID ' +
-                    'WHERE B.OWNERID = \'' + userId + '\'';
+        var query = ""+
+        "SELECT B.BANDID, BANDNAME, OWNERID, USERNAME FROM BAND B "+ 
+        "JOIN USER U ON U.USERID = B.OWNERID "+
+        "JOIN BANDMEMBER M ON M.BANDID = B.BANDID "+
+        "WHERE M.USERID = "+userId;
         
         connection.query(query, function(err, results, fields) {
             if (err) {
+                console.log(query);
+                console.log(err);
                 reject(err);
                 return;
             }
@@ -95,8 +101,6 @@ function getBand(bandId, connection) {
         
         connection.query(query, function(err, results, fields) {
             if (err) {
-                console.log(err);
-                console.log(query);
                 reject(err);
                 return;
             }
@@ -159,6 +163,38 @@ function search(userId, searchString, connection) {
     });
 }
 
+function getAllApplications(userId, bandId, connection) {
+    return new Promise((resolve, reject) => {
+        var query = ""+
+        "SELECT ID, A.USERID, BANDID, STATUS, INSTRUMENT, MESSAGE, USERNAME, CONCAT(FIRSTNAME,' ', LASTNAME) AS NAME "+
+        "FROM APPLICATION A "+
+        "JOIN USER U ON A.USERID = U.USERID "+
+        "WHERE BANDID = "+bandId+" AND "+userId+" IN "+
+            "(SELECT USERID FROM BANDMEMBER WHERE USERID = "+userId+" AND BANDID = "+bandId+")"+
+            "AND STATUS IN ("+Application.STATUS.APPLIED_MANAGER+","+Application.STATUS.APPLIED_MEMBER+","+Application.STATUS.APPLIED_PROMOTER+")";
+
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            var applications = results.map(function (resultRow) {
+                return new Application({id : resultRow.ID, 
+                    userId : resultRow.USERID,
+                    status : resultRow.STATUS,
+                    instrument : resultRow.INSTRUMENT,
+                    message : resultRow.MESSAGE,
+                    username : resultRow.USERNAME,
+                    name : resultRow.NAME
+                });
+            })
+
+            resolve(applications);
+        });
+    });    
+}
+
 function submitApplication(userId, bandId, instrument, message, applicationStatus, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
@@ -194,8 +230,7 @@ function submitApplication(userId, bandId, instrument, message, applicationStatu
 
 function cancelApplication(userId, bandId, connection) {
     return new Promise((resolve, reject) => {
-        var query = ""+
-        "SELECT USERID, BANDID, STATUS FROM APPLICATION WHERE USERID = "+userId+" AND BANDID = "+bandId;
+        var query = "SELECT USERID, BANDID, STATUS FROM APPLICATION WHERE USERID = "+userId+" AND BANDID = "+bandId;
        
 
         connection.query(query, function(err, results, fields) {
@@ -226,4 +261,85 @@ function cancelApplication(userId, bandId, connection) {
     });
 }
 
-module.exports = {registerBand, getAllBands, getBand, search, submitApplication, cancelApplication};
+function processApplication(userId, bandId, applicationId, processStatus, applicationStatus, connection) {
+    return new Promise((resolve, reject) => {
+        var role = '';
+
+        switch(parseInt(applicationStatus)) {
+            case Application.STATUS.APPLIED_MANAGER:
+                role = BandMember.ROLE.MANAGER;
+                break;
+            case Application.STATUS.APPLIED_MEMBER:
+                role = BandMember.ROLE.MEMBER;
+                break;
+            case Application.STATUS.APPLIED_PROMOTER:
+                role = BandMember.ROLE.PROMOTER;
+                break;
+        }
+
+        // Check that the user has permission to approve this application
+        var query = "SELECT USERID, BANDID FROM BANDMEMBER WHERE USERID = "+userId+" AND BANDID = "+bandId+" AND ROLE IN ("+BandMember.ROLE.OWNER+","+BandMember.ROLE.MANAGER+")";
+    
+        connection.beginTransaction(function(err) {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            connection.query(query, function(err, results, fields) {
+                if (err) {
+                    reject(err);
+                    return connection.rollback(function() {});
+                }
+
+                // If we found an application remove it
+                if (results.length === 0){
+                    resolve(false);
+                    return;
+                }
+
+                else {
+                    query = "UPDATE APPLICATION SET STATUS = "+processStatus+" WHERE ID = "+applicationId;
+                }
+
+                connection.query(query, function(err, results, fields) {
+                    if (err) {
+                        reject(err);
+                        return connection.rollback(function() {});
+                    }
+
+                    if (processStatus == Application.STATUS.ACCEPTED) {
+                        query = ""+
+                        "INSERT INTO BANDMEMBER (USERID, BANDID, ROLE) VALUES "+
+                        "((SELECT USERID FROM APPLICATION WHERE ID = "+applicationId+"),"+bandId+","+role+")";
+                    }
+
+                    connection.query(query, function(err, results, fields) {
+                        if (err) {
+                            reject(err);
+                            return connection.rollback(function() {});
+                        }
+
+                        connection.commit(function(err){
+                            if (err) {
+                                reject(err);
+                                return connection.rollback(function() {});
+                            }
+                            resolve(true);
+                        });
+                    });
+                });
+            });
+        });
+    });
+}
+
+module.exports = {
+    registerBand, 
+    getAllBands, 
+    getBand, search, 
+    submitApplication, 
+    cancelApplication, 
+    getAllApplications, 
+    processApplication
+};

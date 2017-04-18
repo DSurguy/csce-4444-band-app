@@ -106,13 +106,17 @@ app.get('/bands/search', checkSession, function (req, res){
     res.render('searchBands');
 });
 
+app.get('/applications/:bandId', checkSession, function (req, res){
+    res.render('applications');
+});
+
 app.post('/api/login', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
     }
     loginService.authLogin(req.body.username, req.body.password, connection)
     .then(function (result) {
-        if (result != false) {
+        if (result) {
             req.session.userId = result; 
             res.sendStatus(200);
         }
@@ -137,7 +141,7 @@ app.post('/api/register', function (req, res){
     }
     registerUser(req.body.username, req.body.password, req.body.firstName, req.body.lastName, req.body.bio, req.body.email, connection)
     .then(function (result) {
-        if (result == true) {
+        if (result) {
             res.sendStatus(200);
         }
         else {
@@ -156,7 +160,7 @@ app.post('/api/bands/register', function (req, res){
     }
     bandService.registerBand(req.session.userId, req.body.bandName, req.body.description, req.body.genre, connection)
     .then(function (result) {
-        if (result == true) {
+        if (result) {
             res.sendStatus(200);
         }
         else {
@@ -171,7 +175,7 @@ app.post('/api/bands/register', function (req, res){
 app.get('/api/bands', function (req, res) {
     bandService.getAllBands(req.session.userId, connection)
     .then(function (result) {
-        if (result != false) {
+        if (result) {
             res.status(200);
             res.send(result);
         }
@@ -280,7 +284,6 @@ app.post('/api/bands/submitApplication', function (req, res) {
     if (!req.body) {
         res.sendStatus(400);
     }
-    console.log(req.body.instrument);
     bandService.submitApplication(req.session.userId, req.body.bandId, req.body.instrument, req.body.message, req.body.applicationStatus, connection)
     .then(function (result) {
         if (result) {
@@ -303,6 +306,47 @@ app.post('/api/bands/cancelApplication', function (req, res) {
     bandService.cancelApplication(req.session.userId, (req.body.bandId).replace('modal',''), connection)
     .then(function (result) {
         if (result) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e})
+    });
+});
+
+app.get('/api/bands/:bandId/applications', function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    bandService.getAllApplications(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        if (result != false) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e})
+    });
+});
+
+app.post('/api/bands/:bandId/processapplication', function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    bandService.processApplication(req.session.userId, req.params.bandId, req.body.applicationId, req.body.processStatus, req.body.applicationStatus, connection)
+    .then(function (result) {
+        if (result != false) {
             res.status(200);
             res.send(result);
         }

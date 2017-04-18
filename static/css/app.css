@@ -186,3 +186,9 @@ h1, h2{
 #searchBandsPage .band-modal .dynamic-buttons button {
     margin-right: 0.25rem;
 }
+
+#applicationsPage .application{
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
+}
