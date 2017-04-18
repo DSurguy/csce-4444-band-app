@@ -7,15 +7,6 @@ function SearchedBand(json){
     this.genre = json.genre || '';
 }
 
-SearchedBand.STATUS = {
-	NONE: 0, 
-	APPLIED_MEMBER: 1,
-    APPLIED_PROMOTER: 2, 
-	ACCEPTED: 3, 
-	REJECTED: 4, 
-	BLOCKED: 5 
-}
-
 SearchedBand.ROLE = {
     OWNER: 0,
     MANAGER: 1,

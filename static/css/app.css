@@ -190,3 +190,8 @@ h1, h2{
 #notificationsPage .notification {
     display: block;
 }
+#applicationsPage .application{
+    display: block;
+    margin: 10px 0;
+    cursor: pointer;
+}
