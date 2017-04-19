@@ -23,31 +23,31 @@ FriendsCtrl.prototype = Object.create(PageCtrl.prototype);
 FriendsCtrl.prototype.constructor = FriendsCtrl;
 FriendsCtrl.prototype.init = function (){
     var defer = $.Deferred();
+    
     var that = this;
-    that.friends = [];
+    
     $.ajax('/api/friends', {
         method: 'GET'
     }).then(function (data){
         that.friends = data;
         defer.resolve();
-    }).catch(function (err){
-        defer.reject(err);
-    });
+    })
+    .catch(defer.reject);
 
     return defer.promise();
 };
 
 FriendsCtrl.prototype.updateStatus = function (toUserId, status){
     var defer = $.Deferred();
+    
     $.ajax({
         url: '/api/friends/updatestatus',
         type: 'POST',
         data: {toUserId : toUserId, status : status}
-    }).then(function (result){
-        defer.resolve(result);
-    }).catch(function (err){
-        defer.reject(err);
-    });
+    })
+    .then(defer.resolve)
+    .catch(defer.reject);
+    
     return defer.promise();
 };
 
@@ -78,9 +78,10 @@ FriendsView.prototype.bindEvents = function (){
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, Friend.STATUS.REQUESTED)
-        .then(function (result) {
-            window.location.reload();  
-        }).fail(console.error);
+        .then(function (){
+            window.location.reload();
+        })
+        .fail(console.error);
     });
 
     pageElem.on('click', '.btnBlockModal', function (e){
@@ -88,9 +89,10 @@ FriendsView.prototype.bindEvents = function (){
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, Friend.STATUS.PENDING)
-        .then(function (result) {
-            window.location.reload();  
-        }).fail(console.error);
+        .then(function (){
+            window.location.reload();
+        })
+        .fail(console.error);
     });
 
     pageElem.on('click', '.btnUnblockModal', function (e){
@@ -98,9 +100,10 @@ FriendsView.prototype.bindEvents = function (){
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, Friend.STATUS.NONE)
-        .then(function (result) {
-            window.location.reload();  
-        }).fail(console.error);
+        .then(function (){
+            window.location.reload();
+        })
+        .fail(console.error);
     });
 
     pageElem.on('click', '.btnCancelRequestModal', function (e){
@@ -108,9 +111,10 @@ FriendsView.prototype.bindEvents = function (){
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, Friend.STATUS.NONE)
-        .then(function (result) {
-            window.location.reload();  
-        }).fail(console.error);
+        .then(function (){
+            window.location.reload();
+        })
+        .fail(console.error);
     });
 
     pageElem.on('click', '.btnAcceptModal', function (e){
@@ -118,9 +122,10 @@ FriendsView.prototype.bindEvents = function (){
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, Friend.STATUS.FRIEND)
-        .then(function (result) {
-            window.location.reload();  
-        }).fail(console.error);
+        .then(function (){
+            window.location.reload();
+        })
+        .fail(console.error);
     });
 
     pageElem.on('click', '.btnRejectModal', function (e){
@@ -128,9 +133,10 @@ FriendsView.prototype.bindEvents = function (){
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, Friend.STATUS.NONE)
-        .then(function (result) {
-            window.location.reload();  
-        }).fail(console.error);
+        .then(function (){
+            window.location.reload();
+        })
+        .fail(console.error);
     });
 
     pageElem.on('click', '.btnUnfriendModal', function (e){
@@ -138,9 +144,10 @@ FriendsView.prototype.bindEvents = function (){
         e.stopPropagation();
         var toUserId = $(this).parents('.modal').attr('data-friend-id');
         page.ctrl.updateStatus(toUserId, Friend.STATUS.NONE)
-        .then(function (result) {
-            window.location.reload();  
-        }).fail(console.error);
+        .then(function (){
+            window.location.reload();
+        })
+        .fail(console.error);
     });        
 };
 

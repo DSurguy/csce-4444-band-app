@@ -105,7 +105,9 @@ ApplicationsView.prototype.bindEvents = function (){
         var applicationStatus = parseInt($(this).parents('.modal').attr('data-application-status'), 10);
         
         page.ctrl.processApplication(applicationId, Application.STATUS.ACCEPTED, applicationStatus)
-        .then(window.location.reload)
+        .then(function (){
+            window.location.reload();
+        })
         .fail(console.error);
     });
 
@@ -118,7 +120,9 @@ ApplicationsView.prototype.bindEvents = function (){
         var applicationStatus = parseInt($(this).parents('.modal').attr('data-application-status'), 10);
         
         page.ctrl.processApplication(applicationId, Application.STATUS.REJECTED, applicationStatus)
-        .then(window.location.reload)
+        .then(function (){
+            window.location.reload();
+        })
         .fail(console.error);
     });
 };
