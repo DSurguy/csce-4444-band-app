@@ -74,8 +74,6 @@ function getAllBands(userId, connection) {
         
         connection.query(query, function(err, results, fields) {
             if (err) {
-                console.log(query);
-                console.log(err);
                 reject(err);
                 return;
             }
@@ -209,7 +207,7 @@ function submitApplication(userId, bandId, instrument, message, applicationStatu
 
             // If there is already an application then we are updating it
             if (results.length > 0){
-                query = "UPDATE APPLICATION SET STATUS = "+applicationStatus+", INSTRUMENT = "+instrument+", MESSAGE = "+message+" WHERE USERID = "+userId+" AND BANDID = "+bandId;
+                query = "UPDATE APPLICATION SET STATUS = "+applicationStatus+", INSTRUMENT = '"+instrument+"', MESSAGE = '"+message+"' WHERE USERID = "+userId+" AND BANDID = "+bandId;
             }
             // We're creating a new application
             else {
@@ -334,6 +332,28 @@ function processApplication(userId, bandId, applicationId, processStatus, applic
     });
 }
 
+function getBandMemberRole(userId, bandId, connection) {
+    return new Promise((resolve, reject) => {
+        var query = ""+
+        "SELECT ROLE FROM BANDMEMBER WHERE BANDID = "+bandId+" AND USERID = "+userId;
+        
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            // Return a list of SimpleBands
+            if (results.length > 0) {
+                resolve(results[0].ROLE);
+            }
+            else {
+                resolve(undefined);
+            }
+        });
+    });
+}
+
 module.exports = {
     registerBand, 
     getAllBands, 
@@ -341,5 +361,6 @@ module.exports = {
     submitApplication, 
     cancelApplication, 
     getAllApplications, 
-    processApplication
+    processApplication,
+    getBandMemberRole
 };

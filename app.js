@@ -394,6 +394,25 @@ app.post('/api/bands/:bandId/processapplication', function (req, res) {
     });
 });
 
+app.get('/api/bands/:bandId/role', function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        if (result != undefined) {
+            // passing integer result for role, so I had to use this deprecated res format...
+            res.status(200, result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');
 });

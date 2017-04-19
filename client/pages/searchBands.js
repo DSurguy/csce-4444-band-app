@@ -283,10 +283,7 @@ SearchBandsView.prototype.showBandModal = function (bandId){
     else if (thisBand.applicationStatus === 'applied (promoter)') {
         modalButtons = '<button id="btnCancelApplicationModal" type="button" class="btn btn-default" data-dismiss="modal">Cancel Promoter Application</button>';
     }
-    else if (thisBand.applicationStatus === 'rejected') { 
-        modalButtons = '';
-    }
-    else if (thisBand.applicationStatus === 'none') {
+    else if (thisBand.applicationStatus !== 'blocked') {
         modalButtons = '<button id="btnApplyManager" type="button" class="btn btn-success">Apply for Manager</button>'+ 
                        '<button id="btnApplyMember" type="button" class="btn btn-success">Apply for Member</button>'+
                        '<button id="btnApplyPromoter" type="button" class="btn btn-success">Apply for Promoter</button>';
