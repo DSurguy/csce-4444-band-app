@@ -7,6 +7,7 @@ var hbs = require('express-hbs');
 var registerUser = require('./server/services/userRegistrationService.js');
 var bandService = require('./server/services/bandService.js');
 var friendService = require('./server/services/friendService.js');
+var notificationService = require('./server/services/notificationService.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 
@@ -90,8 +91,16 @@ app.get('/bands/register', checkSession, function (req, res){
     res.render('registerBand');
 });
 
+app.get('/bands/search', checkSession, function (req, res){
+    res.render('searchBands');
+});
+
 app.get('/bands/:bandId', checkSession, function (req, res){
     res.render('band');
+});
+
+app.get('/notifications', checkSession, function (req, res){
+    res.render('notifications');
 });
 
 app.get('/friends', checkSession, function (req, res){
@@ -102,13 +111,17 @@ app.get('/friends/add', checkSession, function (req, res){
     res.render('addFriend');
 });
 
+app.get('/bands/:bandId/applications/', checkSession, function (req, res){
+    res.render('applications');
+});
+
 app.post('/api/login', function (req, res){
     if (!req.body) {
         res.sendStatus(400);
     }
     loginService.authLogin(req.body.username, req.body.password, connection)
     .then(function (result) {
-        if (result != false) {
+        if (result) {
             req.session.userId = result; 
             res.sendStatus(200);
         }
@@ -118,11 +131,11 @@ app.post('/api/login', function (req, res){
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
-app.post('/api/logout', function (req, res){
+app.post('/api/logout', checkSession, function (req, res){
     req.session.destroy();
     res.status(200).redirect('/login');
 });
@@ -133,7 +146,7 @@ app.post('/api/register', function (req, res){
     }
     registerUser(req.body.username, req.body.password, req.body.firstName, req.body.lastName, req.body.bio, req.body.email, connection)
     .then(function (result) {
-        if (result == true) {
+        if (result) {
             res.sendStatus(200);
         }
         else {
@@ -146,13 +159,13 @@ app.post('/api/register', function (req, res){
     });
 });
 
-app.post('/api/bands/register', function (req, res){
+app.post('/api/bands/register', checkSession, function (req, res){
     if (!req.body) {
         res.sendStatus(400);
     }
-    bandService.registerBand(req.session.userId, req.body.bandName, req.body.description, connection)
+    bandService.registerBand(req.session.userId, req.body.bandName, req.body.description, req.body.genre, connection)
     .then(function (result) {
-        if (result == true) {
+        if (result) {
             res.sendStatus(200);
         }
         else {
@@ -164,10 +177,10 @@ app.post('/api/bands/register', function (req, res){
     });
 });
 
-app.get('/api/bands', function (req, res) {
+app.get('/api/bands', checkSession, function (req, res) {
     bandService.getAllBands(req.session.userId, connection)
     .then(function (result) {
-        if (result != false) {
+        if (result) {
             res.status(200);
             res.send(result);
         }
@@ -180,7 +193,7 @@ app.get('/api/bands', function (req, res) {
     });
 });
 
-app.get('/api/bands/:bandId', function (req, res) {
+app.get('/api/bands/band/:bandId', checkSession, function (req, res) {
     if (req.params == undefined) {
         res.sendStatus(400);
     }
@@ -199,7 +212,7 @@ app.get('/api/bands/:bandId', function (req, res) {
     });
 });
 
-app.get('/api/friends', function (req, res) {
+app.get('/api/friends', checkSession, function (req, res) {
     friendService.getAllFriends(req.session.userId, connection)
     .then(function (result) {
         if (result) {
@@ -215,7 +228,7 @@ app.get('/api/friends', function (req, res) {
     });
 });
 
-app.post('/api/friends/search', function (req, res) {
+app.post('/api/friends/search', checkSession, function (req, res) {
     if (!req.body) {
         res.sendStatus(400);
     }
@@ -234,13 +247,136 @@ app.post('/api/friends/search', function (req, res) {
     });
 });
 
-app.post('/api/friends/updatestatus', function (req, res) {
+app.post('/api/friends/updatestatus', checkSession, function (req, res) {
+    if (!req.body) {
+        res.status(500).send({
+            error: 'Bad Request'
+        });
+    }
+    else{
+        friendService.updateFriendStatus(req.session.userId, parseInt(req.body.toUserId), parseInt(req.body.status), connection)
+        .then(function (result) {
+            res.status(200).end();
+        })
+        .catch(function (e) {
+            res.status(500).send({error:e});
+        });
+    }
+});
+
+app.post('/api/bands/search', checkSession, function (req, res) {
     if (!req.body) {
         res.sendStatus(400);
     }
-    friendService.updateFriendStatus(req.session.userId, (req.body.toUserId).replace('modal',''), req.body.status, connection)
+    bandService.search(req.session.userId, req.body.searchString, connection)
     .then(function (result) {
         if (result) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e})
+    });
+});
+
+app.post('/api/bands/:bandId/submitApplication', checkSession, function (req, res) {
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    bandService.submitApplication(req.session.userId, req.params.bandId, req.body.instrument, req.body.message, req.body.applicationStatus, connection)
+    .then(function (result) {
+        if (result) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e})
+    });
+});
+
+app.post('/api/bands/cancelApplication', checkSession, function (req, res) {
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    bandService.cancelApplication(req.session.userId, (req.body.bandId).replace('modal',''), connection)
+    .then(function (result) {
+        if (result) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e})
+    });
+});
+
+app.get('/api/notifications', checkSession, function (req, res){
+    notificationService.getNotifications(connection, req.session.userId)
+    .then(function (notifications){
+        res.status(200).send(notifications);
+    })
+    .catch(function (err){
+        res.status(500).send({
+            error: err.stack
+        });
+    });
+});
+
+app.get('/api/bands/:bandId/applications', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    bandService.getAllApplications(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+            res.status(200);
+            res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+app.post('/api/bands/:bandId/processapplication', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    bandService.processApplication(req.session.userId, req.params.bandId, req.body.applicationId, req.body.processStatus, req.body.applicationStatus, connection)
+    .then(function (result) {
+        if (result != false) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+app.get('/api/bands/:bandId/role', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        if (result) {
+            // passing integer result for role, so I had to use this deprecated res format...
             res.status(200);
             res.send(result);
         }

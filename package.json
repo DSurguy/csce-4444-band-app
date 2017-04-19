@@ -2,9 +2,12 @@
   "name": "band-app-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp dist",
+    "prestart": "gulp dist",
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,11 +17,17 @@
     "express-hbs": "^1.0.4",
     "express-mysql-session": "^1.2.0",
     "express-session": "^1.15.2",
+    "extend": "^3.0.0",
     "mysql": "^2.13.0",
     "passport": "^0.3.2",
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "jasmine": "^2.5.3"
+    "browserify": "^14.3.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-sourcemaps": "^2.6.0",
+    "jasmine": "^2.5.3",
+    "pump": "^1.0.2"
   }
 }

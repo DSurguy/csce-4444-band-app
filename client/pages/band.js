@@ -26,7 +26,7 @@ BandCtrl.prototype.init = function (){
    // var id = window.location.search.substr(1);
     var defer = $.Deferred();
     var that = this;
-    $.ajax('/api/bands/' + id, {
+    $.ajax('/api/bands/band/' + id, {
         method: 'GET'
     }).then(function (data){
         that.band = data;
@@ -54,4 +54,13 @@ BandView.prototype.init = function (){
     this.bindEvents();
 };
 
-BandView.prototype.bindEvents = function (){};
+BandView.prototype.bindEvents = function (){
+    var pageElem = $(this.page.elem);
+
+     pageElem.on('click', '.applications', function (e){
+        var url = window.location.pathname;
+        var id = url.substring(url.lastIndexOf('/') + 1);
+
+        window.location = '/bands/'+id+'/applications';
+    });
+};

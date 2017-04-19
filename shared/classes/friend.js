@@ -14,4 +14,4 @@ Friend.STATUS = {
 	BLOCKED: 4 
 }
 
-module.exports = Friend;
+if( typeof module !== 'undefined' ){ module.exports = Friend; }
