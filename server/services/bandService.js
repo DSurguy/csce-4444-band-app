@@ -177,7 +177,7 @@ function getAllApplications(userId, bandId, connection) {
                 return;
             }
 
-            var applications = results.map(function (resultRow) {
+            resolve(results.map(function (resultRow) {
                 return new Application({id : resultRow.ID, 
                     userId : resultRow.USERID,
                     status : resultRow.STATUS,
@@ -186,9 +186,7 @@ function getAllApplications(userId, bandId, connection) {
                     username : resultRow.USERNAME,
                     name : resultRow.NAME
                 });
-            })
-
-            resolve(applications);
+            }));       
         });
     });    
 }
@@ -345,10 +343,10 @@ function getBandMemberRole(userId, bandId, connection) {
 
             // Return a list of SimpleBands
             if (results.length > 0) {
-                resolve(results[0].ROLE);
+                resolve({ role : results[0].ROLE });
             }
             else {
-                resolve(undefined);
+                resolve({ role : BandMember.ROLE.NONE });
             }
         });
     });

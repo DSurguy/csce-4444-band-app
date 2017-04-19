@@ -22,7 +22,7 @@ ApplicationsCtrl.prototype = Object.create(PageCtrl.prototype);
 ApplicationsCtrl.prototype.constructor = ApplicationsCtrl;
 ApplicationsCtrl.prototype.init = function (){
     var url = window.location.pathname;
-    var id = url.substring(url.lastIndexOf('/') + 1);
+    var id = url.split('/')[ url.split('/').indexOf('bands')+1];
 
     var defer = $.Deferred();
     var that = this;
@@ -39,7 +39,7 @@ ApplicationsCtrl.prototype.init = function (){
     $.ajax('/api/bands/'+id+'/role', {
         method: 'GET'
     }).then(function (data){
-        that.bandMemberRole = data;
+        that.bandMemberRole = data.role;
         defer.resolve();
     }).catch(function (err){
         that.bandMemberRole = undefined;
@@ -51,7 +51,7 @@ ApplicationsCtrl.prototype.init = function (){
 
 ApplicationsCtrl.prototype.processApplication = function (applicationId, processStatus, applicationStatus) {
     var url = window.location.pathname;
-    var id = url.substring(url.lastIndexOf('/') + 1);
+    var id = url.split('/')[ url.split('/').indexOf('bands')+1];
 
     var defer = $.Deferred();
     $.ajax({
@@ -104,8 +104,8 @@ ApplicationsView.prototype.bindEvents = function (){
     pageElem.on('click', '#btnAccept', function (e){
         e.preventDefault();
         e.stopPropagation();
-        applicationId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-id'),10);
-        applicationStatus = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-status'),10);
+        var applicationId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-id'),10);
+        var applicationStatus = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-status'),10);
         page.ctrl.processApplication(applicationId, Application.STATUS.ACCEPTED, applicationStatus)
         .then(function (result) {
             if (result === true) {
@@ -125,8 +125,8 @@ ApplicationsView.prototype.bindEvents = function (){
     pageElem.on('click', '#btnReject', function (e){
         e.preventDefault();
         e.stopPropagation();
-        applicationId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-id'),10);
-        applicationStatus = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-status'),10);
+        var applicationId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-id'),10);
+        var applicationStatus = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-status'),10);
         page.ctrl.processApplication(applicationId, Application.STATUS.REJECTED, applicationStatus)
         .then(function (result) {
             if (result === true) {

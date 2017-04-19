@@ -8,6 +8,7 @@ function BandMember(json){
 }
 
 BandMember.ROLE = {
+    NONE: -1,
     OWNER : 0,
     MANAGER: 1,
     MEMBER : 2,

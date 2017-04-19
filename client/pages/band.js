@@ -61,6 +61,6 @@ BandView.prototype.bindEvents = function (){
         var url = window.location.pathname;
         var id = url.substring(url.lastIndexOf('/') + 1);
 
-        window.location = '/applications/' + id;
+        window.location = '/bands/'+id+'/applications';
     });
 };
