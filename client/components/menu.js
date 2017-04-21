@@ -25,6 +25,7 @@ MenuCtrl.prototype.logout = function (){
     return defer.promise();
 };
 
+
 function MenuView(page){
     PageView.call(this, page);
 }
@@ -37,7 +38,40 @@ MenuView.prototype.init = function (){
     this.bindEvents();
 };
 MenuView.prototype.renderMenu = function (){
-    
+    var menuItems = [
+        {
+            label: 'Bands',
+            class: 'bands',
+            action: function (e){ 
+                window.location = '/bands';
+            }
+        }, {
+            label: 'Friends',
+            class: 'friends',
+            action: function (e){
+                window.location = '/friends'; 
+            }
+        }, {
+            label: 'Notifications',
+            class: 'notifications',
+            action: function (e){
+                window.location = '/notifications';
+            }
+        }, {
+            label: 'Logout',
+            class: 'logout',
+            action: function (e){
+                this.ctrl.logout()
+                .then(function (){
+                    window.location = '/login';
+                }).catch(function (err){
+                    alert(err.message);
+                });
+            }
+        }
+    ],
+        that = this;
+        
     /* render overlay */
     if( this.menuOverlayContainer.length == 0 ){
         $('body').append('<div id="menuOverlay" class="hidden"></div>');
@@ -46,8 +80,14 @@ MenuView.prototype.renderMenu = function (){
     this.menuOverlayContainer.empty();
     this.menuOverlayContainer.append('<div class="menu"></div>');
     this.menuOverlayContainer.find('.menu').append('<div class="menuSection">'
-        +'<div class="action logout btn btn-secondary">Logout</div>'
+        +menuItems.map(function (item){
+            return '<button type="button" class="action '+item.class+' btn btn-secondary btn-lg btn-block">'+item.label+'</button>';
+        }).join('')
     +'</div>');
+    
+    menuItems.forEach(function (item){
+        that.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
+    });
     
     /* render menu button */
     this.menuButtonContainer.empty();
@@ -66,15 +106,6 @@ MenuView.prototype.bindEvents = function (){
         else{
             view.menuOverlayContainer.addClass('hidden');
         }
-    });
-    
-    view.menuOverlayContainer.on('click', '.menu .logout', function (e){
-        view.page.ctrl.logout()
-        .then(function (){
-            window.location = '/login';
-        }).catch(function (err){
-            alert(err.message);
-        });
     });
     
     view.menuOverlayContainer.on('click', '.menu', function (e){
