@@ -79,9 +79,17 @@ MenuView.prototype.renderMenu = function (){
     }
     this.menuOverlayContainer.empty();
     this.menuOverlayContainer.append('<div class="menu"></div>');
-    this.menuOverlayContainer.find('.menu').append('<div class="menuSection">'
+    this.menuOverlayContainer.find('.menu').append(''+
+    '<div class="menuSection container profile-section clearfix">'+
+        '<button type="button" class="fa fa-home action home btn btn-secondary"></button>'+
+        '<div class="profile">'+
+            '<img class="profile-img" src="https://placehold.it/150x150">'+
+            '<div class="name">username</div>'+
+        '</div>'+
+    '</div>');
+    this.menuOverlayContainer.find('.menu').append('<div class="menuSection container clearfix">'
         +menuItems.map(function (item){
-            return '<button type="button" class="action '+item.class+' btn btn-secondary btn-lg btn-block">'+item.label+'</button>';
+            return '<button type="button" class="action '+item.class+' btn btn-secondary btn-block">'+item.label+'</button>';
         }).join('')
     +'</div>');
     
@@ -111,6 +119,10 @@ MenuView.prototype.bindEvents = function (){
     view.menuOverlayContainer.on('click', '.menu', function (e){
         e.stopPropagation();
         e.preventDefault();
+    });
+    
+    view.menuOverlayContainer.find('.menu').on('click', '.home', function (e){
+        window.location = '/main';
     });
     
     view.menuOverlayContainer.on('click', function (e){
