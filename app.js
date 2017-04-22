@@ -1,11 +1,13 @@
 var express = require('express');
 var Band = require('./shared/classes/band.js');
+var BandMember = require('./shared/classes/bandMember.js');
 var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var loginService = require('./server/services/loginService.js');
 var hbs = require('express-hbs');
 var registerUser = require('./server/services/userRegistrationService.js');
 var bandService = require('./server/services/bandService.js');
+var merchService = require('./server/services/merchService.js');
 var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
 var session = require('express-session');
@@ -113,6 +115,10 @@ app.get('/friends/add', checkSession, function (req, res){
 
 app.get('/bands/:bandId/applications/', checkSession, function (req, res){
     res.render('applications');
+});
+
+app.get('/bands/:bandId/addmerch/', checkSession, function (req, res){
+    res.render('addMerch');
 });
 
 app.post('/api/login', function (req, res){
@@ -377,6 +383,40 @@ app.get('/api/bands/:bandId/role', checkSession, function (req, res) {
     .then(function (result) {
         if (result) {
             // passing integer result for role, so I had to use this deprecated res format...
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+app.post('/api/bands/:bandId/addmerch', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+    console.log(req.body.color);
+    bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        console.log("MY BAND ROLE IS "+result.role);
+        if (result.role === BandMember.ROLE.OWNER || result.role === BandMember.ROLE.MANAGER) {
+            console.log("lets create an item!");
+            return merchService.createItem(req.session.userId, req.params.bandId, req.body.name, req.body.description, req.body.price, req.body.merchType, req.body.merchImage, req.body.size, req.body.color, req.body.quantity, connection)
+        }
+        else {
+            console.log("lets NOT create an item!");
+            resolve(false);
+        }
+    })
+    .then(function (result) {
+        if (result) {
             res.status(200);
             res.send(result);
         }
