@@ -1,4 +1,5 @@
 var express = require('express');
+var fileUpload = require('express-fileupload');
 var Band = require('./shared/classes/band.js');
 var BandMember = require('./shared/classes/bandMember.js');
 var mysql = require('mysql');
@@ -12,6 +13,8 @@ var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
+
+var imageFilesRoot= 'C:/images';
 
 var config;
 try{
@@ -43,6 +46,7 @@ app.set('views', __dirname + '/views');
 // parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('static'));
+app.use(fileUpload());
 
 //db connection
 var connection = mysql.createConnection(config.db);
@@ -402,16 +406,21 @@ app.post('/api/bands/:bandId/addmerch', checkSession, function (req, res) {
     if (!req.body) {
         res.sendStatus(400);
     }
-    console.log(req.body.color);
+    // Check that the user has rights to add merch
     bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
     .then(function (result) {
-        console.log("MY BAND ROLE IS "+result.role);
         if (result.role === BandMember.ROLE.OWNER || result.role === BandMember.ROLE.MANAGER) {
-            console.log("lets create an item!");
-            return merchService.createItem(req.session.userId, req.params.bandId, req.body.name, req.body.description, req.body.price, req.body.merchType, req.body.merchImage, req.body.size, req.body.color, req.body.quantity, connection)
+            return merchService.uploadImage(req.params.bandId, req.files.merchImage, imageFilesRoot)
         }
         else {
-            console.log("lets NOT create an item!");
+            resolve(false);
+        }
+    })
+    .then(function (relativePath) {
+        if (relativePath) {
+            return merchService.createItem(req.session.userId, req.params.bandId, req.body.name, req.body.description, req.body.price, req.body.merchType, relativePath, req.body.size, req.body.color, req.body.quantity, connection)
+        }
+        else {
             resolve(false);
         }
     })

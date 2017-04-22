@@ -29,10 +29,15 @@ AddMerchCtrl.prototype.submitMerch = function (form){
     var id = url.split('/')[ url.split('/').indexOf('bands')+1];
     var that = this;
     
+     var formData = new FormData(form);
+
     $.ajax({
         url: '/api/bands/'+id+'/addmerch',
         type: 'POST',
-        data: $(form).serialize()
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false
     })
     .then(defer.resolve)
     .fail(defer.reject);
@@ -62,7 +67,7 @@ AddMerchView.prototype.bindEvents = function (){
         e.stopPropagation();
         
         var select = pageElem.find('[name="merchType"]');
-        page.view.addInvFields(select[0].value);
+        page.view.addInventoryFields(select[0].value);
     });
 
     // We've picked a type so enable the Add Inventory button and remove any existing fields from other types
@@ -74,11 +79,15 @@ AddMerchView.prototype.bindEvents = function (){
     pageElem.on('submit', 'form', function (e){
         e.preventDefault();
         e.stopPropagation();
-        page.ctrl.submitMerch(this);
+        page.ctrl.submitMerch(this)
+        .then(function (){
+            window.location.reload();
+        })
+        .fail(console.error);
     });
 };
 
-AddMerchView.prototype.addInvFields = function (type){
+AddMerchView.prototype.addInventoryFields = function (type){
     var pageElem = $(this.page.elem),
     page = this.page;
 

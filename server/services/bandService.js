@@ -334,7 +334,6 @@ function getBandMemberRole(userId, bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
         "SELECT ROLE FROM BANDMEMBER WHERE BANDID = "+bandId+" AND USERID = "+userId;
-        console.log('in bandmemberole');
         connection.query(query, function(err, results, fields) {
             if (err) {
                 reject(err);
@@ -343,11 +342,9 @@ function getBandMemberRole(userId, bandId, connection) {
 
             // Return a list of SimpleBands
             if (results.length > 0) {
-                console.log('we got a role!');
                 resolve({ role : results[0].ROLE });
             }
             else {
-                console.log('we got no role!');
                 resolve({ role : BandMember.ROLE.NONE });
             }
         });
