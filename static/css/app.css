@@ -132,6 +132,11 @@ h1, h2{
     margin: 10px 0;
     cursor: pointer;
 }
+
+.menu-button-container{
+    padding: 20px 0 0 15px;
+}
+
 #menuOverlay{
     position: absolute;
     top: 0;
@@ -144,10 +149,17 @@ h1, h2{
 }
 
 #menuOverlay .menu{
-    width: 240px;
+    width: 258px;
     height: 100%;
     background-color: lavender;
+    overflow-x: hidden;
+    overflow-y: scroll;
 }
+
+#menuOverlay .menu .menu-section:last-child{
+    padding-bottom: 20px;
+}
+
 #menuOverlay.hidden{
     display: none;
 }
@@ -157,18 +169,41 @@ h1, h2{
 #menuOverlay .profile{
     float: left;
     margin-left: 25px;
+    cursor: pointer;
 }
-#menuOverlay .name{
+#menuOverlay .profile-name{
     text-align: center;
+    transition: all .2s ease-in-out;
 }
 #menuOverlay .profile-img{
     border-radius: 60px;
     width: 120px;
     height: 120px;
+    transition: all .2s ease-in-out;
+}
+#menuOverlay .profile:hover .profile-img{
+    box-shadow: 0 0 4px 1px rgba(0,0,0,0.25);
+}
+#menuOverlay .profile:hover .profile-name{
+    text-shadow: 0 0 1px rgba(0,0,0,0.25);
 }
 #menuOverlay .profile-section{
     padding-top: 20px;
     padding-bottom: 20px;
+}
+#menuOverlay .band-profile-section{
+    padding: 20px 0;
+}
+
+#menuOverlay .band-profile-section:hover .band-profile{
+    box-shadow: 0 0 4px 1px rgba(0,0,0,0.25);
+}
+
+#menuOverlay .band-profile{
+    height: 150px;
+    width: 100%;
+    cursor: pointer;
+    transition: all .2s ease-in-out;
 }
 
 #bandPage h2{

@@ -49,9 +49,9 @@ BandView.prototype.init = function (){
     
     var bandInfoElem = bandElem.find('.card-block');
     bandInfoElem.append(''
-        +'<p class="info card-text"><strong>Band Name</strong>: '+this.page.ctrl.band[0].bandName+'</p>'
-        +'<p class="info card-text"><strong>Owner</strong>: '+this.page.ctrl.band[0].ownerName+'</p>'
-        +'<p class="info card-text"><strong>Description</strong>: '+this.page.ctrl.band[0].description+'</p>'
+        +'<p class="info card-text"><strong>Band Name</strong>: '+this.page.ctrl.band.bandName+'</p>'
+        +'<p class="info card-text"><strong>Owner</strong>: '+this.page.ctrl.band.ownerName+'</p>'
+        +'<p class="info card-text"><strong>Description</strong>: '+this.page.ctrl.band.description+'</p>'
     );
     
     this.bindEvents();

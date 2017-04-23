@@ -104,15 +104,13 @@ function getBand(bandId, connection) {
             }
 
             // Return this band's info
-            var band = results.map(function (resultRow) {
-                return new Band({
-                                        id : resultRow.BANDID, 
-                                        ownerName : resultRow.USERNAME, 
-                                        ownerId : resultRow.OWNERID, 
-                                        bandName : resultRow.BANDNAME,
-                                        description : resultRow.DESCRIPTION
-                                    });
-            })
+            var band = new Band({
+                id : results[0].BANDID, 
+                ownerName : results[0].USERNAME, 
+                ownerId : results[0].OWNERID, 
+                bandName : results[0].BANDNAME,
+                description : results[0].DESCRIPTION
+                });
 
             resolve(band);
         });
