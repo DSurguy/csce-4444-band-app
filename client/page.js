@@ -17,7 +17,8 @@ Page.prototype.init = function (){
     this.ctrl.init()
     .then(function (){
         that.view.init.apply(that.view, arguments);
-    });
+    })
+    .catch(console.error);
 };
 
 function PageCtrl(page){

@@ -1,6 +1,7 @@
 /* global Page */
 /* global PageView */
 /* global PageCtrl */
+/* global MenuComponent */
 /* global $ */
 
 function RegisterBandPage(app, data){
@@ -21,15 +22,15 @@ RegisterBandCtrl.prototype = Object.create(PageCtrl.prototype);
 RegisterBandCtrl.prototype.constructor = RegisterBandCtrl;
 RegisterBandCtrl.prototype.login = function (form){
     var defer = $.Deferred();
+    
     $.ajax({
         url: '/api/bands/register',
         type: 'POST',
         data: $(form).serialize()
-    }).then(function (result){
-        defer.resolve();
-    }).fail(function (result){
-        defer.reject();
-    });
+    })
+    .then(defer.resolve)
+    .fail(defer.reject);
+    
     return defer.promise();
 };
 
@@ -82,7 +83,7 @@ RegisterBandView.prototype.bindEvents = function (){
             setTimeout(function (){
                 window.location = '/bands';
             }, 2000);
-        }).catch(function (err){
+        }).catch(function (){
             submitButton.removeClass('btn-primary').addClass('btn-danger');
             submitButton.find('div').removeClass('fa-spinner animation-spin').addClass('fa-times');
             //change page

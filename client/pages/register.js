@@ -24,15 +24,15 @@ RegisterCtrl.prototype.constructor = RegisterCtrl;
 
 RegisterCtrl.prototype.register = function (form){
     var defer = $.Deferred();
+    
     $.ajax({
         url: '/api/register',
         type: 'POST',
         data: $(form).serialize()
-    }).then(function (result){
-        defer.resolve();
-    }).fail(function (result){
-        defer.reject();
-    });
+    })
+    .then(defer.resolve)
+    .fail(defer.reject);
+    
     return defer.promise();
 };
 
@@ -87,12 +87,12 @@ RegisterView.prototype.bindEvents = function (){
             setTimeout(function (){
                 window.location = '/login';
             }, 2000);
-        }).fail(function (err){
+        }).fail(function (){
             submitButton.removeClass('btn-primary').addClass('btn-danger');
             submitButton.find('div').removeClass('fa-spinner animation-spin').addClass('fa-times');
             
             setTimeout(function (){
-                submitButton.html('Login').addClass('btn-primary').removeClass('btn-danger')
+                submitButton.html('Login').addClass('btn-primary').removeClass('btn-danger');
                 page.ctrl.registering = false;
             }, 1000);
             //display login failure
@@ -104,4 +104,4 @@ RegisterView.prototype.bindEvents = function (){
             +'</div>');
         });
     });
-}
+};

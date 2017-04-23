@@ -155,7 +155,7 @@ app.post('/api/register', function (req, res){
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
@@ -173,7 +173,7 @@ app.post('/api/bands/register', checkSession, function (req, res){
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
@@ -189,11 +189,11 @@ app.get('/api/bands', checkSession, function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
-app.get('/api/bands/band/:bandId', checkSession, function (req, res) {
+app.get('/api/bands/:bandId', checkSession, function (req, res) {
     if (req.params == undefined) {
         res.sendStatus(400);
     }
@@ -208,7 +208,7 @@ app.get('/api/bands/band/:bandId', checkSession, function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
@@ -224,7 +224,7 @@ app.get('/api/friends', checkSession, function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
@@ -243,7 +243,7 @@ app.post('/api/friends/search', checkSession, function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
@@ -254,7 +254,7 @@ app.post('/api/friends/updatestatus', checkSession, function (req, res) {
         });
     }
     else{
-        friendService.updateFriendStatus(req.session.userId, parseInt(req.body.toUserId), parseInt(req.body.status), connection)
+        friendService.updateFriendStatus(req.session.userId, parseInt(req.body.toUserId, 10), parseInt(req.body.status, 10), connection)
         .then(function (result) {
             res.status(200).end();
         })
@@ -279,7 +279,7 @@ app.post('/api/bands/search', checkSession, function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
@@ -298,7 +298,7 @@ app.post('/api/bands/:bandId/submitApplication', checkSession, function (req, re
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
@@ -317,7 +317,7 @@ app.post('/api/bands/cancelApplication', checkSession, function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
