@@ -8,3 +8,5 @@ function Item(json) {
     this.price = json.price || 0;
     this.inventory = json.inventory || undefined;
 }
+
+if( typeof module !== 'undefined' ){ module.exports = Item; }

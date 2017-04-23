@@ -1,6 +1,7 @@
 var fs = require('fs');
 var Item = require('../../shared/classes/item.js');
 var Inventory = require('../../shared/classes/inventory.js');
+var path = require('path');
 
 function uploadImage(bandId, imageFile, imageFilesRoot) {
     return new Promise((resolve, reject) => {
@@ -120,21 +121,24 @@ function getItems(userId, bandId, connection) {
 }
 
 function getImages(items) {
-    return new Promise((resolve, reject) => {
-    	var count = 0;
-    	items.forEach(function(item) {
-	    	fs.readFile(item.imagePath, function (err, data) {
-    		
-	    		item.imageFile = JSON.parse(data);
-	    		
-	    		count++;
-
-	    		if (count === items.length) {
-	    			resolve(items);
-	    		}
-	    	});
-    	});
-    }); 
+	return new Promise((resolve, reject) => {
+		var count = 0;
+		items.forEach(function (item) {
+			if( item.imagePath[0] == '/' ){
+				item.imagePath = item.imagePath.substr(1);
+			}
+			fs.readFile(path.resolve('static/media',item.imagePath), function (err, data) {
+				if( err ){ reject(err); }
+				else{
+					item.imageFile = data;
+					count++;
+					if (count === items.length) {
+						resolve(items);
+					}
+				}
+			});
+		});
+	}); 
 }
 
 function getInventory(items, connection) {

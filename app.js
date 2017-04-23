@@ -13,8 +13,9 @@ var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
+var path = require('path');
 
-var imageFilesRoot= 'C:/merchImages';
+var imageFilesRoot= path.resolve('static/media');
 
 var config;
 try{
@@ -417,18 +418,19 @@ app.post('/api/bands/:bandId/addmerch', checkSession, function (req, res) {
     bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
     .then(function (result) {
         if (result.role === BandMember.ROLE.OWNER || result.role === BandMember.ROLE.MANAGER) {
-            return merchService.uploadImage(req.params.bandId, req.files.merchImage, imageFilesRoot)
+            return merchService.uploadImage(req.params.bandId, req.files.merchImage, imageFilesRoot);
         }
         else {
-            resolve(false);
+            //TODO: Fix these promise chains to chain properly.
+            return Promise.resolve(false);
         }
     })
     .then(function (relativePath) {
         if (relativePath) {
-            return merchService.createItem(req.session.userId, req.params.bandId, req.body.name, req.body.description, req.body.price, req.body.merchType, relativePath, req.body.size, req.body.color, req.body.quantity, connection)
+            return merchService.createItem(req.session.userId, req.params.bandId, req.body.name, req.body.description, req.body.price, req.body.merchType, relativePath, req.body.size, req.body.color, req.body.quantity, connection);
         }
         else {
-            resolve(false);
+            return Promise.resolve(false);
         }
     })
     .then(function (result) {
@@ -453,21 +455,21 @@ app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
     bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
     .then(function (result) {
         if (result.role != BandMember.ROLE.NONE) {
-            return merchService.getItems(req.session.userId, req.params.bandId, connection)
+            return merchService.getItems(req.session.userId, req.params.bandId, connection);
         }
         else {
-            resolve(false);
+            return Promise.resolve(false);
         }
     })
     .then(function (result) {
-        return merchService.getImages(result)
+        return result == false ? false : merchService.getImages(result);
     })
     .then(function (result) {
-        return merchService.getInventory(result, connection)
+        return result == false ? false : merchService.getInventory(result, connection);
     })
     .then(function (result) {
-            res.status(200);
-            res.send(result);
+        res.status(200);
+        res.send(result || []);
     })
     .catch(function (e) {
         res.status(500).send({error:e});

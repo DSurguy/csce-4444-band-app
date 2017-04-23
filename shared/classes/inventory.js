@@ -4,3 +4,5 @@ function Inventory(json){
     this.color = json.color || '';
     this.quantity = json.quantity || 0;
 }
+
+if( typeof module !== 'undefined' ){ module.exports = Inventory; }

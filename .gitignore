@@ -59,3 +59,5 @@ typings/
 
 # app config file
 config.json
+
+static/media

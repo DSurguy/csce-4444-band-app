@@ -44,15 +44,15 @@ InventoryView.prototype = Object.create(PageView.prototype);
 InventoryView.prototype.constructor = InventoryView;
 InventoryView.prototype.init = function (){
     this.bindEvents();
-/*    var inventoryElem = $(this.page.elem).find('.inventory');
+    var inventoryElem = $(this.page.elem).find('.inventory');
 
-    for( var i=0; i<this.page.ctrl.inventory.length; i++ ){
+    this.page.ctrl.itemInventory.forEach(function (item){
         inventoryElem.append(''+
         '<div class="card" style="width: 20rem;">'+
-            '<img class="card-img-top" src="..." alt="Card image cap">'+
+            '<img class="card-img-top" src="/media/'+item.imagePath+'" alt="Card image cap">'+
             '<div class="card-block">'+
-                '<h4 class="card-title">Card title</h4>'+
-                '<p class="card-text">Some quick example text to build on the card title and make up the bulk of the cards content.</p>'+
+                '<h4 class="card-title">'+item.name+'</h4>'+
+                '<p class="card-text">'+item.description+'</p>'+
             '</div>'+
             '<ul class="list-group list-group-flush">'+
                 '<li class="list-group-item">Cras justo odio</li>'+
@@ -64,7 +64,7 @@ InventoryView.prototype.init = function (){
                 '<a href="#" class="card-link">Another link</a>'+
             '</div>'+
         '</div>');
-    }*/
+    });
 };
 
 InventoryView.prototype.bindEvents = function (){
