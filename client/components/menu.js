@@ -106,12 +106,34 @@ function MenuView(page){
         }
     }].map(function (item){return new MenuItem(item)});
     
+    this.bandProfileItems = [{
+        class: 'band-profile',
+        action: function (e){
+            var newPath = window.location.toString().split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')-1).concat('profile').join('/');
+            window.location = newPath;
+        },
+        render: function (){
+            var defer = $.Deferred();
+            //return '<div class="band-profile" style="background-image: url(https://placehold.it/240x150)">'++'</div>'
+            var loc = window.location.toString().split('/');
+            $.ajax({
+                method: 'GET',
+                url: '/api/bands/'+loc[loc.indexOf('bands')+1]
+            })
+            .then(function (band){
+                defer.resolve('<div class="band-profile" style="background-image: url(https://placehold.it/240x150)">'+band.bandName+'</div>');
+            })
+            .catch(defer.reject);
+            
+            return defer.promise();
+        }
+    }].map(function (item){return new MenuItem(item)});
+    
     this.bandMenuItems = [{
         label: 'Inventory',
         class: 'inventory',
-        action: function (e){
-            
-        }
+        action: function (e){}
     }, {
         label: 'Store',
         class: 'store',
@@ -123,6 +145,10 @@ function MenuView(page){
     }, {
         label: 'Members',
         class: 'members',
+        action: function (e){}
+    }, {
+        label: 'Manage',
+        class: 'manage',
         action: function (e){}
     }].map(function (item){return new MenuItem(item)});
 }
@@ -171,6 +197,12 @@ MenuView.prototype.renderMenu = function (){
         return defer.promise();
     }
     
+    var shouldRenderBand = false;
+    var splitLoc = window.location.toString().split('/');
+    if( splitLoc[splitLoc.indexOf('bands')+1] !== undefined ){
+        shouldRenderBand = true;
+    }
+    
     //render profile chunk
     var parent = $('<div class="menuSection container profile-section clearfix"></div>');
     nextItem(parent, view.profileMenuItems, 0)
@@ -192,12 +224,43 @@ MenuView.prototype.renderMenu = function (){
         view.mainMenuItems.forEach(function (item){
             view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
         });
-        //render band items
-        return $.Deferred().resolve().promise();
+        
+        //render band profile block
+        parent = $('<div class="menuSection band-profile clearfix"></div>');
+        if( shouldRenderBand ){
+            return nextItem(parent, view.bandProfileItems, 0);
+        }
+        else{
+            return $.Deferred().resolve().promise();
+        }
     })
     .then(function (){
         //add the parent to the DOM
-        //bind band events
+        view.menuOverlayContainer.find('.menu').append(parent);
+        if( shouldRenderBand ){
+            //bind profile events
+            view.bandProfileItems.forEach(function (item){
+                view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
+            });
+        }
+        //render band items
+        parent = $('<div class="menuSection container clearfix"></div>');
+        if( shouldRenderBand ){
+            return nextItem(parent, view.bandMenuItems, 0)
+        }
+        else{
+            return $.Deferred().resolve().promise();
+        }
+    })
+    .then(function (){
+        //add the parent to the DOM
+        view.menuOverlayContainer.find('.menu').append(parent);
+        if( shouldRenderBand ){
+            //bind profile events
+            view.bandMenuItems.forEach(function (item){
+                view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
+            });
+        }
         
         /* render menu button */
         view.menuButtonContainer.empty();

@@ -27,10 +27,7 @@ BandsCtrl.prototype.init = function (){
     }).then(function (data){
         that.bands = data;
         defer.resolve();
-    }).catch(function (err){
-        that.bands = [];
-        defer.resolve();
-    });
+    }).catch(console.error);
     
     return defer.promise();
 };
@@ -56,6 +53,6 @@ BandsView.prototype.bindEvents = function (){
         window.location = '/bands/register';
     });
     pageElem.on('click', '.band', function (e){
-        window.location = '/bands/' + e.target.id;
-    })
+        window.location = '/bands/' + $(this).attr('id');
+    });
 };

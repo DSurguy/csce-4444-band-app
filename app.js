@@ -189,11 +189,11 @@ app.get('/api/bands', checkSession, function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
-app.get('/api/bands/band/:bandId', checkSession, function (req, res) {
+app.get('/api/bands/:bandId', checkSession, function (req, res) {
     if (req.params == undefined) {
         res.sendStatus(400);
     }
@@ -208,7 +208,7 @@ app.get('/api/bands/band/:bandId', checkSession, function (req, res) {
         }
     })
     .catch(function (e) {
-        res.status(500).send({error:e})
+        res.status(500).send({error:e});
     });
 });
 
