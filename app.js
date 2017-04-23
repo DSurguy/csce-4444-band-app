@@ -14,7 +14,7 @@ var notificationService = require('./server/services/notificationService.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 
-var imageFilesRoot= 'C:/images';
+var imageFilesRoot= 'C:/merchImages';
 
 var config;
 try{
@@ -124,6 +124,10 @@ app.get('/bands/:bandId/applications/', checkSession, function (req, res){
 app.get('/bands/:bandId/addmerch/', checkSession, function (req, res){
     res.render('addMerch');
 });
+
+app.get('/bands/:bandId/inventory', checkSession, function (req, res){
+    res.render('inventory');
+})
 
 app.post('/api/login', function (req, res){
     if (!req.body) {
@@ -406,6 +410,9 @@ app.post('/api/bands/:bandId/addmerch', checkSession, function (req, res) {
     if (!req.body) {
         res.sendStatus(400);
     }
+
+    console.log(req.body.size);
+
     // Check that the user has rights to add merch
     bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
     .then(function (result) {
@@ -432,6 +439,35 @@ app.post('/api/bands/:bandId/addmerch', checkSession, function (req, res) {
         else {
             res.sendStatus(400);
         }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to view merch
+    bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        if (result.role != BandMember.ROLE.NONE) {
+            return merchService.getItems(req.session.userId, req.params.bandId, connection)
+        }
+        else {
+            resolve(false);
+        }
+    })
+    .then(function (result) {
+        return merchService.getImages(result)
+    })
+    .then(function (result) {
+        return merchService.getInventory(result, connection)
+    })
+    .then(function (result) {
+            res.status(200);
+            res.send(result);
     })
     .catch(function (e) {
         res.status(500).send({error:e});

@@ -7,7 +7,11 @@
  * PAGE
  * */
 function AddMerchPage(app, data){
-    Page.call(this, app, $('#addMerchPage')[0], AddMerchCtrl, AddMerchView);
+    Page.call(this, app, $('#addMerchPage')[0], AddMerchCtrl, AddMerchView, {
+        menu: new MenuComponent(app, {
+            element: '.menu-button-container'
+        })
+    });
 }
 AddMerchPage.prototype = Object.create(Page.prototype);
 AddMerchPage.prototype.constructor = AddMerchPage;
