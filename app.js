@@ -322,15 +322,28 @@ app.post('/api/bands/cancelApplication', checkSession, function (req, res) {
 });
 
 app.get('/api/notifications', checkSession, function (req, res){
-    notificationService.getNotifications(connection, req.session.userId)
-    .then(function (notifications){
-        res.status(200).send(notifications);
-    })
-    .catch(function (err){
-        res.status(500).send({
-            error: err.stack
+    if( typeof req.query.count !== 'undefined' ){
+        notificationService.getNotificationCount(connection, req.session.userId, (typeof req.query.unread !== 'undefined') )
+        .then(function (count){
+            res.status(200).send({count: count});
+        })
+        .catch(function (err){
+            res.status(500).send({
+                error: err.stack
+            });
         });
-    });
+    }
+    else{
+        notificationService.getNotifications(connection, req.session.userId, (typeof req.query.unread !== 'undefined'))
+        .then(function (notifications){
+            res.status(200).send(notifications);
+        })
+        .catch(function (err){
+            res.status(500).send({
+                error: err.stack
+            });
+        });
+    }
 });
 
 app.get('/api/bands/:bandId/applications', checkSession, function (req, res) {
