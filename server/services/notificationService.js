@@ -2,9 +2,9 @@ var extend = require('extend'),
     Notification = require('../../shared/classes/notification.js');
 
 var NotificationService = {
-    getNotifications: function (connection, userId){
+    getNotifications: function (connection, userId, unreadOnly){
         return new Promise(function (resolve, reject){
-            var query = `SELECT * FROM NOTIFICATION WHERE UserId='${userId}'`;
+            var query = `SELECT * FROM NOTIFICATION WHERE UserId='${userId}'${unreadOnly?' AND Unread = 1':''}`;
             
             connection.query(query, function (err, result){
                 if( err ){
@@ -12,6 +12,20 @@ var NotificationService = {
                 }
                 else{
                     resolve(Array.prototype.slice.call(result, 0));
+                }
+            });
+        });
+    },
+    getNotificationCount: function (connection, userId, unreadOnly){
+        return new Promise(function (resolve, reject){
+            var query = `SELECT COUNT(NotificationID) AS total FROM NOTIFICATION WHERE UserId='${userId}'${unreadOnly?' AND Unread = 1':''}`;
+            
+            connection.query(query, function (err, result){
+                if( err ){
+                    reject(err);
+                }
+                else{
+                    resolve(result[0].total);
                 }
             });
         });
