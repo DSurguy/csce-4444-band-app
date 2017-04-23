@@ -2,6 +2,9 @@
 /* global PageView */
 /* global PageCtrl */
 /* global $ */
+/* global MenuComponent */
+/* global Application */
+/* global BandMember */
 
 function ApplicationsPage(app, data){
     Page.call(this, app, $('#applicationsPage')[0], ApplicationsCtrl, ApplicationsView, {
@@ -16,55 +19,48 @@ ApplicationsPage.prototype.constructor = ApplicationsPage;
 function ApplicationsCtrl(page){
     PageCtrl.call(this, page);
     this.applications = [];
-    this.bandMemberRole = undefined;
 }
 ApplicationsCtrl.prototype = Object.create(PageCtrl.prototype);
 ApplicationsCtrl.prototype.constructor = ApplicationsCtrl;
 ApplicationsCtrl.prototype.init = function (){
+    var defer = $.Deferred();
+    
     var url = window.location.pathname;
     var id = url.split('/')[ url.split('/').indexOf('bands')+1];
-
-    var defer = $.Deferred();
     var that = this;
+    
     $.ajax('/api/bands/'+id+'/applications', {
         method: 'GET'
     }).then(function (data){
         that.applications = data;
         defer.resolve();
-    }).catch(function (err){
-        that.applications = [];
-        defer.resolve();
-    });
+    }).catch(defer.reject);
 
     $.ajax('/api/bands/'+id+'/role', {
         method: 'GET'
     }).then(function (data){
         that.bandMemberRole = data.role;
         defer.resolve();
-    }).catch(function (err){
-        that.bandMemberRole = undefined;
-        defer.resolve();
-    });  
+    }).catch(defer.reject);  
     
     return defer.promise();
 };
 
 ApplicationsCtrl.prototype.processApplication = function (applicationId, processStatus, applicationStatus) {
+    var defer = $.Deferred();
+    
     var url = window.location.pathname;
     var id = url.split('/')[ url.split('/').indexOf('bands')+1];
 
-    var defer = $.Deferred();
     $.ajax({
         url: '/api/bands/'+id+'/processapplication',
         type: 'POST',
         data: {applicationId : applicationId, processStatus : processStatus, applicationStatus : applicationStatus}
-    }).then(function (result){
-        defer.resolve(result);
-    }).catch(function (err){
-        defer.resolve(err);
-    });
+    }).then(defer.resolve)
+    .catch(defer.reject);
+    
     return defer.promise();
-}
+};
 
 function ApplicationsView(page){
     PageView.call(this, page);
@@ -104,43 +100,31 @@ ApplicationsView.prototype.bindEvents = function (){
     pageElem.on('click', '#btnAccept', function (e){
         e.preventDefault();
         e.stopPropagation();
-        var applicationId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-id'),10);
-        var applicationStatus = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-status'),10);
+        
+        var applicationId = parseInt($(this).parents('.modal').attr('data-application-id'), 10);
+        var applicationStatus = parseInt($(this).parents('.modal').attr('data-application-status'), 10);
+        
         page.ctrl.processApplication(applicationId, Application.STATUS.ACCEPTED, applicationStatus)
-        .then(function (result) {
-            if (result === true) {
-                alert("Success!"); 
-                location.reload();   
-            }
-            else {
-                alert("Failure!");
-            }
+        .then(function (){
+            window.location.reload();
         })
-        .fail(function (err) {
-            alert("Error!");
-        });
-    })
+        .fail(console.error);
+    });
 
-        // Handle friend accept
+    // Handle friend accept
     pageElem.on('click', '#btnReject', function (e){
         e.preventDefault();
         e.stopPropagation();
-        var applicationId = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-id'),10);
-        var applicationStatus = parseInt($(this.parentElement.parentElement.parentElement.parentElement.parentElement).attr('data-application-status'),10);
+        
+        var applicationId = parseInt($(this).parents('.modal').attr('data-application-id'), 10);
+        var applicationStatus = parseInt($(this).parents('.modal').attr('data-application-status'), 10);
+        
         page.ctrl.processApplication(applicationId, Application.STATUS.REJECTED, applicationStatus)
-        .then(function (result) {
-            if (result === true) {
-                alert("Success!");
-                location.reload();     
-            }
-            else {
-                alert("Failure!");
-            }
+        .then(function (){
+            window.location.reload();
         })
-        .fail(function (err) {
-            alert("Error!");
-        });
-    })
+        .fail(console.error);
+    });
 };
 
 ApplicationsView.prototype.showApplicationModal = function (applicationId, applicationStatus){
@@ -152,12 +136,12 @@ ApplicationsView.prototype.showApplicationModal = function (applicationId, appli
 
     if (this.page.ctrl.bandMemberRole === BandMember.ROLE.OWNER || this.page.ctrl.bandMemberRole === BandMember.ROLE.MANAGER) {
         modalButtons =  '<button id="btnAccept" type="button" class="btn btn-success" data-dismiss="modal">Accept</button>'+
-                        '<button id="btnReject" type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>'
+                        '<button id="btnReject" type="button" class="btn btn-danger" data-dismiss="modal">Reject</button>';
     }
 
     var applicationModal = $(this.page.elem).find('.application-modal');
-    applicationModal.find('.modal').attr('data-application-id',thisApplication.id);
-    applicationModal.find('.modal').attr('data-application-status',thisApplication.status);
+    applicationModal.find('.modal').attr('data-application-id', thisApplication.id);
+    applicationModal.find('.modal').attr('data-application-status', thisApplication.status);
     applicationModal.find('.modal-title').html(thisApplication.name+' - '+thisApplication.username);
     applicationModal.find('.modal-body').html('<p>Instrument: '+thisApplication.instrument+'</p><p>Message: '+thisApplication.message);
     applicationModal.find('.dynamic-buttons').html(modalButtons);

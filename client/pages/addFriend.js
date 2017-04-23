@@ -24,19 +24,20 @@ AddFriendCtrl.prototype.constructor = AddFriendCtrl;
 
 AddFriendCtrl.prototype.search = function (form){
     var defer = $.Deferred();
+    
     var that = this;
-    that.friends = [];
+    
     $.ajax({
         url: '/api/friends/search',
         type: 'POST',
         data: $(form).serialize()
-    }).then(function (data){
+    })
+    .then(function (data){
         that.friends = data;
-        that.page.view.updateUserList();
         defer.resolve();
-    }).catch(function (err){
-        defer.reject(err);
-    });
+    })
+    .catch(defer.reject);
+    
     return defer.promise();
 };
 
@@ -47,11 +48,10 @@ AddFriendCtrl.prototype.updateStatus = function (toUserId, status){
         url: '/api/friends/updatestatus',
         type: 'POST',
         data: {toUserId : toUserId, status : status}
-    }).then(function (result){
-        defer.resolve(result);
-    }).catch(function (err){
-        defer.reject(err);
-    });
+    })
+    .then(defer.resolve)
+    .catch(defer.reject);
+    
     return defer.promise();
 };
 
@@ -83,14 +83,14 @@ AddFriendView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();
         page.ctrl.search(this)
-        .then(function (result) {
-            //Handle Result
+        .then(function () {
+            page.view.updateUserList();
         })
         .fail(console.error);
     });
     
     pageElem.on('click', '.friend', function (e){
-        page.view.showFriendModal(parseInt($(this).attr('data-friend-id'),10));
+        page.view.showFriendModal(parseInt($(this).attr('data-friend-id'), 10));
     });
 
     // Handle friend request

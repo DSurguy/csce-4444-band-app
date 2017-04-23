@@ -21,13 +21,14 @@ BandsCtrl.prototype = Object.create(PageCtrl.prototype);
 BandsCtrl.prototype.constructor = BandsCtrl;
 BandsCtrl.prototype.init = function (){
     var defer = $.Deferred();
+    
     var that = this;
     $.ajax('/api/bands', {
         method: 'GET'
     }).then(function (data){
         that.bands = data;
         defer.resolve();
-    }).catch(console.error);
+    }).catch(defer.reject);
     
     return defer.promise();
 };
@@ -40,7 +41,7 @@ BandsView.prototype.constructor = BandsView;
 BandsView.prototype.init = function (){
     var bandsElem = $(this.page.elem).find('.bands');
     for( var i=0; i<this.page.ctrl.bands.length; i++ ){
-        bandsElem.append('<div class="band btn btn-secondary" id='+this.page.ctrl.bands[i].id+'>'+this.page.ctrl.bands[i].bandName+' <small>(owned by: '+this.page.ctrl.bands[i].ownerName+')</small></div>');
+        bandsElem.append('<div class="band btn btn-secondary" data-band-id='+this.page.ctrl.bands[i].id+'>'+this.page.ctrl.bands[i].bandName+' <small>(owned by: '+this.page.ctrl.bands[i].ownerName+')</small></div>');
     }
     
     this.bindEvents();
@@ -53,6 +54,6 @@ BandsView.prototype.bindEvents = function (){
         window.location = '/bands/register';
     });
     pageElem.on('click', '.band', function (e){
-        window.location = '/bands/' + $(this).attr('id');
+        window.location = '/bands/' + $(this).attr('data-band-id');
     });
 };
