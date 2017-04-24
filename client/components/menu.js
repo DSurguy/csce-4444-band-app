@@ -3,6 +3,17 @@
 /* global PageCtrl */
 /* global $ */
 
+function MenuItem(data){
+    this.label = data.label||'';
+    this.class = data.class||'';
+    this.action = data.action||this.action;
+    this.render = data.render||this.render;
+}
+MenuItem.prototype.render = function (){
+    return $.Deferred().resolve('<button type="button" class="action '+this.class+' btn btn-secondary btn-block">'+this.label+'</button>').promise();
+};
+MenuItem.prototype.action = function (e){};
+
 function MenuComponent(app, data){
     Page.call(this, app, $(data.element)[0], MenuCtrl, MenuView);
 }
@@ -25,33 +36,197 @@ MenuCtrl.prototype.logout = function (){
     return defer.promise();
 };
 
+
 function MenuView(page){
+    var view = this;
     PageView.call(this, page);
+    
+    this.profileMenuItems = [{
+        class: 'home',
+        action: function (e){
+            window.location = '/main';
+        },
+        render: function (){
+            return $.Deferred().resolve('<button type="button" class="action home fa fa-home btn btn-secondary"></button>').promise();
+        }
+    }, {
+        class: 'profile',
+        action: function (e){
+            window.location = '/profile';
+        },
+        render: function (){
+            return $.Deferred().resolve('<div class="profile">'+
+                '<img class="profile-img" src="https://placehold.it/150x150">'+
+                '<div class="name">username</div>'+
+            '</div>').promise();
+        }
+    }].map(function (item){return new MenuItem(item)});
+    
+    this.mainMenuItems = [{
+        label: 'Bands',
+        class: 'bands',
+        action: function (e){ 
+            window.location = '/bands';
+        }
+    }, {
+        label: 'Friends',
+        class: 'friends',
+        action: function (e){
+            window.location = '/friends'; 
+        }
+    }, {
+        label: 'Notifications',
+        class: 'notifications',
+        action: function (e){
+            window.location = '/notifications';
+        },
+        render: function (){
+            var defer = $.Deferred(),
+                item = this;
+            
+            $.ajax({
+                method: 'get',
+                url: '/api/notifications?unread&count'
+            })
+            .then(function (data){
+                defer.resolve('<button type="button" class="action '+item.class+' btn btn-secondary btn-block">'+item.label+' <span class="badge badge-pill badge-primary">'+(data.count||0)+'</span></button>'); 
+            })
+            .fail(defer.reject);
+            
+            return defer.promise();
+        }
+    }, {
+        label: 'Logout',
+        class: 'logout',
+        action: function (e){
+            view.page.ctrl.logout()
+            .then(function (){
+                window.location = '/login';
+            }).catch(console.error);
+        }
+    }].map(function (item){return new MenuItem(item)});
+    
+    this.bandMenuItems = [{
+        label: 'Inventory',
+        class: 'inventory',
+        action: function (e){
+            
+        }
+    }, {
+        label: 'Store',
+        class: 'store',
+        action: function (e){}
+    }, {
+        label: 'Events',
+        class: 'events',
+        action: function (e){}
+    }, {
+        label: 'Members',
+        class: 'members',
+        action: function (e){}
+    }].map(function (item){return new MenuItem(item)});
 }
 MenuView.prototype = Object.create(PageView.prototype);
 MenuView.prototype.constructor = MenuView;
 MenuView.prototype.init = function (){
-    this.menuButtonContainer = $(this.page.elem);
-    this.menuOverlayContainer = $('#menuOverlay');
-    this.renderMenu();
-    this.bindEvents();
+    var view = this;
+    view.menuButtonContainer = $(view.page.elem);
+    view.menuOverlayContainer = $('#menuOverlay');
+    view.renderMenu()
+    .then(function (){
+        view.bindEvents();
+    });
 };
 MenuView.prototype.renderMenu = function (){
-    
+    var view = this,
+        defer = $.Deferred();
+        
     /* render overlay */
-    if( this.menuOverlayContainer.length == 0 ){
+    if( view.menuOverlayContainer.length == 0 ){
         $('body').append('<div id="menuOverlay" class="hidden"></div>');
-        this.menuOverlayContainer = $("#menuOverlay");
+        view.menuOverlayContainer = $("#menuOverlay");
     }
-    this.menuOverlayContainer.empty();
-    this.menuOverlayContainer.append('<div class="menu"></div>');
-    this.menuOverlayContainer.find('.menu').append('<div class="menuSection">'
-        +'<div class="action logout btn btn-secondary">Logout</div>'
+    view.menuOverlayContainer.empty();
+    view.menuOverlayContainer.append('<div class="menu"></div>');
+    
+    //define the recursive asynchronous rendering function
+    function nextItem(parent, items, index){
+        if( index >= items.length ){
+            return $.Deferred().resolve().promise();
+        }
+        var defer = $.Deferred();
+        
+        //build the html for this item
+        items[index].render()
+        .then(function (html){
+            //add this item to the DOM
+            parent.append(html);
+            //render the next item
+            nextItem(parent, items, index+1)
+            .then(defer.resolve)
+            .fail(defer.reject);
+        })
+        .fail(defer.reject);
+        
+        return defer.promise();
+    }
+    
+    //render profile chunk
+    var parent = $('<div class="menuSection container profile-section clearfix"></div>');
+    nextItem(parent, view.profileMenuItems, 0)
+    .then(function (){
+        //add the parent to the DOM
+        view.menuOverlayContainer.find('.menu').append(parent);
+        //bind profile events
+        view.profileMenuItems.forEach(function (item){
+            view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
+        });
+        //render main menu chunk
+        parent = $('<div class="menuSection container clearfix"></div>');
+        return nextItem(parent, view.mainMenuItems, 0);
+    })
+    .then(function (){
+        //add the parent to the DOM
+        view.menuOverlayContainer.find('.menu').append(parent);
+        //bind profile events
+        view.mainMenuItems.forEach(function (item){
+            view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
+        });
+        //render band items
+        return $.Deferred().resolve().promise();
+    })
+    .then(function (){
+        //add the parent to the DOM
+        //bind band events
+        
+        /* render menu button */
+        view.menuButtonContainer.empty();
+        view.menuButtonContainer.append('<div class="menu-toggle btn btn-secondary fa fa-bars"></div>');
+        defer.resolve();
+    })
+    .catch(console.error);
+    
+    /*this.menuOverlayContainer.find('.menu').append(''+
+    '<div class="menuSection container profile-section clearfix">'+
+        '<button type="button" class="action home fa fa-home btn btn-secondary"></button>'+
+        '<div class="profile">'+
+            '<img class="profile-img" src="https://placehold.it/150x150">'+
+            '<div class="name">username</div>'+
+        '</div>'+
+    '</div>');
+    this.menuOverlayContainer.find('.menu').append('<div class="menuSection container clearfix">'
+        +menuItems.map(function (item){
+            if( typeof item.render === 'function' ){
+                return item.render();
+            }
+            return '<button type="button" class="action '+item.class+' btn btn-secondary btn-block">'+item.label+'</button>';
+        }).join('')
     +'</div>');
     
-    /* render menu button */
-    this.menuButtonContainer.empty();
-    this.menuButtonContainer.append('<div class="menu-toggle btn btn-secondary fa fa-bars"></div>');
+    menuItems.forEach(function (item){
+        that.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
+    });*/
+    return defer.promise();
 };
 MenuView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
@@ -68,18 +243,13 @@ MenuView.prototype.bindEvents = function (){
         }
     });
     
-    view.menuOverlayContainer.on('click', '.menu .logout', function (e){
-        view.page.ctrl.logout()
-        .then(function (){
-            window.location = '/login';
-        }).catch(function (err){
-            alert(err.message);
-        });
-    });
-    
     view.menuOverlayContainer.on('click', '.menu', function (e){
         e.stopPropagation();
         e.preventDefault();
+    });
+    
+    view.menuOverlayContainer.find('.menu').on('click', '.home', function (e){
+        window.location = '/main';
     });
     
     view.menuOverlayContainer.on('click', function (e){

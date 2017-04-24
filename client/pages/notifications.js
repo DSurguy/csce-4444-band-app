@@ -53,7 +53,7 @@ NotificationsCtrl.prototype.getNotifications = function (){
 };
 
 NotificationsCtrl.prototype.deleteNotification = function (){
-    return Promise.resolve();
+    return $.Deferred().resolve().promise();
 };
 
 /**
@@ -76,12 +76,13 @@ NotificationsView.prototype.bindEvents = function (){
     pageElem.on('close.bs.alert', function (e) {
         //delete notification on the server
         page.ctrl.deleteNotification($(this).attr('data-notification-id'))
-        .then(page.ctrl.getNotifications)
-        .then(page.view.render)
-        .catch(function (err){
-            alert(err.stack);
-            page.ctrl.getNotifications();
-        });
+        .then(function (){
+            return page.ctrl.getNotifications();
+        })
+        .then(function (){
+            page.view.render();
+        })
+        .catch(console.error);
     });
 };
 
