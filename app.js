@@ -1,15 +1,21 @@
 var express = require('express');
+var fileUpload = require('express-fileupload');
 var Band = require('./shared/classes/band.js');
+var BandMember = require('./shared/classes/bandMember.js');
 var mysql = require('mysql');
 var bodyParser = require('body-parser');
 var loginService = require('./server/services/loginService.js');
 var hbs = require('express-hbs');
 var registerUser = require('./server/services/userRegistrationService.js');
 var bandService = require('./server/services/bandService.js');
+var merchService = require('./server/services/merchService.js');
 var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
+var path = require('path');
+
+var imageFilesRoot= path.resolve('static/media');
 
 var config;
 try{
@@ -41,6 +47,7 @@ app.set('views', __dirname + '/views');
 // parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('static'));
+app.use(fileUpload());
 
 //db connection
 var connection = mysql.createConnection(config.db);
@@ -114,6 +121,14 @@ app.get('/friends/add', checkSession, function (req, res){
 app.get('/bands/:bandId/applications/', checkSession, function (req, res){
     res.render('applications');
 });
+
+app.get('/bands/:bandId/addmerch/', checkSession, function (req, res){
+    res.render('addMerch');
+});
+
+app.get('/bands/:bandId/inventory', checkSession, function (req, res){
+    res.render('inventory');
+})
 
 app.post('/api/login', function (req, res){
     if (!req.body) {
@@ -396,6 +411,78 @@ app.get('/api/bands/:bandId/role', checkSession, function (req, res) {
         else {
             res.sendStatus(400);
         }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+app.post('/api/bands/:bandId/addmerch', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    if (!req.body) {
+        res.sendStatus(400);
+    }
+
+    console.log(req.body.size);
+
+    // Check that the user has rights to add merch
+    bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        if (result.role === BandMember.ROLE.OWNER || result.role === BandMember.ROLE.MANAGER) {
+            return merchService.uploadImage(req.params.bandId, req.files.merchImage, imageFilesRoot);
+        }
+        else {
+            //TODO: Fix these promise chains to chain properly.
+            return Promise.resolve(false);
+        }
+    })
+    .then(function (relativePath) {
+        if (relativePath) {
+            return merchService.createItem(req.session.userId, req.params.bandId, req.body.name, req.body.description, req.body.price, req.body.merchType, relativePath, req.body.size, req.body.color, req.body.quantity, connection);
+        }
+        else {
+            return Promise.resolve(false);
+        }
+    })
+    .then(function (result) {
+        if (result) {
+            res.status(200);
+            res.send(result);
+        }
+        else {
+            res.sendStatus(400);
+        }
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to view merch
+    bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        if (result.role != BandMember.ROLE.NONE) {
+            return merchService.getItems(req.session.userId, req.params.bandId, connection);
+        }
+        else {
+            return Promise.resolve(false);
+        }
+    })
+    .then(function (result) {
+        return result == false ? false : merchService.getImages(result);
+    })
+    .then(function (result) {
+        return result == false ? false : merchService.getInventory(result, connection);
+    })
+    .then(function (result) {
+        res.status(200);
+        res.send(result || []);
     })
     .catch(function (e) {
         res.status(500).send({error:e});

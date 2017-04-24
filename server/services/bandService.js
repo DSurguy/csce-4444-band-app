@@ -332,7 +332,6 @@ function getBandMemberRole(userId, bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
         "SELECT ROLE FROM BANDMEMBER WHERE BANDID = "+bandId+" AND USERID = "+userId;
-        
         connection.query(query, function(err, results, fields) {
             if (err) {
                 reject(err);
