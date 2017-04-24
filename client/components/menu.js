@@ -57,7 +57,7 @@ function MenuView(page){
         render: function (){
             return $.Deferred().resolve('<div class="profile">'+
                 '<img class="profile-img" src="https://placehold.it/150x150">'+
-                '<div class="name">username</div>'+
+                '<div class="profile-name">username</div>'+
             '</div>').promise();
         }
     }].map(function (item){return new MenuItem(item)});
@@ -106,24 +106,70 @@ function MenuView(page){
         }
     }].map(function (item){return new MenuItem(item)});
     
+    this.bandProfileItems = [{
+        class: 'band-profile',
+        action: function (e){
+            var newPath = window.location.pathname.split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+1).concat('profile').join('/');
+            window.location = newPath;
+        },
+        render: function (){
+            var defer = $.Deferred();
+            //return '<div class="band-profile" style="background-image: url(https://placehold.it/240x150)">'++'</div>'
+            var loc = window.location.pathname.split('/');
+            $.ajax({
+                method: 'GET',
+                url: '/api/bands/'+loc[loc.indexOf('bands')+1]
+            })
+            .then(function (band){
+                defer.resolve('<div class="band-profile" style="background-image: url(https://placehold.it/240x150)">'+band.bandName+'</div>');
+            })
+            .catch(defer.reject);
+            
+            return defer.promise();
+        }
+    }].map(function (item){return new MenuItem(item)});
+    
     this.bandMenuItems = [{
         label: 'Inventory',
         class: 'inventory',
         action: function (e){
-            
+            var newPath = window.location.pathname.split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+2).concat('inventory').join('/');
+            window.location = newPath;
         }
     }, {
         label: 'Store',
         class: 'store',
-        action: function (e){}
+        action: function (e){
+            var newPath = window.location.pathname.split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+2).concat('store').join('/');
+            window.location = newPath;
+        }
     }, {
         label: 'Events',
         class: 'events',
-        action: function (e){}
+        action: function (e){
+            var newPath = window.location.pathname.split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+2).concat('events').join('/');
+            window.location = newPath;
+        }
     }, {
         label: 'Members',
         class: 'members',
-        action: function (e){}
+        action: function (e){
+            var newPath = window.location.pathname.split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+2).concat('members').join('/');
+            window.location = newPath;
+        }
+    }, {
+        label: 'Manage',
+        class: 'manage',
+        action: function (e){
+            var newPath = window.location.pathname.split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+2).concat('manage').join('/');
+            window.location = newPath;
+        }
     }].map(function (item){return new MenuItem(item)});
 }
 MenuView.prototype = Object.create(PageView.prototype);
@@ -171,8 +217,14 @@ MenuView.prototype.renderMenu = function (){
         return defer.promise();
     }
     
+    var shouldRenderBand = false;
+    var splitLoc = window.location.pathname.split('/');
+    if( splitLoc[splitLoc.indexOf('bands')+1] !== undefined ){
+        shouldRenderBand = true;
+    }
+    
     //render profile chunk
-    var parent = $('<div class="menuSection container profile-section clearfix"></div>');
+    var parent = $('<div class="menu-section container profile-section clearfix"></div>');
     nextItem(parent, view.profileMenuItems, 0)
     .then(function (){
         //add the parent to the DOM
@@ -182,7 +234,7 @@ MenuView.prototype.renderMenu = function (){
             view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
         });
         //render main menu chunk
-        parent = $('<div class="menuSection container clearfix"></div>');
+        parent = $('<div class="menu-section container clearfix"></div>');
         return nextItem(parent, view.mainMenuItems, 0);
     })
     .then(function (){
@@ -192,12 +244,43 @@ MenuView.prototype.renderMenu = function (){
         view.mainMenuItems.forEach(function (item){
             view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
         });
-        //render band items
-        return $.Deferred().resolve().promise();
+        
+        //render band profile block
+        parent = $('<div class="menu-section band-profile-section clearfix"></div>');
+        if( shouldRenderBand ){
+            return nextItem(parent, view.bandProfileItems, 0);
+        }
+        else{
+            return $.Deferred().resolve().promise();
+        }
     })
     .then(function (){
         //add the parent to the DOM
-        //bind band events
+        view.menuOverlayContainer.find('.menu').append(parent);
+        if( shouldRenderBand ){
+            //bind profile events
+            view.bandProfileItems.forEach(function (item){
+                view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
+            });
+        }
+        //render band items
+        parent = $('<div class="menu-section container clearfix"></div>');
+        if( shouldRenderBand ){
+            return nextItem(parent, view.bandMenuItems, 0)
+        }
+        else{
+            return $.Deferred().resolve().promise();
+        }
+    })
+    .then(function (){
+        //add the parent to the DOM
+        view.menuOverlayContainer.find('.menu').append(parent);
+        if( shouldRenderBand ){
+            //bind profile events
+            view.bandMenuItems.forEach(function (item){
+                view.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
+            });
+        }
         
         /* render menu button */
         view.menuButtonContainer.empty();
@@ -207,14 +290,14 @@ MenuView.prototype.renderMenu = function (){
     .catch(console.error);
     
     /*this.menuOverlayContainer.find('.menu').append(''+
-    '<div class="menuSection container profile-section clearfix">'+
+    '<div class="menu-section container profile-section clearfix">'+
         '<button type="button" class="action home fa fa-home btn btn-secondary"></button>'+
         '<div class="profile">'+
             '<img class="profile-img" src="https://placehold.it/150x150">'+
             '<div class="name">username</div>'+
         '</div>'+
     '</div>');
-    this.menuOverlayContainer.find('.menu').append('<div class="menuSection container clearfix">'
+    this.menuOverlayContainer.find('.menu').append('<div class="menu-section container clearfix">'
         +menuItems.map(function (item){
             if( typeof item.render === 'function' ){
                 return item.render();
