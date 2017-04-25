@@ -49,6 +49,7 @@ app.set('views', __dirname + '/views');
 // parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('static'));
+app.use('/media', express.static('media'));
 app.use(fileUpload());
 
 //db connection
@@ -546,7 +547,7 @@ app.post('/api/bands/:bandId/songs', checkSession, function (req, res){
         res.status(201).send(createdSong);
     })
     .catch(function (err){
-        res.status(500).send({error: err});
+        res.status(500).send({error: err.stack});
     });
 });
 
@@ -567,7 +568,7 @@ app.put('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
         res.status(201).send(createdSong);
     })
     .catch(function (err){
-        res.status(500).send({error: err});
+        res.status(500).send({error: err.stack});
     });
 });
 

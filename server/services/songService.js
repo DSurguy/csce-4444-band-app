@@ -6,15 +6,14 @@ var SongService = {
     createSong: function (newSong, songFile, connection){
         return new Promise(function (resolve, reject){
             var query = `INSERT INTO SONG (BandID, Name, Duration, Lyrics, Composer, Link, Path) VALUES (
-                ${connection.escape(newSong.bandId)},
-                '${connection.escape(newSong.name)}',
-                '${connection.escape(newSong.duration)}',
-                '${connection.escape(newSong.lyrics)}',
-                '${connection.escape(newSong.composer)}',
-                '${connection.escape(newSong.link)}',
-                '${connection.escape(newSong.path)}'
+                ${parseInt(newSong.bandId,10)},
+                ${connection.escape(newSong.name)},
+                ${connection.escape(newSong.duration)},
+                ${connection.escape(newSong.lyrics)},
+                ${connection.escape(newSong.composer)},
+                ${connection.escape(newSong.link)},
+                ${connection.escape(newSong.path)}
             )`;
-            
             connection.beginTransaction(function(err) {
                 if (err) {
                     reject(err);
@@ -34,14 +33,21 @@ var SongService = {
                     uploadSong(songFile, newSong)
                     .then(function (relativePath){
                         newSong.path = relativePath;
-                        query = `UPDATE SONG SET Path = '${connection.escape(relativePath)}' WHERE SongID = '${connection.escape(newSong.id)}'`;
+                        query = `UPDATE SONG SET Path = ${connection.escape(relativePath)} WHERE SongID = ${parseInt(newSong.id,10)}`;
                         connection.query(query, function (err, result, fields){
                             if (err) {
                                 return connection.rollback(function() {
                                     reject(err);
                                 });
                             }
-                            resolve(newSong);
+                            connection.commit(function (err){
+                                if (err) {
+                                    return connection.rollback(function() {
+                                        reject(err);
+                                    });
+                                }
+                                resolve(newSong);
+                            });
                         });
                     })
                     .catch(function (err){
@@ -56,13 +62,13 @@ var SongService = {
     editSong: function (newSong, songFile, connection){
         return new Promise(function (resolve, reject){
             var query = `UPDATE SONG SET
-                Name = '${connection.escape(newSong.name)}',
-                Duration = '${connection.escape(newSong.duration)}',
-                Lyrics = '${connection.escape(newSong.lyrics)}',
-                Composer = '${connection.escape(newSong.composer)}',
-                Link = '${connection.escape(newSong.link)}',
-                Path = '${connection.escape(newSong.path)}'
-            ) WHERE SongID = ${connection.escape(newSong.id)} AND BandID = ${connection.escape(newSong.bandId)}`; /* Is bandId necessary? */
+                Name = ${connection.escape(newSong.name)},
+                Duration = ${connection.escape(newSong.duration)},
+                Lyrics = ${connection.escape(newSong.lyrics)},
+                Composer = ${connection.escape(newSong.composer)},
+                Link = ${connection.escape(newSong.link)},
+                Path = ${connection.escape(newSong.path)}
+            ) WHERE SongID = ${parseInt(newSong.id,10)} AND BandID = ${parseInt(newSong.bandId,10)}`;
             
             connection.beginTransaction(function(err) {
                 if (err) {
@@ -84,14 +90,21 @@ var SongService = {
                         uploadSong(songFile, newSong)
                         .then(function (relativePath){
                             newSong.path = relativePath;
-                            query = `UPDATE SONG SET Path = '${connection.escape(relativePath)}' WHERE SongID = ${connection.escape(newSong.id)}`;
+                            query = `UPDATE SONG SET Path = ${connection.escape(relativePath)} WHERE SongID = ${parseInt(newSong.id,10)}`;
                             connection.query(query, function (err, result, fields){
                                 if (err) {
                                     return connection.rollback(function() {
                                         reject(err);
                                     });
                                 }
-                                resolve(newSong);
+                                connection.commit(function (err){
+                                    if (err) {
+                                        return connection.rollback(function() {
+                                            reject(err);
+                                        });
+                                    }
+                                    resolve(newSong);
+                                });
                             });
                         })
                         .catch(function (err){
@@ -109,7 +122,7 @@ var SongService = {
     },
     getSong: function (songId, bandId, connection){ /* Is bandId necessary? */
         return new Promise(function (resolve, reject){
-            var query = `SELECT * FROM SONG WHERE SongID = ${connection.escape(songId)} AND BandID = ${connection.escape(bandId)}`;
+            var query = `SELECT * FROM SONG WHERE SongID = ${parseInt(songId,10)} AND BandID = ${parseInt(bandId,10)}`;
             connection.query(query, function (err, result){
                 if( err ){
                     reject(err); return;
@@ -129,7 +142,7 @@ var SongService = {
     },
     getSongs: function (bandId, connection){
         return new Promise(function (resolve, reject){
-            var query = `SELECT * FROM SONG WHERE BandID = ${connection.escape(bandId)} ORDER BY Name ASC`;
+            var query = `SELECT * FROM SONG WHERE BandID = ${parseInt(bandId,10)} ORDER BY Name ASC`;
             connection.query(query, function (err, results){
                 if( err ){
                     reject(err); return;
@@ -194,7 +207,7 @@ function uploadSong (file, newSong, connection){
     				return;
     			}
     
-    			resolve(path.resolve.apply('',subPaths.concat([file.name])));
+    			resolve('/'+subPaths.join('/')+'/'+file.name);
     		});
 		})
 		.catch(reject);
