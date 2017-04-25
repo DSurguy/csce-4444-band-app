@@ -1,0 +1,74 @@
+{{#contentFor "page-title"}}Songs{{/contentFor}}
+{{#contentFor "page-constructor"}}SongsPage{{/contentFor}}
+<div id="songsPage" class="page">
+    <div class="menu-button-container"></div>
+    <h1>Songs</h1> 
+    <div class="container">
+        <button type="button" class="add-song btn btn-primary">
+            <div class="fa fa-plus"></div> Add New Song
+        </button>
+        <input type="text" class="search" placeholder="search" />
+    </div>
+    <div class="container">
+        <div class="songs"></div>
+    </div>
+    <div class="song-modal">
+	    <div data-song-id="" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <h4 class="modal-title">Edit Song</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="name">Song Name</label>
+                                <input class="form-control" type="text" name="name" placeholder="Enter name" />
+                            </div>
+                            <div class="form-group">
+                                <label>Duration</label>
+                                <div class="row">
+                                    <div class="col-4 input-group">
+                                        <input class="form-control" type="number" maxlength="2" min="0" name="duration-hours" placeholder="00">
+                                        <div class="input-group-addon">H</div>
+                                    </div>
+                                    <div class="col-4 input-group">
+                                        <input class="form-control" type="number" maxlength="2" max="59" min="0" name="duration-mins" placeholder="00">
+                                        <div class="input-group-addon">M</div>
+                                    </div>
+                                    <div class="col-4 input-group">
+                                        <input class="form-control" type="number" maxlength="2" max="59" min="0" name="duration-seconds" placeholder="00">
+                                        <div class="input-group-addon">S</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lyrics">Lyrics</label>
+                                <textarea class="form-control" name="lyrics" placeholder="Paste lyrics here"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="composer">Composer</label>
+                                <input class="form-control" type="text" name="duration" placeholder="Enter composer">
+                            </div>
+                            <div class="form-group">
+                                <label for="composer">Online Media</label>
+                                <input class="form-control" type="text" name="link" placeholder="Enter url">
+                                <small class="form-text text-muted">Example: <a target="_blank" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">https://www.youtube.com/watch?v=dQw4w9WgXcQ</a></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="file">Upload File</label>
+                                <input class="form-control" type="file" name="file"></input>
+                                <small class="form-text text-muted">Supported Formats: .mp4, .mp3, .wav (I have no idea probably)</small>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-danger">Delete Song</button>
+                        <button type="button" class="btn btn-success">Save Song</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>

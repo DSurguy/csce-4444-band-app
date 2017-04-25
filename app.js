@@ -128,7 +128,19 @@ app.get('/bands/:bandId/addmerch/', checkSession, function (req, res){
 
 app.get('/bands/:bandId/inventory', checkSession, function (req, res){
     res.render('inventory');
-})
+});
+
+app.get('/bands/:bandId/songs', checkSession, function (req, res){
+    res.render('songs');
+});
+
+app.get('/bands/:bandId/setlists', checkSession, function (req, res){
+    res.render('setLists');
+});
+app.get('/bands/:bandId/setlists/:id', checkSession, function (req, res){
+    res.render('editSetList');
+});
+
 
 app.post('/api/login', function (req, res){
     if (!req.body) {
