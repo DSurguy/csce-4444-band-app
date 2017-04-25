@@ -235,7 +235,8 @@ MenuView.prototype.renderMenu = function (){
     
     var shouldRenderBand = false;
     var splitLoc = window.location.pathname.split('/');
-    if( splitLoc[splitLoc.indexOf('bands')+1] !== undefined ){
+    var bandId = splitLoc[splitLoc.indexOf('bands')+1];
+    if( bandId !== undefined && !isNaN(parseInt(bandId)) ){
         shouldRenderBand = true;
     }
     

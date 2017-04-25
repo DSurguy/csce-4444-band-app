@@ -11,6 +11,8 @@ var bandService = require('./server/services/bandService.js');
 var merchService = require('./server/services/merchService.js');
 var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
+var songService = require('./server/services/songService.js');
+var Song = require('./shared/classes/song.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var path = require('path');
@@ -499,6 +501,37 @@ app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
     .catch(function (e) {
         res.status(500).send({error:e});
     });
+});
+
+/** Create New Song **/
+app.post('/api/bands/:bandId/songs', checkSession, function (req, res){
+    var newSong = new Song({
+        id : undefined,
+        bandId : req.params.bandId,
+        name : req.body.name,
+        duration : `${req.body['duration-hours']}h${req.body['duration-mins']}m${req.body['duration-secs']}s`,
+        lyrics : req.body.lyrics,
+        composer : req.body.composer,
+        link: req.body.link,
+        path: ''
+    });
+    songService.createSong(newSong, req.files['song-file'], connection)
+    .then(function (createdSong){
+        res.status(201).send(createdSong);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
+/** Update Song **/
+app.put('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
+    
+});
+
+/** Delete Song **/
+app.delete('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
+    
 });
 
 app.listen(8080, function () {
