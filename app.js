@@ -503,13 +503,39 @@ app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
     });
 });
 
+/** Get Single Song **/
+app.get('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
+    songService.getSong(req.params.songId, req.params.bandId, connection)
+    .then(function (singleSong){
+        res.status(200).send(singleSong);
+    })
+    .catch(function (err){
+        res.status(500).send({
+            error: err
+        });
+    });
+});
+
+/** Get All Songs **/
+app.get('/api/bands/:bandId/songs', checkSession, function (req, res){
+    songService.getSongs(req.params.bandId, connection)
+    .then(function (songs){
+        res.status(200).send(songs);
+    })
+    .catch(function (err){
+        res.status(500).send({
+            error: err
+        });
+    });
+});
+
 /** Create New Song **/
 app.post('/api/bands/:bandId/songs', checkSession, function (req, res){
     var newSong = new Song({
         id : undefined,
         bandId : req.params.bandId,
         name : req.body.name,
-        duration : `${req.body['duration-hours']}h${req.body['duration-mins']}m${req.body['duration-secs']}s`,
+        duration : `${req.body['duration-hours']}:${req.body['duration-mins']}:${req.body['duration-secs']}`,
         lyrics : req.body.lyrics,
         composer : req.body.composer,
         link: req.body.link,
@@ -526,7 +552,23 @@ app.post('/api/bands/:bandId/songs', checkSession, function (req, res){
 
 /** Update Song **/
 app.put('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
-    
+    var newSong = new Song({
+        id : req.params.songId,
+        bandId : req.params.bandId,
+        name : req.body.name,
+        duration : `${req.body['duration-hours']}h${req.body['duration-mins']}m${req.body['duration-secs']}s`,
+        lyrics : req.body.lyrics,
+        composer : req.body.composer,
+        link: req.body.link,
+        path: ''
+    });
+    songService.createSong(newSong, req.files['song-file'], connection)
+    .then(function (createdSong){
+        res.status(201).send(createdSong);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
 });
 
 /** Delete Song **/

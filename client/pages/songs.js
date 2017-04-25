@@ -3,6 +3,8 @@
 /* global PageCtrl */
 /* global $ */
 /* global MenuComponent */
+/* global Song */
+
 function SongsPage(app, data){
     Page.call(this, app, $('#songsPage')[0], SongsCtrl, SongsView, {
         menu: new MenuComponent(app, {
@@ -16,19 +18,38 @@ SongsPage.prototype.constructor = SongsPage;
 function SongsCtrl(page){
     PageCtrl.call(this, page);
     this.saving = false;
+    this.bandId = window.location.pathname.split('/').reduce(function (val, chunk, index, arr){
+        return val || (chunk == 'bands' ? arr[index+1] : undefined);
+    }, undefined);
 }
 SongsCtrl.prototype = Object.create(PageCtrl.prototype);
 SongsCtrl.prototype.constructor = SongsCtrl;
+SongsCtrl.prototype.init = function (){
+    var defer = $.Deferred(),
+        ctrl = this;
+    
+    $.ajax({
+        url: `/api/bands/${ctrl.bandId}/songs`,
+        method: 'GET'
+    })
+    .then(function (songs){
+        ctrl.songs = songs.map(function (song){
+            return new Song(song);
+        });
+        defer.resolve();
+    })
+    .catch(defer.reject);
+    
+    return defer.promise();
+};
 
 SongsCtrl.prototype.saveSong = function(form){
     var defer = $.Deferred();
-    var bandId = window.location.pathname.split('/').reduce(function (val, chunk, index, arr){
-        return val || (chunk == 'bands' ? arr[index+1] : undefined);
-    }, undefined);
     var formData = new FormData(form);
+    var ctrl = this;
     
     $.ajax({
-        url: `/api/bands/${bandId}/songs`,
+        url: `/api/bands/${ctrl.bandId}/songs`,
         type: 'POST',
         data: formData,
         cache: false,
@@ -46,10 +67,25 @@ function SongsView(page){
 }
 SongsView.prototype = Object.create(PageView.prototype);
 SongsView.prototype.constructor = SongsView;
-SongsView.prototype.init = function (){   
+SongsView.prototype.init = function (){
+    this.render();
     this.bindEvents();
 };
 
+SongsView.prototype.render = function (){
+    var songsElem = $(this.page.elem).find('.songs-list');
+    
+    this.page.ctrl.songs.forEach(function (song){
+        songsElem.append(`
+        <a href="javascript://" class="song list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">${song.name}</h5>
+                <h5 class="mb-1">${song.duration}</h5>
+            </div>
+            <p class="mb-1">Composer: ${song.composer}</p>
+        </a>`);
+    });
+};
 SongsView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
         view = this;

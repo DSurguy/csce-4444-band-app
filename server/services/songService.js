@@ -6,16 +6,15 @@ var SongService = {
     createSong: function (newSong, songFile, connection){
         return new Promise(function (resolve, reject){
             var query = `INSERT INTO SONG (BandID, Name, Duration, Lyrics, Composer, Link, Path) VALUES (
-                ${newSong.bandId},
-                '${newSong.name}',
-                '${newSong.duration}',
-                '${newSong.lyrics}',
-                '${newSong.composer}',
-                '${newSong.link}',
-                '${newSong.path}'
+                ${connection.escape(newSong.bandId)},
+                '${connection.escape(newSong.name)}',
+                '${connection.escape(newSong.duration)}',
+                '${connection.escape(newSong.lyrics)}',
+                '${connection.escape(newSong.composer)}',
+                '${connection.escape(newSong.link)}',
+                '${connection.escape(newSong.path)}'
             )`;
             
-            console.log(query);
             connection.beginTransaction(function(err) {
                 if (err) {
                     reject(err);
@@ -35,8 +34,7 @@ var SongService = {
                     uploadSong(songFile, newSong)
                     .then(function (relativePath){
                         newSong.path = relativePath;
-                        query = `UPDATE SONG SET Path = '${relativePath}' WHERE SongID = '${newSong.id}'`;
-                        console.log(query);
+                        query = `UPDATE SONG SET Path = '${connection.escape(relativePath)}' WHERE SongID = '${connection.escape(newSong.id)}'`;
                         connection.query(query, function (err, result, fields){
                             if (err) {
                                 return connection.rollback(function() {
@@ -55,8 +53,101 @@ var SongService = {
             });
         });
     },
-    editSong: function (){
-        
+    editSong: function (newSong, songFile, connection){
+        return new Promise(function (resolve, reject){
+            var query = `UPDATE SONG SET
+                Name = '${connection.escape(newSong.name)}',
+                Duration = '${connection.escape(newSong.duration)}',
+                Lyrics = '${connection.escape(newSong.lyrics)}',
+                Composer = '${connection.escape(newSong.composer)}',
+                Link = '${connection.escape(newSong.link)}',
+                Path = '${connection.escape(newSong.path)}'
+            ) WHERE SongID = ${connection.escape(newSong.id)} AND BandID = ${connection.escape(newSong.bandId)}`; /* Is bandId necessary? */
+            
+            connection.beginTransaction(function(err) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                
+                //insert the new song
+                connection.query(query, function(err, result, fields) {
+                    if (err) {
+                        return connection.rollback(function() {
+                            reject(err);
+                        });
+                    }
+                    
+                    newSong.id = result.insertId;
+                    
+                    if( songFile.name ){
+                        uploadSong(songFile, newSong)
+                        .then(function (relativePath){
+                            newSong.path = relativePath;
+                            query = `UPDATE SONG SET Path = '${connection.escape(relativePath)}' WHERE SongID = ${connection.escape(newSong.id)}`;
+                            connection.query(query, function (err, result, fields){
+                                if (err) {
+                                    return connection.rollback(function() {
+                                        reject(err);
+                                    });
+                                }
+                                resolve(newSong);
+                            });
+                        })
+                        .catch(function (err){
+                            connection.rollback(function() {
+                                reject(err);
+                            });
+                        });
+                    }
+                    else{
+                        resolve(newSong);
+                    }
+                });
+            });
+        });
+    },
+    getSong: function (songId, bandId, connection){ /* Is bandId necessary? */
+        return new Promise(function (resolve, reject){
+            var query = `SELECT * FROM SONG WHERE SongID = ${connection.escape(songId)} AND BandID = ${connection.escape(bandId)}`;
+            connection.query(query, function (err, result){
+                if( err ){
+                    reject(err); return;
+                }
+                resolve(new Song({
+                    id: result[0].SongID,
+                    bandId: result[0].BandID,
+                    name: result[0].Name,
+                    duration: result[0].Duration,
+                    lyrics: result[0].Lyrics,
+                    composer: result[0].Composer,
+                    link: result[0].Link,
+                    path: result[0].Path
+                }));
+            });
+        });
+    },
+    getSongs: function (bandId, connection){
+        return new Promise(function (resolve, reject){
+            var query = `SELECT * FROM SONG WHERE BandID = ${connection.escape(bandId)} ORDER BY Name ASC`;
+            connection.query(query, function (err, results){
+                if( err ){
+                    reject(err); return;
+                }
+                resolve(results.map(function (row){
+                    return new Song({
+                        id: row.SongID,
+                        bandId: row.BandID,
+                        name: row.Name,
+                        duration: row.Duration,
+                        lyrics: row.Lyrics,
+                        composer: row.Composer,
+                        link: row.Link,
+                        path: row.Path
+                    });
+                }));
+            });
+        });
     }
 };
 
