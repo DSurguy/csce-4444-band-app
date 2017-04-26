@@ -24,6 +24,8 @@
                     </div>
                     <div class="modal-body">
                         <form>
+                            <input type="hidden" name="song-id" value="">
+                            <input type="hidden" name="song-path" value="">
                             <div class="form-group">
                                 <label for="name">Song Name</label>
                                 <input class="form-control" type="text" name="name" placeholder="Enter name" />
@@ -68,7 +70,7 @@
                         </form>
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-danger">Delete Song</button>
+                        <button type="button" class="delete-song btn btn-danger">Delete Song</button>
                         <button type="button" class="save-song btn btn-success">Save Song</button>
                     </div>
                 </div>

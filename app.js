@@ -16,6 +16,7 @@ var Song = require('./shared/classes/song.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var path = require('path');
+var leftPad = require('./shared/utils/leftPad.js');
 
 var imageFilesRoot= path.resolve('static/media');
 
@@ -536,7 +537,7 @@ app.post('/api/bands/:bandId/songs', checkSession, function (req, res){
         id : undefined,
         bandId : req.params.bandId,
         name : req.body.name,
-        duration : `${req.body['duration-hours']}:${req.body['duration-mins']}:${req.body['duration-secs']}`,
+        duration : getDurationFromArray([req.body['duration-hours'], req.body['duration-mins'], req.body['duration-secs']]),
         lyrics : req.body.lyrics,
         composer : req.body.composer,
         link: req.body.link,
@@ -557,13 +558,13 @@ app.put('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
         id : req.params.songId,
         bandId : req.params.bandId,
         name : req.body.name,
-        duration : `${req.body['duration-hours']}h${req.body['duration-mins']}m${req.body['duration-secs']}s`,
+        duration : getDurationFromArray([req.body['duration-hours'], req.body['duration-mins'], req.body['duration-secs']]),
         lyrics : req.body.lyrics,
         composer : req.body.composer,
         link: req.body.link,
         path: ''
     });
-    songService.createSong(newSong, req.files['song-file'], connection)
+    songService.editSong(newSong, req.files['song-file'], connection)
     .then(function (createdSong){
         res.status(201).send(createdSong);
     })
@@ -574,8 +575,18 @@ app.put('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
 
 /** Delete Song **/
 app.delete('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
-    
+    songService.deleteSong(req.params.songId, req.params.bandId, connection)
+    .then(function (){
+        res.status(200).end();
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
 });
+
+function getDurationFromArray(timeArr){
+    return `${leftPad(timeArr[0],2,'0')}:${leftPad(timeArr[1],2,'0')}:${leftPad(timeArr[2],2,'0')}`;
+}
 
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');

@@ -48,9 +48,20 @@ SongsCtrl.prototype.saveSong = function(form){
     var formData = new FormData(form);
     var ctrl = this;
     
+    //determine if we're editing or creating
+    var url, method;
+    if( $(form).find('[name=song-id]').val() !== '' ){
+        url = `/api/bands/${ctrl.bandId}/songs/${$(form).find('[name=song-id]').val()}`;
+        method = 'PUT';
+    }
+    else{
+        url = `/api/bands/${ctrl.bandId}/songs`;
+        method = 'POST';
+    }
+    
     $.ajax({
-        url: `/api/bands/${ctrl.bandId}/songs`,
-        type: 'POST',
+        url: url,
+        type: method,
         data: formData,
         cache: false,
         contentType: false,
@@ -58,6 +69,20 @@ SongsCtrl.prototype.saveSong = function(form){
     })
     .then(defer.resolve)
     .fail(defer.reject);
+    
+    return defer.promise();
+};
+
+SongsCtrl.prototype.deleteSong = function (songId){
+    var defer = $.Deferred(),
+        ctrl = this;
+    
+    $.ajax({
+        url: `/api/bands/${ctrl.bandId}/songs/${songId}`,
+        type: 'DELETE'
+    })
+    .then(defer.resolve)
+    .catch(defer.reject);
     
     return defer.promise();
 };
@@ -95,8 +120,65 @@ SongsView.prototype.bindEvents = function (){
         view.showSongModal();
     });
     
-    pageElem.on('click', '.save-song', function (e){
+    pageElem.on('click', '.modal .save-song', function (e){
         $(this).parents('.modal').find('form').submit();
+    });
+    
+    pageElem.on('click', '.modal .delete-song', function (e){
+        if( view.page.ctrl.saving ){
+            return false;
+        }
+        else{
+            view.page.ctrl.saving = true;
+        }
+        
+        var modal = $(this).parents('.modal');
+        modal.find('.delete-song').html('<div class="fa fa-spinner animation-spin"></div>');
+        
+        var songId = modal.find('[name=song-id]').val(),
+            deletePromise;
+        
+        //just close the modal if we don't have an id
+        if( songId === '' ){
+            deletePromise = $.Deferred().resolve().promise();
+        }
+        else{
+            deletePromise = view.page.ctrl.deleteSong(songId);
+        }
+        
+        deletePromise.then(function (){
+            var audioTrack = modal.find('audio');
+            if( audioTrack.length ){
+                audioTrack[0].pause();
+                audioTrack.remove();
+            }
+            
+            var songIndex = view.page.ctrl.songs.reduce(function (val, song, index){
+                return val !== undefined ? val : (song.id == songId ? index : undefined);
+            },undefined);
+            
+            if( songIndex !== undefined ){
+                view.page.ctrl.songs.splice(songIndex,1);
+            }
+            
+            view.render();
+            modal.modal('hide');
+            modal.find('.delete-song').html('Delete Song');
+            modal.find('.alert').remove();
+            view.page.ctrl.saving = false;
+        })
+        .catch(function (err){
+            //display login failure
+            modal.find('form').prepend('<div class="alert alert-danger alert-dismissible fade show" role="alert">'
+              +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                +'<span aria-hidden="true">&times;</span>'
+              +'</button>'
+              +'<strong>Unable to delete song!</strong>'
+            +'</div>');
+            console.error(err);
+            view.page.ctrl.saving = false;
+            modal.find('.delete-song').html('Delete Song');
+        });
     });
     
     pageElem.on('submit', '.modal form', function (e){
@@ -108,6 +190,7 @@ SongsView.prototype.bindEvents = function (){
         else{
             view.page.ctrl.saving = true;
         }
+        
         var form = $(this);
         form.parents('.modal').find('.save-song').html('<div class="fa fa-spinner animation-spin"></div>');
         view.page.ctrl.saveSong(this)
@@ -133,6 +216,8 @@ SongsView.prototype.bindEvents = function (){
             }
             view.render();
             form.parents('.modal').modal('hide');
+            form.parents('.modal').find('.save-song').html('Save Song');
+            form.parents('.modal').find('.alert').remove();
             view.page.ctrl.saving = false;
         })
         .catch(function (err){
@@ -166,6 +251,7 @@ SongsView.prototype.showSongModal = function (song){
     var songModal = $(this.page.elem).find('.song-modal');
     
     if( song ){
+        songModal.find('[name=song-id]').val(song.id);
         songModal.find('[name=name]').val(song.name);
         var duration = song.duration.split(/:/g);
         songModal.find('[name=duration-hours]').val(duration[0]);
@@ -175,7 +261,9 @@ SongsView.prototype.showSongModal = function (song){
         songModal.find('[name=composer]').val(song.composer);
         songModal.find('[name=link]').val(song.link);
         songModal.find('.current-link a').attr('href', song.link).html(song.link);
+        songModal.find('[name=song-file]').val('');
         if( song.path ){
+            songModal.find('[name=song-path]').val(song.path);
             var fileName = song.path.split(/\//g).slice(-1)[0];
             var mimeType;
             switch(fileName.split(/\./g).slice(-1)[0]){
@@ -187,8 +275,14 @@ SongsView.prototype.showSongModal = function (song){
             songModal.find('.file-audio').append(`<audio controls><source src="${song.path}" type="${mimeType}"></audio>`);
             songModal.find('.current-file a').attr("href", song.path).html(fileName);
         }
+        else{
+            songModal.find('[name=song-path]').val('');
+            songModal.find('.file-audio').find('audio').remove();
+            songModal.find('.current-file a').attr("href", 'javascript://').html('None');
+        }
     }
     else{
+        songModal.find('[name=song-id]').val('');
         songModal.find('[name=name]').val('');
         songModal.find('[name=duration-hours]').val('00');
         songModal.find('[name=duration-mins]').val('00');
@@ -197,6 +291,8 @@ SongsView.prototype.showSongModal = function (song){
         songModal.find('[name=composer]').val('');
         songModal.find('[name=link]').val('');
         songModal.find('.current-link a').attr('href', 'javascript://').html('None');
+        songModal.find('[name=song-file]').val('');
+        songModal.find('[name=song-path]').val('');
         songModal.find('.file-audio').find('audio').remove();
         songModal.find('.current-file a').attr("href", 'javascript://').html('None');
     }

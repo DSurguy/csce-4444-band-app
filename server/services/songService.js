@@ -68,7 +68,7 @@ var SongService = {
                 Composer = ${connection.escape(newSong.composer)},
                 Link = ${connection.escape(newSong.link)},
                 Path = ${connection.escape(newSong.path)}
-            ) WHERE SongID = ${parseInt(newSong.id,10)} AND BandID = ${parseInt(newSong.bandId,10)}`;
+            WHERE SongID = ${parseInt(newSong.id,10)} AND BandID = ${parseInt(newSong.bandId,10)}`;
             
             connection.beginTransaction(function(err) {
                 if (err) {
@@ -84,9 +84,7 @@ var SongService = {
                         });
                     }
                     
-                    newSong.id = result.insertId;
-                    
-                    if( songFile.name ){
+                    if( songFile && songFile.name ){
                         uploadSong(songFile, newSong)
                         .then(function (relativePath){
                             newSong.path = relativePath;
@@ -117,6 +115,18 @@ var SongService = {
                         resolve(newSong);
                     }
                 });
+            });
+        });
+    },
+    deleteSong: function (songId, bandId, connection){
+        return new Promise(function (resolve, reject){
+            var query = `DELETE FROM SONG WHERE SongID = ${parseInt(songId, 10)} AND BandID = ${parseInt(bandId, 10)}`;
+            
+            connection.query(query, function (err, result){
+                if( err ){
+                    reject(err); return;
+                }
+                resolve();
             });
         });
     },
