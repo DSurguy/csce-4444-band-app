@@ -44,28 +44,40 @@ InventoryView.prototype = Object.create(PageView.prototype);
 InventoryView.prototype.constructor = InventoryView;
 InventoryView.prototype.init = function (){
     this.bindEvents();
-    var inventoryElem = $(this.page.elem).find('.inventory');
+    var itemElem = $(this.page.elem).find('.inventory');
+    var that = this;
 
     this.page.ctrl.itemInventory.forEach(function (item){
-        inventoryElem.append(''+
+        itemElem.append(''+
         '<div class="row">'+
-            '<div class="card">'+
-                    '<img class="card-img-top img-fluid" src="/media/'+item.imagePath+'" alt="Card image cap">'+
-                '<div class="card-block img-block">'+
-                    '<h4 class="card-title">'+item.name+'</h4>'+
-                    '<p class="card-text">'+item.description+'</p>'+
-                '</div>'+
-                '<ul class="list-group list-group-flush" name="inventory-list-'+item.id+'">'+
-                    '<li class="list-group-item">Cras justo odio</li>'+
-                    '<li class="list-group-item">Dapibus ac facilisis in</li>'+
-                    '<li class="list-group-item">Vestibulum at eros</li>'+
-                '</ul>'+
-                '<div class="card-block">'+
-                    '<a href="#" class="card-link">Card link</a>'+
-                    '<a href="#" class="card-link">Another link</a>'+
+            '<div class="col-6-sm">'+
+                '<div class="card">'+
+                        '<img class="card-img-top img-fluid" src="/media/'+item.imagePath+'" alt="Card image cap">'+
+                    '<div class="card-block img-block">'+
+                        '<h4 class="card-title">'+item.name+'</h4>'+
+                        '<p class="card-text">'+item.description+'</p>'+
+                    '</div>'+
+                    '<ul class="list-group list-group-flush" name="inventory-list-'+item.id+'"></ul>'+
+                    '<div class="card-block">'+
+                        '<a href="#" class="card-link">Card link</a>'+
+                        '<a href="#" class="card-link">Another link</a>'+
+                    '</div>'+
                 '</div>'+
             '</div>'+
         '</div>');
+
+        var inventoryElem = $(that.page.elem).find('[name=inventory-list-'+item.id+']')
+
+        item.inventory.forEach(function (inventory){
+            if (inventory.size === 'none') {
+                inventoryElem.append(''+
+                    '<li class="list-group-item">Color: '+inventory.color+'<br>Quantity: '+inventory.quantity+'</li>');
+            }
+            else {
+                inventoryElem.append(''+
+                    '<li class="list-group-item">Size: '+inventory.size+'<br>'+'Color: '+inventory.color+'<br>Quantity: '+inventory.quantity+'</li>');
+            }   
+        });
     });
 };
 

@@ -297,8 +297,10 @@ h1, h2{
     float: none;
     max-width: 200px; 
     margin: 10px;
+        display: flex;
 }
 
 #inventoryPage .row {
     margin: 20px;
+
 }
