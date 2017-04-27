@@ -21,7 +21,10 @@ AddMerchPage.prototype.constructor = AddMerchPage;
  * */
 function AddMerchCtrl(page){
     PageCtrl.call(this, page);
-    this.addmerching = false;
+
+    this.bandId = window.location.pathname.split('/').reduce(function (val, chunk, index, arr){
+        return val || (chunk == 'bands' ? arr[index+1] : undefined);
+    }, undefined);
 }
 AddMerchCtrl.prototype = Object.create(PageCtrl.prototype);
 AddMerchCtrl.prototype.constructor = AddMerchCtrl;
@@ -85,7 +88,7 @@ AddMerchView.prototype.bindEvents = function (){
         e.stopPropagation();
         page.ctrl.submitMerch(this)
         .then(function (){
-            window.location.reload();
+            window.location = '../'+page.ctrl.bandId+'/inventory';
         })
         .fail(console.error);
     });

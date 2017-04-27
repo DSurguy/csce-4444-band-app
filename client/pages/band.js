@@ -63,4 +63,9 @@ BandView.prototype.bindEvents = function (){
     pageElem.on('click', '.applications', function (e){
         window.location = window.location.pathname+'/applications';
     });
+
+    pageElem.on('click', '.inventory', function (e){
+        window.location = window.location.pathname+'/inventory';
+    });
+
 };

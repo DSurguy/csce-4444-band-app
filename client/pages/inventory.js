@@ -48,20 +48,22 @@ InventoryView.prototype.init = function (){
 
     this.page.ctrl.itemInventory.forEach(function (item){
         inventoryElem.append(''+
-        '<div class="card" style="width: 20rem;">'+
-            '<img class="card-img-top" src="/media/'+item.imagePath+'" alt="Card image cap">'+
-            '<div class="card-block">'+
-                '<h4 class="card-title">'+item.name+'</h4>'+
-                '<p class="card-text">'+item.description+'</p>'+
-            '</div>'+
-            '<ul class="list-group list-group-flush">'+
-                '<li class="list-group-item">Cras justo odio</li>'+
-                '<li class="list-group-item">Dapibus ac facilisis in</li>'+
-                '<li class="list-group-item">Vestibulum at eros</li>'+
-            '</ul>'+
-            '<div class="card-block">'+
-                '<a href="#" class="card-link">Card link</a>'+
-                '<a href="#" class="card-link">Another link</a>'+
+        '<div class="row">'+
+            '<div class="card">'+
+                    '<img class="card-img-top img-fluid" src="/media/'+item.imagePath+'" alt="Card image cap">'+
+                '<div class="card-block img-block">'+
+                    '<h4 class="card-title">'+item.name+'</h4>'+
+                    '<p class="card-text">'+item.description+'</p>'+
+                '</div>'+
+                '<ul class="list-group list-group-flush" name="inventory-list-'+item.id+'">'+
+                    '<li class="list-group-item">Cras justo odio</li>'+
+                    '<li class="list-group-item">Dapibus ac facilisis in</li>'+
+                    '<li class="list-group-item">Vestibulum at eros</li>'+
+                '</ul>'+
+                '<div class="card-block">'+
+                    '<a href="#" class="card-link">Card link</a>'+
+                    '<a href="#" class="card-link">Another link</a>'+
+                '</div>'+
             '</div>'+
         '</div>');
     });

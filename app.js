@@ -425,8 +425,6 @@ app.post('/api/bands/:bandId/addmerch', checkSession, function (req, res) {
         res.sendStatus(400);
     }
 
-    console.log(req.body.size);
-
     // Check that the user has rights to add merch
     bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
     .then(function (result) {

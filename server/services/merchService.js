@@ -29,7 +29,7 @@ function uploadImage(bandId, imageFile, imageFilesRoot) {
 function createItem(userId, bandId, name, description, price, merchType, relativePath, sizes, colors, quantities, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
-        "INSERT INTO ITEM (BandID, ItemName, Description, ImageFilePath, Price) VALUES ("+bandId+",'"+name+"','"+description+"','"+relativePath+"',"+price+")";
+        "INSERT INTO ITEM (BandID, ItemName, Description, ImageFilePath, Price, Type) VALUES ("+bandId+",'"+name+"','"+description+"','"+relativePath+"',"+price+",'"+merchType+"')";
 
         connection.beginTransaction(function(err) {
             if (err) {
@@ -45,13 +45,13 @@ function createItem(userId, bandId, name, description, price, merchType, relativ
 
                 // Get the id of the newly inserted item
                 var itemId = result.insertId;
-                query = "INSERT INTO INVENTORY (ItemID, Type, Quantity, Size, Color) VALUES ?";
+                query = "INSERT INTO INVENTORY (ItemID, Quantity, Size, Color) VALUES ?";
                 var values = []
 
                 if (Array.isArray(quantities)) {
 		            for (var i = 0; i < quantities.length; i++) {
 		            	// Build array of values for insert
-		                values.push([itemId, merchType, quantities[i], sizes[i], colors[i]]);
+		                values.push([itemId, quantities[i], sizes[i], colors[i]]);
 
 		            	// We're done iterating so commit the transaction
 			            if (i === quantities.length - 1) {		            	
@@ -74,7 +74,7 @@ function createItem(userId, bandId, name, description, price, merchType, relativ
 		            }  
 	            }
 	            else {
-	                query = "INSERT INTO INVENTORY (ItemID, Type, Quantity, Size, Color) VALUES ("+itemId+",'"+merchType+"',"+quantities+",'"+sizes+"','"+colors+"')";
+	                query = "INSERT INTO INVENTORY (ItemID, Quantity, Size, Color) VALUES ("+itemId+","+quantities+",'"+sizes+"','"+colors+"')";
 
 	                connection.query(query, function(err) {
 		                if (err) {
@@ -99,7 +99,7 @@ function createItem(userId, bandId, name, description, price, merchType, relativ
 function getItems(userId, bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
-        "SELECT ITEMNAME, DESCRIPTION, TYPE, IMAGEFILEPATH, PRICE FROM ITEM WHERE BANDID = "+bandId;
+        "SELECT ITEMID, ITEMNAME, DESCRIPTION, TYPE, IMAGEFILEPATH, PRICE FROM ITEM WHERE BANDID = "+bandId;
 
         connection.query(query, function(err, results, fields) {
             if (err) {
@@ -108,7 +108,7 @@ function getItems(userId, bandId, connection) {
             }
 
             resolve(results.map(function (resultRow) {
-                return new Item({id : resultRow.ID, 
+                return new Item({id : resultRow.ITEMID, 
                     name : resultRow.ITEMNAME,
                     type : resultRow.TYPE,
                     description : resultRow.DESCRIPTION,
