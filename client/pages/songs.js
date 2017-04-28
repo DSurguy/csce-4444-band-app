@@ -245,6 +245,20 @@ SongsView.prototype.bindEvents = function (){
             audioTrack.remove();
         }
     });
+    
+    pageElem.on('keyup', '.search', function (e){
+        var search = $(this).val();
+        
+        var songElems = pageElem.find('.song');
+        view.page.ctrl.songs.forEach(function (song, index){
+            if( song.name.indexOf(search) !== -1 || song.composer.indexOf(search) !== -1 ){
+                $(songElems[index]).removeClass('search-hidden');
+            }
+            else{
+                $(songElems[index]).addClass('search-hidden');
+            }
+        });
+    });
 };
 
 SongsView.prototype.showSongModal = function (song){

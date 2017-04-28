@@ -288,3 +288,6 @@ h1, h2{
 #addMerchPage form [name=merchType] {
     margin-bottom: 20px;
 }
+#songsPage .song.search-hidden{
+    display: none;
+}
