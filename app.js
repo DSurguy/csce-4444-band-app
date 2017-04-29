@@ -438,7 +438,7 @@ app.post('/api/bands/:bandId/addmerch', checkSession, function (req, res) {
     })
     .then(function (relativePath) {
         if (relativePath) {
-            return merchService.createItem(req.session.userId, req.params.bandId, req.body.name, req.body.description, req.body.price, req.body.merchType, relativePath, req.body.size, req.body.color, req.body.quantity, connection);
+            return merchService.createItem(req.session.userId, req.params.bandId, req.body.name, req.body.description, req.body.price, req.body.merchType, req.body.color, relativePath, req.body.size, req.body.quantity, connection);
         }
         else {
             return Promise.resolve(false);
@@ -481,6 +481,29 @@ app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
     .then(function (result) {
         res.status(200);
         res.send(result || []);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+app.post('/api/bands/:bandId/updateinventory', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        if (result.role === BandMember.ROLE.OWNER || result.role === BandMember.ROLE.MANAGER) {
+            return merchService.updateInventory(req.session.userId, req.params.bandId, connection);
+        }
+        else {
+            return Promise.resolve(false);
+        }
+    })
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
     })
     .catch(function (e) {
         res.status(500).send({error:e});

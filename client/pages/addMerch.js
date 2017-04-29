@@ -79,8 +79,20 @@ AddMerchView.prototype.bindEvents = function (){
 
     // We've picked a type so enable the Add Inventory button and remove any existing fields from other types
     pageElem.on('change', '[name="merchType"]', function (e){
-        pageElem.find('[name="addInventory"]').prop('disabled', false);
+        e.preventDefault();
+        e.stopPropagation();
+
         pageElem.find('.dynamicFields').remove();
+
+        var select = pageElem.find('[name="merchType"]');
+        // Only let the user add sizes if they are choosing a shirt or sticker
+        if (select[0].value === 'Shirt' || select[0].value === 'Sticker'){
+            pageElem.find('[name="addInventory"]').prop('disabled', false);
+        }
+        else {
+            pageElem.find('[name="addInventory"]').prop('disabled', true);
+        }
+        page.view.addInventoryFields(select[0].value);       
     });
 
     pageElem.on('submit', 'form', function (e){
@@ -100,7 +112,7 @@ AddMerchView.prototype.addInventoryFields = function (type){
 
     var typeFields = '';
 
-    if (type === 'shirt') {
+    if (type === 'Shirt') {
         typeFields = '<select class="form-control dynamicFields" required name="size">'+
                         '<option disabled selected>Select a size</option>'+
                         '<option value="s">S</option>'+
@@ -110,10 +122,10 @@ AddMerchView.prototype.addInventoryFields = function (type){
                     '</select>';
                     
     }
-    else if (type === 'cd') {
+    else if (type === 'CD') {
         typeFields = '<input class"form-control" type="hidden" name="size" value="none" />';
     }
-    else if (type === 'sticker') {
+    else if (type === 'Sticker') {
         typeFields = '<select class="form-control dynamicFields" required name="size">'+
                         '<option disabled selected>Select a size</option>'+
                         '<option value="1x1">1x1</option>'+
@@ -124,8 +136,7 @@ AddMerchView.prototype.addInventoryFields = function (type){
     }
 
     // All types will have a quantity and color
-    typeFields += '<input class="form-control dynamicFields" required type="text" name="color" placeholder="Color" />'+
-                  '<input class="form-control dynamicFields" required type="number" name="quantity" min="0" step="1" placeholder="Quantity">';
+    typeFields += '<input class="form-control dynamicFields" required type="number" name="quantity" min="0" step="1" placeholder="Quantity">';
 
     var typeFieldsDiv = $(this.page.elem).find('.dynamicFieldsContainer');
     typeFieldsDiv.append(typeFields);

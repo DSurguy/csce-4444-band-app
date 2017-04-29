@@ -297,10 +297,17 @@ h1, h2{
     float: none;
     max-width: 200px; 
     margin: 10px;
-        display: flex;
+    display: flex;
 }
 
 #inventoryPage .row {
     margin: 20px;
-
 }
+
+#inventoryPage .btn-delete {
+    float: right;
+}
+
+#inventoryPage .control-label{
+    text-align: right;
+}​

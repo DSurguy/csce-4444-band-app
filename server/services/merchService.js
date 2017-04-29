@@ -26,10 +26,10 @@ function uploadImage(bandId, imageFile, imageFilesRoot) {
     });
 }
 
-function createItem(userId, bandId, name, description, price, merchType, relativePath, sizes, colors, quantities, connection) {
+function createItem(userId, bandId, name, description, price, merchType, color, relativePath, sizes, quantities, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
-        "INSERT INTO ITEM (BandID, ItemName, Description, ImageFilePath, Price, Type) VALUES ("+bandId+",'"+name+"','"+description+"','"+relativePath+"',"+price+",'"+merchType+"')";
+        "INSERT INTO ITEM (BandID, ItemName, Description, Color, ImageFilePath, Price, Type) VALUES ("+bandId+",'"+name+"','"+description+"','"+color+"','"+relativePath+"',"+price+",'"+merchType+"')";
 
         connection.beginTransaction(function(err) {
             if (err) {
@@ -45,13 +45,13 @@ function createItem(userId, bandId, name, description, price, merchType, relativ
 
                 // Get the id of the newly inserted item
                 var itemId = result.insertId;
-                query = "INSERT INTO INVENTORY (ItemID, Quantity, Size, Color) VALUES ?";
+                query = "INSERT INTO INVENTORY (ItemID, Quantity, Size) VALUES ?";
                 var values = []
 
                 if (Array.isArray(quantities)) {
 		            for (var i = 0; i < quantities.length; i++) {
 		            	// Build array of values for insert
-		                values.push([itemId, quantities[i], sizes[i], colors[i]]);
+		                values.push([itemId, quantities[i], sizes[i]]);
 
 		            	// We're done iterating so commit the transaction
 			            if (i === quantities.length - 1) {		            	
@@ -74,7 +74,7 @@ function createItem(userId, bandId, name, description, price, merchType, relativ
 		            }  
 	            }
 	            else {
-	                query = "INSERT INTO INVENTORY (ItemID, Quantity, Size, Color) VALUES ("+itemId+","+quantities+",'"+sizes+"','"+colors+"')";
+	                query = "INSERT INTO INVENTORY (ItemID, Quantity, Size) VALUES ("+itemId+","+quantities+",'"+sizes+"')";
 
 	                connection.query(query, function(err) {
 		                if (err) {
@@ -99,7 +99,7 @@ function createItem(userId, bandId, name, description, price, merchType, relativ
 function getItems(userId, bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
-        "SELECT ITEMID, ITEMNAME, DESCRIPTION, TYPE, IMAGEFILEPATH, PRICE FROM ITEM WHERE BANDID = "+bandId;
+        "SELECT ITEMID, ITEMNAME, DESCRIPTION, TYPE, COLOR, IMAGEFILEPATH, PRICE FROM ITEM WHERE BANDID = "+bandId+" ORDER BY FIELD(TYPE,'Shirt','CD','Sticker'), ITEMNAME";
 
         connection.query(query, function(err, results, fields) {
             if (err) {
@@ -111,6 +111,7 @@ function getItems(userId, bandId, connection) {
                 return new Item({id : resultRow.ITEMID, 
                     name : resultRow.ITEMNAME,
                     type : resultRow.TYPE,
+                    color : resultRow.COLOR,
                     description : resultRow.DESCRIPTION,
                     imagePath : resultRow.IMAGEFILEPATH,
                     price : resultRow.PRICE
@@ -146,7 +147,7 @@ function getInventory(items, connection) {
 		var count = 0;
     	items.forEach(function(item) {
     		var query = ""+
-        	"SELECT SIZE, COLOR, QUANTITY FROM INVENTORY WHERE ITEMID = "+item.id;
+        	"SELECT INVENTORYID, SIZE, QUANTITY FROM INVENTORY WHERE ITEMID = "+item.id;
 
 	        connection.query(query, function(err, results, fields) {
 	            if (err) {
@@ -155,9 +156,9 @@ function getInventory(items, connection) {
 	            }
 
 	            item.inventory = results.map(function (resultRow) {
-	                return new Inventory({itemId : item.id,
+	                return new Inventory({id : resultRow.INVENTORYID,
+	                	itemId : item.id,
 	                	size : resultRow.SIZE,
-	                	color : resultRow.COLOR,
 	                	quantity : resultRow.QUANTITY
 	                });
 	            });
