@@ -8,7 +8,40 @@
             <div class="fa fa-plus"></div> Add New Set List
         </button>
     </div>
-    <div class="container">
+    <div class="container mt-2">
+        <input type="text" class="search form-control" placeholder="search" />
+    </div>
+    <div class="container mt-1">
         <div class="lists"></div>
     </div>
+    <div class="set-list-modal">
+	    <div data-song-id="" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <h4 class="modal-title">Edit Set List</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <input type="hidden" name="set-list-id" value="">
+                            <div class="form-group">
+                                <label for="name">Set List Name</label>
+                                <input class="form-control" type="text" name="name" placeholder="Enter name" tabindex="0" />
+                            </div>
+                            <div class="form-group songs-parent">
+                                <h5>Songs</h5>
+                                <input type="text" class="song-search form-control" placeholder="Search...">
+                                <div class="songs"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="delete-set-list btn btn-danger">Delete Song</button>
+                        <button type="button" class="save-set-list btn btn-success">Save Song</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
 </div>
