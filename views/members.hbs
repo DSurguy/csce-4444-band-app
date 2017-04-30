@@ -1,23 +1,26 @@
-{{#contentFor "page-title"}}Add Friend{{/contentFor}}
-{{#contentFor "page-constructor"}}AddFriendPage{{/contentFor}}
-<div id="addFriendPage" class="page">
+{{#contentFor "page-title"}}Members{{/contentFor}}
+{{#contentFor "page-constructor"}}MembersPage{{/contentFor}}
+<div id="membersPage" class="page">
     <div class="menu-button-container"></div>
-    <h1>Search Musicians</h1>
+    <h1>Band Members</h1>
     <div class="container">
-        <form class="search-user">
-           <div class="input-group col-xs-2">
-                <input type="text" class="form-control" placeholder="Username" name="searchString" id="search-users">
-                <div class="input-group-btn">
-                    <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+        <div class="add-member">
+			<div class="card" style="background-color: #B291A2; border-color: #0E0A0C; width: 50rem; cursor: pointer;">
+                <div class="card-block">
+                	<h4 class="card-title">
+                		<span>Connect with other musicians.</span>
+                		<div class="fa fa-plus icon fa-lg pull-right"></div>
+        			</h4>
                 </div>
             </div>
-        </form>
+            <p/>
+        </div>
     </div>
     <div class="container">
-        <div class="friends"></div>
+        <div class="members"></div>
     </div>
-    <div class="friend-modal">
-	    <div data-friend-id="" class="modal fade" role="dialog">
+    <div class="member-modal">
+	    <div data-member-id="" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -25,7 +28,7 @@
                         <h4 class="modal-title"></h4>
                     </div>
                     <div class="modal-body">
-                        <div classs="friend-description"></div>
+                        <div classs="member-description"></div>
                     </div>
                     <div class="modal-footer">
                         <div class="dynamic-buttons"></div>

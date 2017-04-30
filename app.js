@@ -140,6 +140,10 @@ app.get('/bands/:bandId/songs', checkSession, function (req, res){
     res.render('songs');
 });
 
+app.get('/bands/:bandId/members', checkSession, function (req, res){
+    res.render('members');
+});
+
 app.get('/bands/:bandId/setlists', checkSession, function (req, res){
     res.render('setLists');
 });

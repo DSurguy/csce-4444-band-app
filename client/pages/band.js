@@ -64,6 +64,10 @@ BandView.prototype.bindEvents = function (){
         window.location = window.location.pathname+'/applications';
     });
     
+    pageElem.on('click', '.members', function (e){
+        window.location = window.location.pathname+'/members';
+    });
+    
     pageElem.on('click', '.setlists', function (e){
         window.location = window.location.pathname+'/setlists';
     });
