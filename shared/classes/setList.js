@@ -3,6 +3,7 @@ function SetList(data){
     this.bandId = data.bandId || undefined;
     this.name = data.name || '';
     this.songs = data.songs || [];
+    this.description = data.description || '';
 }
 
 SetList.prototype.totalLength = function (){

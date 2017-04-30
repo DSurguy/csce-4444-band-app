@@ -302,3 +302,6 @@ h1, h2{
 #setListsPage .modal .song-check-label.search-hidden{
     display: none;
 }
+#setListsPage .set-list.search-hidden{
+    display: none;
+}

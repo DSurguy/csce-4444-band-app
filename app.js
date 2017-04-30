@@ -12,7 +12,9 @@ var merchService = require('./server/services/merchService.js');
 var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
 var songService = require('./server/services/songService.js');
+var setListService = require('./server/services/setListService.js');
 var Song = require('./shared/classes/song.js');
+var SetList = require('./shared/classes/setList.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var path = require('path');
@@ -587,6 +589,78 @@ app.delete('/api/bands/:bandId/songs/:songId', checkSession, function (req, res)
 function getDurationFromArray(timeArr){
     return `${leftPad(timeArr[0],2,'0')}:${leftPad(timeArr[1],2,'0')}:${leftPad(timeArr[2],2,'0')}`;
 }
+
+/** Get All Set Lists **/
+app.get('/api/bands/:bandId/setlists', checkSession, function (req, res){
+    setListService.getSetLists(req.params.bandId, connection)
+    .then(function (setLists){
+        res.status(200).send(setLists);
+    })
+    .catch(function (err){
+        res.status(500).send({
+            error: err
+        });
+    });
+});
+
+/** Create New Set Lists **/
+app.post('/api/bands/:bandId/setlists', checkSession, function (req, res){
+    var newSetList = new SetList({
+        id : undefined,
+        bandId : req.params.bandId,
+        name : req.body.name,
+        description : req.body.description
+    });
+    
+    Object.keys(req.body).forEach(function (key){
+        if( key.indexOf('song-') == 0 ){
+            newSetList.songs.push(parseInt(key.substr(5),10));
+        }
+    });
+    
+    setListService.createSetList(newSetList, connection)
+    .then(function (createdSetList){
+        res.status(201).send(createdSetList);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
+});
+
+/** Update Song **/
+app.put('/api/bands/:bandId/setlists/:setListId', checkSession, function (req, res){
+    var newSetList = new SetList({
+        id : req.params.setListId,
+        bandId : req.params.bandId,
+        name : req.body.name,
+        description : req.body.description
+    });
+    
+    Object.keys(req.body).forEach(function (key){
+        if( key.indexOf('song-') == 0 ){
+            newSetList.songs.push(parseInt(key.substr(5),10));
+        }
+    });
+    
+    setListService.editSetList(newSetList, connection)
+    .then(function (createdSetList){
+        res.status(201).send(createdSetList);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
+});
+
+/** Delete Song **/
+app.delete('/api/bands/:bandId/setlists/:setListId', checkSession, function (req, res){
+    setListService.deleteSetList(req.params.setListId, req.params.bandId, connection)
+    .then(function (){
+        res.status(200).end();
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
+});
 
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');

@@ -47,6 +47,38 @@ SetListsCtrl.prototype.init = function (){
     
     return defer.promise();
 };
+SetListsCtrl.prototype.saveSetList = function (form){
+    var defer = $.Deferred();
+    var ctrl = this;
+    
+    var modifiedForm = $.clone(form);
+    $(modifiedForm).find('input[type=checkbox]:not(:checked)').remove();
+    var formData = new FormData(modifiedForm);
+    
+    //determine if we're editing or creating
+    var url, method;
+    if( $(modifiedForm).find('[name=set-list-id]').val() !== '' ){
+        url = '/api/bands/'+ctrl.bandId+'/setlists/'+$(modifiedForm).find('[name=set-list-id]').val();
+        method = 'PUT';
+    }
+    else{
+        url = '/api/bands/'+ctrl.bandId+'/setlists';
+        method = 'POST';
+    }
+    
+    $.ajax({
+        url: url,
+        type: method,
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false
+    })
+    .then(defer.resolve)
+    .fail(defer.reject);
+    
+    return defer.promise();
+};
 
 function SetListsView(page){
     PageView.call(this, page);
@@ -71,10 +103,6 @@ SetListsView.prototype.bindEvents = function (){
     
     pageElem.on('click', '.add-set-list', function (e){
         view.showSetListModal();
-    });
-    
-    pageElem.on('click', '.modal .save-set-list', function (e){
-        $(this).parents('.modal').find('form').submit();
     });
     
     pageElem.on('click', '.modal .delete-set-list', function (e){
@@ -134,6 +162,9 @@ SetListsView.prototype.bindEvents = function (){
         });*/
     });
     
+    pageElem.on('click', '.modal .save-set-list', function (e){
+        $(this).parents('.modal').find('form').submit();
+    });
     pageElem.on('submit', '.modal form', function (e){
         e.preventDefault();
         e.stopPropagation();
@@ -145,16 +176,16 @@ SetListsView.prototype.bindEvents = function (){
         }
         
         var form = $(this);
-        form.parents('.modal').find('.save-song').html('<div class="fa fa-spinner animation-spin"></div>');
-        view.page.ctrl.saveSong(this)
-        .then(function (newSong){
-            var audioTrack = form.find('audio');
+        form.parents('.modal').find('.save-set-list').html('<div class="fa fa-spinner animation-spin"></div>');
+        view.page.ctrl.saveSetList(this)
+        .then(function (newSetList){
+            /*var audioTrack = form.find('audio');
             if( audioTrack.length ){
                 audioTrack[0].pause();
                 audioTrack.remove();
-            }
+            }*/
             
-            var songIndex = view.page.ctrl.songs.reduce(function (val, song, index){
+            /*var songIndex = view.page.ctrl.songs.reduce(function (val, song, index){
                 return val !== undefined ? val : (song.id == newSong.id ? index : undefined);
             },undefined);
             
@@ -167,9 +198,9 @@ SetListsView.prototype.bindEvents = function (){
                     return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0);
                 });
             }
-            view.render();
+            view.render();*/
             form.parents('.modal').modal('hide');
-            form.parents('.modal').find('.save-song').html('Save Song');
+            form.parents('.modal').find('.save-set-list').html('Save Set List');
             form.parents('.modal').find('.alert').remove();
             view.page.ctrl.saving = false;
         })
@@ -179,11 +210,11 @@ SetListsView.prototype.bindEvents = function (){
               +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
                 +'<span aria-hidden="true">&times;</span>'
               +'</button>'
-              +'<strong>Unable to save song!</strong>'
+              +'<strong>Unable to save set list!</strong>'
             +'</div>');
             console.error(err);
             view.page.ctrl.saving = false;
-            form.parents('.modal').find('.save-song').html('Save Song');
+            form.parents('.modal').find('.save-set-list').html('Save Set List');
         });
     });
     
@@ -197,6 +228,20 @@ SetListsView.prototype.bindEvents = function (){
             audioTrack[0].pause();
             audioTrack.remove();
         }*/
+    });
+    
+    pageElem.on('keyup', '.search', function (e){
+        var search = $(this).val();
+        
+        var setListElems = pageElem.find('.song');
+        view.page.ctrl.setLists.forEach(function (setList, index){
+            if( setList.name.indexOf(search) !== -1 ){
+                $(setListElems[index]).removeClass('search-hidden');
+            }
+            else{
+                $(setListElems[index]).addClass('search-hidden');
+            }
+        });
     });
     
     pageElem.on('keyup', '.modal .song-search', function (e){
@@ -276,20 +321,6 @@ SetListsView.prototype.bindEvents = function (){
             }
         }
     });
-    
-    pageElem.on('keyup', '.search', function (e){
-        var search = $(this).val();
-        
-        var setListElems = pageElem.find('.song');
-        view.page.ctrl.setLists.forEach(function (setList, index){
-            if( setList.name.indexOf(search) !== -1 ){
-                $(setListElems[index]).removeClass('search-hidden');
-            }
-            else{
-                $(setListElems[index]).addClass('search-hidden');
-            }
-        });
-    });
 };
 
 SetListsView.prototype.showSetListModal = function (setList){
@@ -298,9 +329,15 @@ SetListsView.prototype.showSetListModal = function (setList){
     
     //reorder the songs according to the new setlist order
     if( setList ){
-        
+        setListModal.find('[name=set-list-id]').val(setList.id);
+        setListModal.find('[name=name]').val(setList.name);
+        setListModal.find('[name=description]').val(setList.description);
+        //TODO: Check items
     }
     else{
+        setListModal.find('[name=set-list-id]').val('');
+        setListModal.find('[name=name]').val('');
+        setListModal.find('[name=description]').val('');
         view.setListSongs = $.extend([], view.page.ctrl.songs).sort(function (a,b){
             if( a.checked && !b.checked ){
                 return -1;
@@ -326,7 +363,7 @@ SetListsView.prototype.showSetListModal = function (setList){
     view.setListSongs.forEach(function (song, index){
         songsElem.append(''+
         '<label class="form-check-label song-check-label" data-index="'+index+'">'+
-            '<input class="form-check-input" type="checkbox" value="" tabindex="-1" '+(song.checked?'checked':'')+'>'+
+            '<input name="song-'+song.id+'" class="form-check-input" type="checkbox" value="" tabindex="-1" '+(song.checked?'checked':'')+'>'+
             song.name+
         '</label>');
     });
