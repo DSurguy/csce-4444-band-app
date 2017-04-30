@@ -30,7 +30,7 @@ SetListsCtrl.prototype.init = function (){
         ctrl = this;
     
     $.ajax({
-        url: `/api/bands/${ctrl.bandId}/songs`,
+        url: '/api/bands/'+ctrl.bandId+'/songs',
         method: 'GET'
     })
     .then(function (songs){
@@ -50,6 +50,7 @@ SetListsCtrl.prototype.init = function (){
 
 function SetListsView(page){
     PageView.call(this, page);
+    this.setListSongs = [];
 }
 SetListsView.prototype = Object.create(PageView.prototype);
 SetListsView.prototype.constructor = SetListsView;
@@ -61,18 +62,7 @@ SetListsView.prototype.init = function (){
 SetListsView.prototype.render = function (){
     var view = this;
     //render the songs to the song modal
-    var setListModal = $(this.page.elem).find('.set-list-modal'),
-        songsElem = setListModal.find('.songs').detach();
-        
-    view.page.ctrl.songs.forEach(function (song, index){
-        songsElem.append(`
-        <label class="form-check-label song-check-label">
-            <input class="form-check-input" type="checkbox" value="" tabindex="-1">
-            ${song.name}
-        </label>`);
-    });
     
-    setListModal.find('.songs-parent').append(songsElem);
 };
 
 SetListsView.prototype.bindEvents = function (){
@@ -228,6 +218,65 @@ SetListsView.prototype.bindEvents = function (){
         $(this).after(songsElem);
     });
     
+    pageElem.on('change', '.modal .song-check-label input', function (e){
+        var songElem = $(this).parents('.song-check-label'),
+            currentIndex = songElem.attr('data-index'),
+            isChecked = this.checked,
+            newIndex;
+        
+        //update the song's checked status
+        view.setListSongs[currentIndex].checked = isChecked;
+        
+        var movedSong = view.setListSongs.splice(currentIndex,1)[0];
+        if( isChecked ){
+            //item became checked
+            for( var i=0; i<view.setListSongs.length; i++ ){
+                if( view.setListSongs[i].name.toLowerCase() > movedSong.name.toLowerCase() || !view.setListSongs[i].checked ){
+                    view.setListSongs.splice(i,0,movedSong);
+                    newIndex = i;
+                    break;
+                }
+            }
+            //now move the actual element and fix the element numbers
+            var existingElem = songElem.siblings('[data-index='+newIndex+']');
+            existingElem.before(songElem);
+        }
+        else{
+            //item became unchecked
+            for( var i=0; i<view.setListSongs.length; i++ ){
+                if( !view.setListSongs[i].checked && view.setListSongs[i].name.toLowerCase() > movedSong.name.toLowerCase() ){
+                    view.setListSongs.splice(i,0,movedSong);
+                    newIndex = i;
+                    break;
+                }
+            }
+            if( newIndex === undefined ){
+                //this sorts to the end of the list
+                newIndex = view.setListSongs.length;
+                view.setListSongs.push(movedSong);
+                //now move the actual element and fix the element numbers
+                var existingElem = songElem.siblings('[data-index='+(newIndex)+']');
+                existingElem.after(songElem);
+            }
+            else{
+                //now move the actual element and fix the element numbers
+                var existingElem = songElem.siblings('[data-index='+(newIndex+1)+']');
+                existingElem.before(songElem);
+            }
+        }
+        var allSongElems = songElem.parent().find('.song-check-label');
+        if( newIndex > currentIndex ){
+            for( var i=currentIndex; i<=newIndex; i++ ){
+                $(allSongElems[i]).attr('data-index',i);
+            }
+        }
+        else{
+            for( var i=newIndex; i<=currentIndex; i++ ){
+                $(allSongElems[i]).attr('data-index',i);
+            }
+        }
+    });
+    
     pageElem.on('keyup', '.search', function (e){
         var search = $(this).val();
         
@@ -244,14 +293,44 @@ SetListsView.prototype.bindEvents = function (){
 };
 
 SetListsView.prototype.showSetListModal = function (setList){
-    var setListModal = $(this.page.elem).find('.set-list-modal');
+    var view = this,
+        setListModal = $(this.page.elem).find('.set-list-modal');
     
+    //reorder the songs according to the new setlist order
     if( setList ){
         
     }
     else{
-
+        view.setListSongs = $.extend([], view.page.ctrl.songs).sort(function (a,b){
+            if( a.checked && !b.checked ){
+                return -1;
+            }
+            else if( b.checked && !a.checked ){
+                return 1;
+            }
+            else{
+                if( a.name.toLowerCase() < b.name.toLowerCase() ){
+                    return -1;
+                }
+                else if( a.name.toLowerCase() > b.name.toLowerCase() ){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+        });
     }
+    
+    var songsElem = setListModal.find('.songs').detach().empty();
+    view.setListSongs.forEach(function (song, index){
+        songsElem.append(''+
+        '<label class="form-check-label song-check-label" data-index="'+index+'">'+
+            '<input class="form-check-input" type="checkbox" value="" tabindex="-1" '+(song.checked?'checked':'')+'>'+
+            song.name+
+        '</label>');
+    });
+    setListModal.find('.songs-parent').append(songsElem);
     
     setListModal.find('.modal').modal();
 };
