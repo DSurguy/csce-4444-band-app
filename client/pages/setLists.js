@@ -87,6 +87,19 @@ SetListsCtrl.prototype.saveSetList = function (form){
     
     return defer.promise();
 };
+SetListsCtrl.prototype.deleteSetList = function (setListId){
+    var defer = $.Deferred(),
+        ctrl = this;
+    
+    $.ajax({
+        url: `/api/bands/${ctrl.bandId}/setlists/${setListId}`,
+        type: 'DELETE'
+    })
+    .then(defer.resolve)
+    .catch(defer.reject);
+    
+    return defer.promise();
+};
 
 function SetListsView(page){
     PageView.call(this, page);
@@ -152,7 +165,7 @@ SetListsView.prototype.bindEvents = function (){
             },undefined);
             
             if( setListIndex !== undefined ){
-                view.page.ctrl.songs.splice(setListIndex,1);
+                view.page.ctrl.setLists.splice(setListIndex,1);
             }
             
             view.render();

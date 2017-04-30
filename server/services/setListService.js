@@ -96,15 +96,38 @@ var SetListService = {
             });
         });
     },
-    deleteSong: function (setListID, bandId, connection){
+    deleteSetList: function (setListID, bandId, connection){
         return new Promise(function (resolve, reject){
-            var query = `DELETE FROM SETLIST WHERE SetListID = ${parseInt(setListID, 10)} AND BandID = ${parseInt(bandId, 10)}`;
-            
-            connection.query(query, function (err, result){
-                if( err ){
-                    reject(err); return;
+            connection.beginTransaction(function(err) {
+                if (err) {
+                    reject(err);
+                    return;
                 }
-                resolve();
+                var query = `DELETE FROM SONG_SETLIST WHERE SetListID = ${parseInt(setListID, 10)}`;
+                connection.query(query, function (err){
+                    if (err) {
+                        return connection.rollback(function() {
+                            reject(err);
+                        });
+                    }
+                    query = `DELETE FROM SETLIST WHERE SetListID = ${parseInt(setListID, 10)} AND BandID = ${parseInt(bandId, 10)}`;
+                    
+                    connection.query(query, function (err, result){
+                        if (err) {
+                            return connection.rollback(function() {
+                                reject(err);
+                            });
+                        }
+                        connection.commit(function (err){
+                            if (err) {
+                                return connection.rollback(function() {
+                                    reject(err);
+                                });
+                            }
+                            resolve();
+                        });
+                    });
+                });
             });
         });
     },
@@ -115,38 +138,43 @@ var SetListService = {
                 if( err ){
                     reject(err); return;
                 }
-                var setLists = results.reduce(function (lists, row){
-                    lists[row.SetListID] = new SetList({
-                        id: row.SetListID,
-                        bandId: row.BandID,
-                        name: row.Name,
-                        description: row.Description
-                    });
-                    return lists;
-                }, {});
-                
-                query = `SELECT SS.SetListID, S.* FROM SONG_SETLIST SS INNER JOIN SONG S ON SS.SongID = S.SongID WHERE SS.SetListID IN (${Object.keys(setLists).join(',')}) ORDER BY SetListID ASC, SongID ASC`;
-                connection.query(query, function (err, results){
-                    if( err ){
-                        reject(err); return;
-                    }
-                    results.forEach(function (row){
-                        setLists[row.SetListID].songs.push(new Song({
-                            id: row.SongID,
+                else if( results.length == 0 ){
+                    //it's possible there are no set lists, so just resolve with an empty array if so
+                    resolve([]);
+                }
+                else{
+                    var setLists = results.reduce(function (lists, row){
+                        lists[row.SetListID] = new SetList({
+                            id: row.SetListID,
                             bandId: row.BandID,
                             name: row.Name,
-                            duration: row.Duration,
-                            lyrics: row.Lyrics,
-                            composer: row.Composer,
-                            link: row.Link,
-                            path: row.Path
+                            description: row.Description
+                        });
+                        return lists;
+                    }, {});
+                    query = `SELECT SS.SetListID, S.* FROM SONG_SETLIST SS INNER JOIN SONG S ON SS.SongID = S.SongID WHERE SS.SetListID IN (${Object.keys(setLists).join(',')}) ORDER BY SetListID ASC, SongID ASC`;
+                    connection.query(query, function (err, results){
+                        if( err ){
+                            reject(err); return;
+                        }
+                        results.forEach(function (row){
+                            setLists[row.SetListID].songs.push(new Song({
+                                id: row.SongID,
+                                bandId: row.BandID,
+                                name: row.Name,
+                                duration: row.Duration,
+                                lyrics: row.Lyrics,
+                                composer: row.Composer,
+                                link: row.Link,
+                                path: row.Path
+                            }));
+                        });
+                        
+                        resolve(Object.keys(setLists).map(function (key){
+                            return setLists[key];
                         }));
                     });
-                    
-                    resolve(Object.keys(setLists).map(function (key){
-                        return setLists[key];
-                    }));
-                });
+                }
             });
         });
     }
