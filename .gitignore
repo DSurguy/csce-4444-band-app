@@ -60,4 +60,5 @@ typings/
 # app config file
 config.json
 static/media
+media
 static/js/app/bundle.js

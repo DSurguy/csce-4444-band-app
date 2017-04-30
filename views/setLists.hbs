@@ -1,0 +1,51 @@
+{{#contentFor "page-title"}}Set Lists{{/contentFor}}
+{{#contentFor "page-constructor"}}SetListsPage{{/contentFor}}
+<div id="setListsPage" class="page">
+    <div class="menu-button-container"></div>
+    <h1>Set Lists</h1> 
+    <div class="container controls">
+        <button type="button" class="add-set-list btn btn-primary">
+            <div class="fa fa-plus"></div> Add New Set List
+        </button>
+    </div>
+    <div class="container mt-2">
+        <input type="text" class="search form-control" placeholder="search" />
+    </div>
+    <div class="container mt-1">
+        <div class="set-lists"></div>
+    </div>
+    <div class="set-list-modal">
+	    <div data-song-id="" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <h4 class="modal-title">Edit Set List</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <input type="hidden" name="set-list-id" value="">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input class="form-control" type="text" name="name" placeholder="Enter name" />
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" name="description"></textarea>
+                            </div>
+                            <div class="form-group songs-parent">
+                                <h5>Songs</h5>
+                                <input type="text" class="song-search form-control" placeholder="Search...">
+                                <div class="songs"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="delete-set-list btn btn-danger">Delete Set List</button>
+                        <button type="button" class="save-set-list btn btn-success">Save Set List</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
+</div>
