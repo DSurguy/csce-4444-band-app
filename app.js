@@ -27,7 +27,8 @@ catch (e){
             host: 'localhost',
             user: 'root',
             password: 'test',
-            database: 'band'
+            database: 'band',
+            multipleStatements: true
         }
     };
 }
@@ -495,7 +496,43 @@ app.post('/api/bands/:bandId/updateinventory', checkSession, function (req, res)
     bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
     .then(function (result) {
         if (result.role === BandMember.ROLE.OWNER || result.role === BandMember.ROLE.MANAGER) {
-            return merchService.updateInventory(req.session.userId, req.params.bandId, connection);
+            if (req.files.merchImage != undefined) {
+                return merchService.uploadImage(req.params.bandId, req.files.merchImage, imageFilesRoot);
+            }
+            else {
+                return Promise.resolve('no image update');
+            }
+        }
+        else {
+            return Promise.resolve(false);
+        }
+    })
+    .then(function (relativePath) {
+        if (relativePath) {
+            return merchService.updateItemAndInventory(req.session.userId, req.params.bandId, req.body.itemId, req.body.name, req.body.description, req.body.price, req.body.merchType, req.body.color, relativePath, req.body.size, req.body.quantity, req.body.inventoryId, connection);
+        }
+        else {
+            return Promise.resolve(false);
+        }
+    })
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+app.delete('/api/bands/:bandId/inventory/:itemId', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to delete merch
+    bandService.getBandMemberRole(req.session.userId, req.params.bandId, connection)
+    .then(function (result) {
+        if (result.role === BandMember.ROLE.OWNER || result.role === BandMember.ROLE.MANAGER) {
+            return merchService.deleteItemAndInventory(req.params.bandId, req.params.itemId, connection);
         }
         else {
             return Promise.resolve(false);

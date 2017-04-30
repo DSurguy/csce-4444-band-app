@@ -173,10 +173,110 @@ function getInventory(items, connection) {
     });  
 }
 
+function updateItemAndInventory(userId, bandId, itemId, name, description, price, merchType, color, relativePath, sizes, quantities, inventoryIds, connection) {
+    return new Promise((resolve, reject) => {
+    	var query;
+    	if (relativePath === 'no image update') {
+	        var query = ""+
+	        "UPDATE ITEM SET ItemName = '"+name+"', Description = '"+description+"', Color = '"+color+"', "+
+	        "Price = "+price+" WHERE BANDID = "+bandId+" AND ITEMID = "+itemId;
+    	}
+    	else {
+ 	        var query = ""+
+	        "UPDATE ITEM SET ItemName = '"+name+"', Description = '"+description+"', Color = '"+color+"', "+
+	        "ImageFilePath = '"+relativePath+"', Price = "+price+" WHERE BANDID = "+bandId+" AND ITEMID = "+itemId;   		
+    	}
+
+		
+        connection.beginTransaction(function(err) {
+            if (err) {
+                reject(err);
+                return;
+            }
+        
+            connection.query(query, function(err, result, fields) {
+                if (err) {
+                    reject(err);
+                    return connection.rollback(function() {});
+                }
+
+                query = '';
+
+				if (Array.isArray(quantities)) {
+	                for (var i = 0; i < inventoryIds.length; i++) {
+	                	// We're either updating existing inventory or adding new ones
+	                	if (inventoryIds[i] === 'new') {
+	                		query += "INSERT INTO INVENTORY (Quantity, Size, ItemID) VALUES ("+quantities[i]+", '"+sizes[i]+"', "+itemId+"); ";	
+	                	}
+	                	else {
+	                		if (quantities[i] == 0)
+	                		{
+	                			query += "DELETE FROM INVENTORY WHERE InventoryID = "+inventoryIds[i]+"; ";
+	                		}
+	                		else {
+	            				query += "UPDATE INVENTORY SET Quantity = "+quantities[i]+", Size = '"+sizes[i]+"' WHERE ItemID = "+itemId+" AND InventoryID = "+inventoryIds[i]+"; ";
+	                		}            		
+	                	}
+	                }
+				}
+				else {
+                	// We're either updating existing inventory or adding new ones
+                	if (inventoryIds === 'new') {
+                		query += "INSERT INTO INVENTORY (Quantity, Size, ItemID) VALUES ("+quantities+", '"+sizes+"', "+itemId+"); ";	
+                	}
+                	else {
+                		if (quantities == 0)
+                		{
+                			query += "DELETE FROM INVENTORY WHERE InventoryID = "+inventoryIds+"; ";
+                		}
+                		else {
+            				query += "UPDATE INVENTORY SET Quantity = "+quantities+", Size = '"+sizes+"' WHERE ItemID = "+itemId+" AND InventoryID = "+inventoryIds+"; ";
+                		}            		
+                	}
+				}
+
+                connection.query(query, function(err) {
+	                if (err) {
+	                	console.log(query)
+	                    reject(err);
+	                    return connection.rollback(function() {});
+	                }
+
+                    connection.commit(function(err){
+                        if (err) {
+                            reject(err);
+                            return connection.rollback(function() {});
+                        }
+                        resolve(true);
+                    });
+	            });           
+            });
+        });
+    });
+}
+
+function deleteItemAndInventory(bandId, itemId, connection) {
+	return new Promise(function (resolve, reject) {
+		var query = "DELETE FROM ITEM WHERE ItemID = "+itemId+" AND BandID = "+bandId;
+
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+            	console.log(query);
+                reject(err);
+                return;
+            }
+
+            resolve(true);
+        });
+	});
+}
+
 module.exports = {
     createItem,
     uploadImage,
     getInventory,
     getImages,
-    getItems 
+    getItems,
+    updateItemAndInventory,
+    deleteItemAndInventory 
 }

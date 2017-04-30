@@ -62,19 +62,19 @@ AddMerchView.prototype = Object.create(PageView.prototype);
 AddMerchView.prototype.constructor = AddMerchView;
 AddMerchView.prototype.init = function (){
     this.bindEvents();
-    $(this.page.elem).find('[name="addInventory"]').prop('disabled', true);
+    $(this.page.elem).find('[name="addSize"]').prop('disabled', true);
 };
 
 AddMerchView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
         page = this.page;
 
-    pageElem.on('click', '[name="addInventory"]', function (e){
+    pageElem.on('click', '[name="addSize"]', function (e){
         e.preventDefault();
         e.stopPropagation();
         
         var select = pageElem.find('[name="merchType"]');
-        page.view.addInventoryFields(select[0].value);
+        page.view.addSizeField(select[0].value);
     });
 
     // We've picked a type so enable the Add Inventory button and remove any existing fields from other types
@@ -87,12 +87,12 @@ AddMerchView.prototype.bindEvents = function (){
         var select = pageElem.find('[name="merchType"]');
         // Only let the user add sizes if they are choosing a shirt or sticker
         if (select[0].value === 'Shirt' || select[0].value === 'Sticker'){
-            pageElem.find('[name="addInventory"]').prop('disabled', false);
+            pageElem.find('[name="addSize"]').prop('disabled', false);
         }
         else {
-            pageElem.find('[name="addInventory"]').prop('disabled', true);
+            pageElem.find('[name="addSize"]').prop('disabled', true);
         }
-        page.view.addInventoryFields(select[0].value);       
+        page.view.addSizeField(select[0].value);       
     });
 
     pageElem.on('submit', 'form', function (e){
@@ -106,7 +106,7 @@ AddMerchView.prototype.bindEvents = function (){
     });
 };
 
-AddMerchView.prototype.addInventoryFields = function (type){
+AddMerchView.prototype.addSizeField = function (type){
     var pageElem = $(this.page.elem),
     page = this.page;
 
