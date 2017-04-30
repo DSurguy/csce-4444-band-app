@@ -42,4 +42,7 @@ MainView.prototype.init = function (){
     $(page.elem).on('click', '.notifications', function (e){
         window.location = '/notifications';
     });
+    $(page.elem).on('click', '.profile', function (e){
+        window.location = '/profile';
+    });
 };
