@@ -4,6 +4,7 @@
 /* global $ */
 /* global MenuComponent */
 /* global Song */
+/* global SetList */
 
 function SetListsPage(app, data){
     Page.call(this, app, $('#setListsPage')[0], SetListsCtrl, SetListsView, {
@@ -37,10 +38,17 @@ SetListsCtrl.prototype.init = function (){
         ctrl.songs = songs.map(function (song){
             return new Song(song);
         });
-        return $.Deferred().resolve().promise();
-    })
-    .then(function (){
+        
         //get set lists
+        return $.ajax({
+            url: '/api/bands/'+ctrl.bandId+'/setlists',
+            method: 'GET'
+        });
+    })
+    .then(function (setLists){
+        ctrl.setLists = setLists.map(function (setList){
+            return new SetList(setList);
+        });
         defer.resolve();
     })
     .catch(defer.reject);
@@ -94,7 +102,17 @@ SetListsView.prototype.init = function (){
 SetListsView.prototype.render = function (){
     var view = this;
     //render the songs to the song modal
-    
+    var setListsElem = $(view.page.elem).find('.set-lists');
+    setListsElem.empty();
+    view.page.ctrl.setLists.forEach(function (setList, index){
+        setListsElem.append(`
+        <a href="javascript://" class="set-list list-group-item list-group-item-action" data-set-list-index="${index}">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">${setList.name}</h5>
+                <h5 class="mb-1">${setList.totalLength()}</h5>
+            </div>
+        </a>`)
+    });
 };
 
 SetListsView.prototype.bindEvents = function (){
@@ -219,7 +237,7 @@ SetListsView.prototype.bindEvents = function (){
     });
     
     pageElem.on('click', '.set-list', function (e){
-        view.showSetListModal(view.page.ctrl.songs[$(this).attr('data-set-list-index')]);
+        view.showSetListModal(view.page.ctrl.setLists[$(this).attr('data-set-list-index')]);
     });
     
     pageElem.on('hide.bs.modal', '.modal', function (e){
@@ -333,6 +351,35 @@ SetListsView.prototype.showSetListModal = function (setList){
         setListModal.find('[name=name]').val(setList.name);
         setListModal.find('[name=description]').val(setList.description);
         //TODO: Check items
+        var checkedSongs = setList.songs.reduce(function (obj, songId){
+            obj[songId] = true;
+            return obj;
+        }, {});
+        
+        view.setListSongs = $.extend([], view.page.ctrl.songs).map(function (song){
+            if( checkedSongs[song.id] ){
+                song.checked = true;
+            }
+            return song;
+        }).sort(function (a,b){
+            if( a.checked && !b.checked ){
+                return -1;
+            }
+            else if( b.checked && !a.checked ){
+                return 1;
+            }
+            else{
+                if( a.name.toLowerCase() < b.name.toLowerCase() ){
+                    return -1;
+                }
+                else if( a.name.toLowerCase() > b.name.toLowerCase() ){
+                    return 1;
+                }
+                else{
+                    return 0;
+                }
+            }
+        });
     }
     else{
         setListModal.find('[name=set-list-id]').val('');

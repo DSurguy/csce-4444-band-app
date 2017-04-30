@@ -116,7 +116,8 @@ var SetListService = {
                     return lists;
                 }, {});
                 
-                connection.query(`SELECT * FROM SONG_SETLIST WHERE SetListID IN (${setLists.map((s)=>s.setListID).join(',')}) ORDER BY SetListID ASC, SongID ASC`, function (err, results){
+                query = `SELECT * FROM SONG_SETLIST WHERE SetListID IN (${Object.keys(setLists).join(',')}) ORDER BY SetListID ASC, SongID ASC`;
+                connection.query(query, function (err, results){
                     if( err ){
                         reject(err); return;
                     }
