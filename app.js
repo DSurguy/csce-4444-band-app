@@ -11,9 +11,14 @@ var bandService = require('./server/services/bandService.js');
 var merchService = require('./server/services/merchService.js');
 var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
+var songService = require('./server/services/songService.js');
+var setListService = require('./server/services/setListService.js');
+var Song = require('./shared/classes/song.js');
+var SetList = require('./shared/classes/setList.js');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var path = require('path');
+var leftPad = require('./shared/utils/leftPad.js');
 
 var imageFilesRoot= path.resolve('static/media');
 
@@ -48,6 +53,7 @@ app.set('views', __dirname + '/views');
 // parse application/x-www-form-urlencoded 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static('static'));
+app.use('/media', express.static('media'));
 app.use(fileUpload());
 
 //db connection
@@ -129,7 +135,19 @@ app.get('/bands/:bandId/addmerch/', checkSession, function (req, res){
 
 app.get('/bands/:bandId/inventory', checkSession, function (req, res){
     res.render('inventory');
-})
+});
+
+app.get('/bands/:bandId/songs', checkSession, function (req, res){
+    res.render('songs');
+});
+
+app.get('/bands/:bandId/setlists', checkSession, function (req, res){
+    res.render('setLists');
+});
+app.get('/bands/:bandId/setlists/:id', checkSession, function (req, res){
+    res.render('editSetList');
+});
+
 
 app.post('/api/login', function (req, res){
     if (!req.body) {
@@ -544,6 +562,161 @@ app.delete('/api/bands/:bandId/inventory/:itemId', checkSession, function (req, 
     })
     .catch(function (e) {
         res.status(500).send({error:e});
+    });
+});
+
+/** Get Single Song **/
+app.get('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
+    songService.getSong(req.params.songId, req.params.bandId, connection)
+    .then(function (singleSong){
+        res.status(200).send(singleSong);
+    })
+    .catch(function (err){
+        res.status(500).send({
+            error: err
+        });
+    });
+});
+
+/** Get All Songs **/
+app.get('/api/bands/:bandId/songs', checkSession, function (req, res){
+    songService.getSongs(req.params.bandId, connection)
+    .then(function (songs){
+        res.status(200).send(songs);
+    })
+    .catch(function (err){
+        res.status(500).send({
+            error: err
+        });
+    });
+});
+
+/** Create New Song **/
+app.post('/api/bands/:bandId/songs', checkSession, function (req, res){
+    var newSong = new Song({
+        id : undefined,
+        bandId : req.params.bandId,
+        name : req.body.name,
+        duration : getDurationFromArray([req.body['duration-hours'], req.body['duration-mins'], req.body['duration-secs']]),
+        lyrics : req.body.lyrics,
+        composer : req.body.composer,
+        link: req.body.link,
+        path: ''
+    });
+    songService.createSong(newSong, req.files['song-file'], connection)
+    .then(function (createdSong){
+        res.status(201).send(createdSong);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
+});
+
+/** Update Song **/
+app.put('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
+    var newSong = new Song({
+        id : req.params.songId,
+        bandId : req.params.bandId,
+        name : req.body.name,
+        duration : getDurationFromArray([req.body['duration-hours'], req.body['duration-mins'], req.body['duration-secs']]),
+        lyrics : req.body.lyrics,
+        composer : req.body.composer,
+        link: req.body.link,
+        path: ''
+    });
+    songService.editSong(newSong, req.files['song-file'], connection)
+    .then(function (createdSong){
+        res.status(201).send(createdSong);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
+});
+
+/** Delete Song **/
+app.delete('/api/bands/:bandId/songs/:songId', checkSession, function (req, res){
+    songService.deleteSong(req.params.songId, req.params.bandId, connection)
+    .then(function (){
+        res.status(200).end();
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
+});
+
+function getDurationFromArray(timeArr){
+    return `${leftPad(timeArr[0],2,'0')}:${leftPad(timeArr[1],2,'0')}:${leftPad(timeArr[2],2,'0')}`;
+}
+
+/** Get All Set Lists **/
+app.get('/api/bands/:bandId/setlists', checkSession, function (req, res){
+    setListService.getSetLists(req.params.bandId, connection)
+    .then(function (setLists){
+        res.status(200).send(setLists);
+    })
+    .catch(function (err){
+        res.status(500).send({
+            error: err
+        });
+    });
+});
+
+/** Create New Set Lists **/
+app.post('/api/bands/:bandId/setlists', checkSession, function (req, res){
+    var newSetList = new SetList({
+        id : undefined,
+        bandId : req.params.bandId,
+        name : req.body.name,
+        description : req.body.description
+    });
+    
+    Object.keys(req.body).forEach(function (key){
+        if( key.indexOf('song-') == 0 ){
+            newSetList.songs.push(parseInt(key.substr(5),10));
+        }
+    });
+    
+    setListService.createSetList(newSetList, connection)
+    .then(function (createdSetList){
+        res.status(201).send(createdSetList);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
+});
+
+/** Update Set List **/
+app.put('/api/bands/:bandId/setlists/:setListId', checkSession, function (req, res){
+    var newSetList = new SetList({
+        id : req.params.setListId,
+        bandId : req.params.bandId,
+        name : req.body.name,
+        description : req.body.description
+    });
+    
+    Object.keys(req.body).forEach(function (key){
+        if( key.indexOf('song-') == 0 ){
+            newSetList.songs.push(parseInt(key.substr(5),10));
+        }
+    });
+    
+    setListService.editSetList(newSetList, connection)
+    .then(function (createdSetList){
+        res.status(201).send(createdSetList);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
+    });
+});
+
+/** Delete Set List **/
+app.delete('/api/bands/:bandId/setlists/:setListId', checkSession, function (req, res){
+    setListService.deleteSetList(req.params.setListId, req.params.bandId, connection)
+    .then(function (){
+        res.status(200).end();
+    })
+    .catch(function (err){
+        res.status(500).send({error: err.stack});
     });
 });
 

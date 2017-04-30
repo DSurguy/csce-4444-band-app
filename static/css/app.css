@@ -307,3 +307,22 @@ h1, h2{
 #inventoryPage .btn-delete {
     float: right;
 }
+
+#songsPage .song.search-hidden{
+    display: none;
+}
+#setListsPage .modal .song-check-label{
+    display: block;
+    height: 24px;
+    margin: 0;
+}
+#setListsPage .modal .song-check-label:nth-child(odd){
+    background-color: #e5e5e5;
+}
+#setListsPage .modal .song-check-label.search-hidden{
+    display: none;
+}
+#setListsPage .set-list.search-hidden{
+    display: none;
+}
+
