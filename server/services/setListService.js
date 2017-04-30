@@ -29,6 +29,10 @@ var SetListService = {
                     
                     updateSongLinks(newSetList, connection)
                     .then(function (){
+                        return getSetListSongs(newSetList.id, connection);
+                    })
+                    .then(function (songs){
+                        newSetList.songs = songs;
                         connection.commit(function (err){
                             if (err) {
                                 return connection.rollback(function() {
@@ -70,6 +74,10 @@ var SetListService = {
                     
                     updateSongLinks(newSetList, connection)
                     .then(function (){
+                        return getSetListSongs(newSetList.id, connection);
+                    })
+                    .then(function (songs){
+                        newSetList.songs = songs;
                         connection.commit(function (err){
                             if (err) {
                                 return connection.rollback(function() {
@@ -111,18 +119,28 @@ var SetListService = {
                     lists[row.SetListID] = new SetList({
                         id: row.SetListID,
                         bandId: row.BandID,
-                        name: row.Name
+                        name: row.Name,
+                        description: row.Description
                     });
                     return lists;
                 }, {});
                 
-                query = `SELECT * FROM SONG_SETLIST WHERE SetListID IN (${Object.keys(setLists).join(',')}) ORDER BY SetListID ASC, SongID ASC`;
+                query = `SELECT SS.SetListID, S.* FROM SONG_SETLIST SS INNER JOIN SONG S ON SS.SongID = S.SongID WHERE SS.SetListID IN (${Object.keys(setLists).join(',')}) ORDER BY SetListID ASC, SongID ASC`;
                 connection.query(query, function (err, results){
                     if( err ){
                         reject(err); return;
                     }
                     results.forEach(function (row){
-                        setLists[row.SetListID].songs.push(row.SongID);
+                        setLists[row.SetListID].songs.push(new Song({
+                            id: row.SongID,
+                            bandId: row.BandID,
+                            name: row.Name,
+                            duration: row.Duration,
+                            lyrics: row.Lyrics,
+                            composer: row.Composer,
+                            link: row.Link,
+                            path: row.Path
+                        }));
                     });
                     
                     resolve(Object.keys(setLists).map(function (key){
@@ -133,6 +151,29 @@ var SetListService = {
         });
     }
 };
+
+function getSetListSongs(setListId, connection){
+    return new Promise(function (resolve, reject){
+        var query = `SELECT SS.SetListID, S.* FROM SONG_SETLIST SS INNER JOIN SONG S ON SS.SongID = S.SongID WHERE SS.SetListID = ${setListId} ORDER BY SetListID ASC, SongID ASC`;
+        connection.query(query, function (err, results){
+            if( err ){
+                reject(err); return;
+            }
+            resolve(results.map(function (row){
+                return new Song({
+                    id: row.SongID,
+                    bandId: row.BandID,
+                    name: row.Name,
+                    duration: row.Duration,
+                    lyrics: row.Lyrics,
+                    composer: row.Composer,
+                    link: row.Link,
+                    path: row.Path
+                });
+            }));
+        });
+    });
+}
 
 function updateSongLinks(setList, connection){
     return new Promise(function (resolve, reject){

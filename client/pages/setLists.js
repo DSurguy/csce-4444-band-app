@@ -351,8 +351,8 @@ SetListsView.prototype.showSetListModal = function (setList){
         setListModal.find('[name=name]').val(setList.name);
         setListModal.find('[name=description]').val(setList.description);
         //TODO: Check items
-        var checkedSongs = setList.songs.reduce(function (obj, songId){
-            obj[songId] = true;
+        var checkedSongs = setList.songs.reduce(function (obj, song){
+            obj[song.id] = true;
             return obj;
         }, {});
         
