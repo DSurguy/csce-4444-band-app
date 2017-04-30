@@ -627,7 +627,7 @@ app.post('/api/bands/:bandId/setlists', checkSession, function (req, res){
     });
 });
 
-/** Update Song **/
+/** Update Set List **/
 app.put('/api/bands/:bandId/setlists/:setListId', checkSession, function (req, res){
     var newSetList = new SetList({
         id : req.params.setListId,
@@ -651,7 +651,7 @@ app.put('/api/bands/:bandId/setlists/:setListId', checkSession, function (req, r
     });
 });
 
-/** Delete Song **/
+/** Delete Set List **/
 app.delete('/api/bands/:bandId/setlists/:setListId', checkSession, function (req, res){
     setListService.deleteSetList(req.params.setListId, req.params.bandId, connection)
     .then(function (){

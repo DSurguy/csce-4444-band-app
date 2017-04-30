@@ -111,7 +111,7 @@ SetListsView.prototype.render = function (){
                 <h5 class="mb-1">${setList.name}</h5>
                 <h5 class="mb-1">${setList.totalLength()}</h5>
             </div>
-        </a>`)
+        </a>`);
     });
 };
 
@@ -124,7 +124,7 @@ SetListsView.prototype.bindEvents = function (){
     });
     
     pageElem.on('click', '.modal .delete-set-list', function (e){
-        /*if( view.page.ctrl.saving ){
+        if( view.page.ctrl.saving ){
             return false;
         }
         else{
@@ -132,37 +132,32 @@ SetListsView.prototype.bindEvents = function (){
         }
         
         var modal = $(this).parents('.modal');
-        modal.find('.delete-song').html('<div class="fa fa-spinner animation-spin"></div>');
+        modal.find('.delete-set-list').html('<div class="fa fa-spinner animation-spin"></div>');
         
-        var songId = modal.find('[name=song-id]').val(),
+        var setListId = modal.find('[name=set-list-id]').val(),
             deletePromise;
         
         //just close the modal if we don't have an id
-        if( songId === '' ){
+        if( setListId === '' ){
             deletePromise = $.Deferred().resolve().promise();
         }
         else{
-            deletePromise = view.page.ctrl.deleteSong(songId);
+            deletePromise = view.page.ctrl.deleteSetList(setListId);
         }
         
         deletePromise.then(function (){
-            var audioTrack = modal.find('audio');
-            if( audioTrack.length ){
-                audioTrack[0].pause();
-                audioTrack.remove();
-            }
             
-            var songIndex = view.page.ctrl.songs.reduce(function (val, song, index){
-                return val !== undefined ? val : (song.id == songId ? index : undefined);
+            var setListIndex = view.page.ctrl.setLists.reduce(function (val, setList, index){
+                return val !== undefined ? val : (setList.id == setListId ? index : undefined);
             },undefined);
             
-            if( songIndex !== undefined ){
-                view.page.ctrl.songs.splice(songIndex,1);
+            if( setListIndex !== undefined ){
+                view.page.ctrl.songs.splice(setListIndex,1);
             }
             
             view.render();
             modal.modal('hide');
-            modal.find('.delete-song').html('Delete Song');
+            modal.find('.delete-set-list').html('Delete Set List');
             modal.find('.alert').remove();
             view.page.ctrl.saving = false;
         })
@@ -172,12 +167,12 @@ SetListsView.prototype.bindEvents = function (){
               +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
                 +'<span aria-hidden="true">&times;</span>'
               +'</button>'
-              +'<strong>Unable to delete song!</strong>'
+              +'<strong>Unable to delete set list!</strong>'
             +'</div>');
             console.error(err);
             view.page.ctrl.saving = false;
-            modal.find('.delete-song').html('Delete Song');
-        });*/
+            modal.find('.delete-set-list').html('Delete Set List');
+        });
     });
     
     pageElem.on('click', '.modal .save-set-list', function (e){
@@ -197,26 +192,21 @@ SetListsView.prototype.bindEvents = function (){
         form.parents('.modal').find('.save-set-list').html('<div class="fa fa-spinner animation-spin"></div>');
         view.page.ctrl.saveSetList(this)
         .then(function (newSetList){
-            /*var audioTrack = form.find('audio');
-            if( audioTrack.length ){
-                audioTrack[0].pause();
-                audioTrack.remove();
-            }*/
             
-            /*var songIndex = view.page.ctrl.songs.reduce(function (val, song, index){
-                return val !== undefined ? val : (song.id == newSong.id ? index : undefined);
+            var setListIndex = view.page.ctrl.setLists.reduce(function (val, setList, index){
+                return val !== undefined ? val : (setList.id == newSetList.id ? index : undefined);
             },undefined);
             
-            if( songIndex !== undefined ){
-                view.page.ctrl.songs[songIndex] = newSong;
+            if( setListIndex !== undefined ){
+                view.page.ctrl.setLists[setListIndex] = new SetList(newSetList);
             }
             else{
-                view.page.ctrl.songs.push(newSong);
-                view.page.ctrl.songs = view.page.ctrl.songs.sort(function (a,b){
+                view.page.ctrl.setLists.push(new SetList(newSetList));
+                view.page.ctrl.setLists = view.page.ctrl.setLists.sort(function (a,b){
                     return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0);
                 });
             }
-            view.render();*/
+            view.render();
             form.parents('.modal').modal('hide');
             form.parents('.modal').find('.save-set-list').html('Save Set List');
             form.parents('.modal').find('.alert').remove();
@@ -238,14 +228,6 @@ SetListsView.prototype.bindEvents = function (){
     
     pageElem.on('click', '.set-list', function (e){
         view.showSetListModal(view.page.ctrl.setLists[$(this).attr('data-set-list-index')]);
-    });
-    
-    pageElem.on('hide.bs.modal', '.modal', function (e){
-        /*var audioTrack = $(this).find('audio');
-        if( audioTrack.length ){
-            audioTrack[0].pause();
-            audioTrack.remove();
-        }*/
     });
     
     pageElem.on('keyup', '.search', function (e){
