@@ -13,6 +13,7 @@ var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
 var songService = require('./server/services/songService.js');
 var setListService = require('./server/services/setListService.js');
+var userService = require('./server/services/userService.js');
 var Song = require('./shared/classes/song.js');
 var SetList = require('./shared/classes/setList.js');
 var session = require('express-session');
@@ -717,6 +718,16 @@ app.delete('/api/bands/:bandId/setlists/:setListId', checkSession, function (req
     })
     .catch(function (err){
         res.status(500).send({error: err.stack});
+    });
+});
+
+app.get('/api/user', checkSession, function (req, res){
+    userService.getUser(req.session.userId, connection)
+    .then(function (user){
+        res.status(200).send(user);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
     });
 });
 

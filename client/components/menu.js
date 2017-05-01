@@ -55,10 +55,20 @@ function MenuView(page){
             window.location = '/profile';
         },
         render: function (){
-            return $.Deferred().resolve('<div class="profile">'+
-                '<img class="profile-img" src="https://placehold.it/150x150">'+
-                '<div class="profile-name">username</div>'+
-            '</div>').promise();
+            var defer = $.Deferred();
+            
+            $.ajax({
+                url: '/api/user',
+                method: 'GET'
+            })
+            .then(function (user){
+                defer.resolve('<div class="profile">'+
+                    '<img class="profile-img" src="https://placehold.it/150x150">'+
+                    '<div class="profile-name">'+user.username+'</div>'+
+                '</div>').promise();
+            }).fail(defer.reject);
+            
+            return defer.promise();
         }
     }].map(function (item){return new MenuItem(item)});
     
