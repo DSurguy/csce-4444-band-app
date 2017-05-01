@@ -3,6 +3,7 @@
 /* global PageCtrl */
 /* global MenuComponent */
 /* global $ */
+/* global User */
 
 function MainPage(app, data){
     Page.call(this, app, $('#mainPage')[0], MainCtrl, MainView, {
@@ -16,9 +17,27 @@ MainPage.prototype.constructor = MainPage;
 
 function MainCtrl(page){
     PageCtrl.call(this, page);
+    this.user = undefined;
 }
 MainCtrl.prototype = Object.create(PageCtrl.prototype);
 MainCtrl.prototype.constructor = MainCtrl;
+MainCtrl.prototype.init = function (){
+    var defer = $.Deferred(),
+        ctrl = this;
+    
+    $.ajax({
+        url: '/api/user',
+        method: 'GET'
+    })
+    .then(function (user){
+        ctrl.user = new User(user);
+        defer.resolve();
+    })
+    .fail(defer.reject);
+    
+    return defer.promise();
+};
+
 
 function MainView(page){
     PageView.call(this, page);
@@ -42,4 +61,6 @@ MainView.prototype.init = function (){
     $(page.elem).on('click', '.notifications', function (e){
         window.location = '/notifications';
     });
+    
+    $(page.elem).find('.username').html(page.ctrl.user.username);
 };
