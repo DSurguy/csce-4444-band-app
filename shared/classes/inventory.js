@@ -1,7 +1,7 @@
 function Inventory(json){
     this.itemId = json.itemId || 0;
-    this.size = json.size || '';
-    this.color = json.color || '';
+    this.id = json.id || 0;
+    this.size = json.size || 'none';
     this.quantity = json.quantity || 0;
 }
 

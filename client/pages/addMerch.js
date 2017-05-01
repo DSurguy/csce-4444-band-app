@@ -21,7 +21,10 @@ AddMerchPage.prototype.constructor = AddMerchPage;
  * */
 function AddMerchCtrl(page){
     PageCtrl.call(this, page);
-    this.addmerching = false;
+
+    this.bandId = window.location.pathname.split('/').reduce(function (val, chunk, index, arr){
+        return val || (chunk == 'bands' ? arr[index+1] : undefined);
+    }, undefined);
 }
 AddMerchCtrl.prototype = Object.create(PageCtrl.prototype);
 AddMerchCtrl.prototype.constructor = AddMerchCtrl;
@@ -59,25 +62,37 @@ AddMerchView.prototype = Object.create(PageView.prototype);
 AddMerchView.prototype.constructor = AddMerchView;
 AddMerchView.prototype.init = function (){
     this.bindEvents();
-    $(this.page.elem).find('[name="addInventory"]').prop('disabled', true);
+    $(this.page.elem).find('[name="addSize"]').prop('disabled', true);
 };
 
 AddMerchView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
         page = this.page;
 
-    pageElem.on('click', '[name="addInventory"]', function (e){
+    pageElem.on('click', '[name="addSize"]', function (e){
         e.preventDefault();
         e.stopPropagation();
         
         var select = pageElem.find('[name="merchType"]');
-        page.view.addInventoryFields(select[0].value);
+        page.view.addSizeField(select[0].value);
     });
 
     // We've picked a type so enable the Add Inventory button and remove any existing fields from other types
     pageElem.on('change', '[name="merchType"]', function (e){
-        pageElem.find('[name="addInventory"]').prop('disabled', false);
+        e.preventDefault();
+        e.stopPropagation();
+
         pageElem.find('.dynamicFields').remove();
+
+        var select = pageElem.find('[name="merchType"]');
+        // Only let the user add sizes if they are choosing a shirt or sticker
+        if (select[0].value === 'Shirt' || select[0].value === 'Sticker'){
+            pageElem.find('[name="addSize"]').prop('disabled', false);
+        }
+        else {
+            pageElem.find('[name="addSize"]').prop('disabled', true);
+        }
+        page.view.addSizeField(select[0].value);       
     });
 
     pageElem.on('submit', 'form', function (e){
@@ -85,19 +100,19 @@ AddMerchView.prototype.bindEvents = function (){
         e.stopPropagation();
         page.ctrl.submitMerch(this)
         .then(function (){
-            window.location.reload();
+            window.location = '../'+page.ctrl.bandId+'/inventory';
         })
         .fail(console.error);
     });
 };
 
-AddMerchView.prototype.addInventoryFields = function (type){
+AddMerchView.prototype.addSizeField = function (type){
     var pageElem = $(this.page.elem),
     page = this.page;
 
     var typeFields = '';
 
-    if (type === 'shirt') {
+    if (type === 'Shirt') {
         typeFields = '<select class="form-control dynamicFields" required name="size">'+
                         '<option disabled selected>Select a size</option>'+
                         '<option value="s">S</option>'+
@@ -107,10 +122,10 @@ AddMerchView.prototype.addInventoryFields = function (type){
                     '</select>';
                     
     }
-    else if (type === 'cd') {
+    else if (type === 'CD') {
         typeFields = '<input class"form-control" type="hidden" name="size" value="none" />';
     }
-    else if (type === 'sticker') {
+    else if (type === 'Sticker') {
         typeFields = '<select class="form-control dynamicFields" required name="size">'+
                         '<option disabled selected>Select a size</option>'+
                         '<option value="1x1">1x1</option>'+
@@ -121,8 +136,7 @@ AddMerchView.prototype.addInventoryFields = function (type){
     }
 
     // All types will have a quantity and color
-    typeFields += '<input class="form-control dynamicFields" required type="text" name="color" placeholder="Color" />'+
-                  '<input class="form-control dynamicFields" required type="number" name="quantity" min="0" step="1" placeholder="Quantity">';
+    typeFields += '<input class="form-control dynamicFields" required type="number" name="quantity" min="0" step="1" placeholder="Quantity">';
 
     var typeFieldsDiv = $(this.page.elem).find('.dynamicFieldsContainer');
     typeFieldsDiv.append(typeFields);

@@ -210,6 +210,10 @@ h1, h2{
     color: inherit;
 }
 
+#bandPage .actions {
+    padding-bottom: 10px;
+}
+
 #friendsPage .card{
     margin: 0 auto;
     float: none; 
@@ -288,3 +292,37 @@ h1, h2{
 #addMerchPage form [name=merchType] {
     margin-bottom: 20px;
 }
+
+#inventoryPage .card {
+    float: none;
+    max-width: 200px; 
+    margin: 10px;
+    display: flex;
+}
+
+#inventoryPage .row {
+    margin: 20px;
+}
+
+#inventoryPage .btn-delete {
+    float: right;
+}
+
+#songsPage .song.search-hidden{
+    display: none;
+}
+#setListsPage .modal .song-check-label{
+    display: block;
+    height: 24px;
+    margin: 0;
+}
+#setListsPage .modal .song-check-label:nth-child(odd){
+    background-color: #e5e5e5;
+}
+#setListsPage .modal .song-check-label.search-hidden{
+    display: none;
+}
+#setListsPage .set-list.search-hidden{
+    display: none;
+}
+

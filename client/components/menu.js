@@ -55,10 +55,20 @@ function MenuView(page){
             window.location = '/profile';
         },
         render: function (){
-            return $.Deferred().resolve('<div class="profile">'+
-                '<img class="profile-img" src="https://placehold.it/150x150">'+
-                '<div class="profile-name">username</div>'+
-            '</div>').promise();
+            var defer = $.Deferred();
+            
+            $.ajax({
+                url: '/api/user',
+                method: 'GET'
+            })
+            .then(function (user){
+                defer.resolve('<div class="profile">'+
+                    '<img class="profile-img" src="https://placehold.it/150x150">'+
+                    '<div class="profile-name">'+user.username+'</div>'+
+                '</div>').promise();
+            }).fail(defer.reject);
+            
+            return defer.promise();
         }
     }].map(function (item){return new MenuItem(item)});
     
@@ -131,6 +141,22 @@ function MenuView(page){
     }].map(function (item){return new MenuItem(item)});
     
     this.bandMenuItems = [{
+        label: 'Set Lists',
+        class: 'setlists',
+        action: function (e){
+            var newPath = window.location.pathname.split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+2).concat('setlists').join('/');
+            window.location = newPath;
+        }
+    }, {
+        label: 'Songs',
+        class: 'songs',
+        action: function (e){
+            var newPath = window.location.pathname.split('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+2).concat('songs').join('/');
+            window.location = newPath;
+        }
+    }, {
         label: 'Inventory',
         class: 'inventory',
         action: function (e){
@@ -219,7 +245,8 @@ MenuView.prototype.renderMenu = function (){
     
     var shouldRenderBand = false;
     var splitLoc = window.location.pathname.split('/');
-    if( splitLoc[splitLoc.indexOf('bands')+1] !== undefined ){
+    var bandId = splitLoc[splitLoc.indexOf('bands')+1];
+    if( bandId !== undefined && !isNaN(parseInt(bandId)) ){
         shouldRenderBand = true;
     }
     
@@ -266,7 +293,7 @@ MenuView.prototype.renderMenu = function (){
         //render band items
         parent = $('<div class="menu-section container clearfix"></div>');
         if( shouldRenderBand ){
-            return nextItem(parent, view.bandMenuItems, 0)
+            return nextItem(parent, view.bandMenuItems, 0);
         }
         else{
             return $.Deferred().resolve().promise();
@@ -288,27 +315,7 @@ MenuView.prototype.renderMenu = function (){
         defer.resolve();
     })
     .catch(console.error);
-    
-    /*this.menuOverlayContainer.find('.menu').append(''+
-    '<div class="menu-section container profile-section clearfix">'+
-        '<button type="button" class="action home fa fa-home btn btn-secondary"></button>'+
-        '<div class="profile">'+
-            '<img class="profile-img" src="https://placehold.it/150x150">'+
-            '<div class="name">username</div>'+
-        '</div>'+
-    '</div>');
-    this.menuOverlayContainer.find('.menu').append('<div class="menu-section container clearfix">'
-        +menuItems.map(function (item){
-            if( typeof item.render === 'function' ){
-                return item.render();
-            }
-            return '<button type="button" class="action '+item.class+' btn btn-secondary btn-block">'+item.label+'</button>';
-        }).join('')
-    +'</div>');
-    
-    menuItems.forEach(function (item){
-        that.menuOverlayContainer.find('.menu').on('click', '.'+item.class, item.action);
-    });*/
+
     return defer.promise();
 };
 MenuView.prototype.bindEvents = function (){

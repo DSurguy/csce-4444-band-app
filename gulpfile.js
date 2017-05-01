@@ -7,6 +7,7 @@ gulp.task('dist', function (cb) {
     pump([
         gulp.src([
             'shared/classes/*.js',
+            'shared/utils/*.js',
             'client/app.js',
             'client/page.js',
             'client/components/*.js',
