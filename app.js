@@ -85,8 +85,8 @@ app.get('/', checkSession, function (req, res){
     res.redirect('/main');
 });
 //what i added
-app.get('/', checkSession, function (req, res){
-    res.redirect('/profile');
+app.get('/profile', checkSession, function (req, res){
+    res.render('profile');
 });
 
 app.get('/main', checkSession, function (req, res){
