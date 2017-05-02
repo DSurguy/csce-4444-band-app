@@ -1,0 +1,27 @@
+{{#contentFor "page-title"}}AddMerch{{/contentFor}}
+{{#contentFor "page-constructor"}}AddMerchPage{{/contentFor}}
+<div id="addMerchPage" class="page">
+    <div class="menu-button-container"></div>
+    <h1>Add New Merchandise</h1>
+    <form class="addMerchForm" onsubmit="return">
+        <div class="form-group">
+            <input class="form-control" required type="text" name="name" placeholder="Name" />
+            <input class="form-control" required type="text" name="description" placeholder="Description" />
+            <input class="form-control" required type="text" name="color" placeholder="Color" />
+            <input class="form-control" required type="file" name="merchImage" placeholder="Add Image" />            
+            <input class="form-control" required type="number" name="price" placeholder="Price" min="0" step=".01" />
+            <select class="form-control" required name="merchType">
+                <option disabled selected>Select a type</option>
+                <option value="Shirt">Shirt</option>
+                <option value="CD">CD</option>
+                <option value="Sticker">Sticker</option>
+            </select>
+            <div class="dynamicFieldsContainer"></div>
+            <div class="formBtn">
+                <button class="btn btn-success" name="addSize">Add Size <div class="fa fa-plus icon"></div>
+                </button>
+                <button class="btn btn-primary" type="submit" name="submit">Submit Merch</button>
+            </div>
+        </div>
+    </form>
+</div>
