@@ -2,21 +2,13 @@
 {{#contentFor "page-constructor"}}FriendsPage{{/contentFor}}
 <div id="friendsPage" class="page">
     <div class="menu-button-container"></div>
-    <h1>friends</h1>
+    <h1>Friends</h1>
     <div class="container">
-        <div class="add-friend">
-			<div class="card" style="background-color: #B291A2; border-color: #0E0A0C; width: 50rem; cursor: pointer;">
-                <div class="card-block">
-                	<h4 class="card-title">
-                		<span>Connect with other musicians.</span>
-                		<div class="fa fa-plus icon fa-lg pull-right"></div>
-        			</h4>
-                </div>
-            </div>
-            <p/>
-        </div>
+        <button type="button" class="add-friend btn btn-primary">
+            <div class="fa fa-plus"></div> Add Friend
+        </button>
     </div>
-    <div class="container">
+    <div class="container mt-2">
         <div class="friends"></div>
     </div>
     <div class="friend-modal">

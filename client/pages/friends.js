@@ -174,7 +174,7 @@ FriendsView.prototype.updateUserList = function (){
             badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
         }
         else if (this.page.ctrl.friends[i].status === 'blocked') {
-            cardColor = 'card-inverse';
+            cardColor = 'card-danger';
             badge = '<span class="badge badge-pill badge-default pull-right">'+this.page.ctrl.friends[i].status;
         }
         else if (this.page.ctrl.friends[i].status === 'none') {
@@ -202,23 +202,23 @@ FriendsView.prototype.showFriendModal = function (friendId){
         modalButtons;
         
     if (thisFriend.status === 'friend') {
-        modalButtons = '<button type="button" class="btn btn-danger btnUnfriendModal" data-dismiss="modal">Unfriend</button>'+
+        modalButtons = '<button type="button" class="btn btn-danger btnUnfriendModal mr-2" data-dismiss="modal">Unfriend</button>'+
                         '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
     }
     else if (thisFriend.status === 'requested') { 
-        modalButtons = '<button type="button" class="btn btn-default btnCancelRequestModal" data-dismiss="modal">Cancel Request</button>'+
+        modalButtons = '<button type="button" class="btn btn-default btnCancelRequestModal mr-2" data-dismiss="modal">Cancel Request</button>'+
                        '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
     }
     else if (thisFriend.status === 'pending') { 
-        modalButtons = '<button type="button" class="btn btn-success btnAcceptModal" data-dismiss="modal">Accept</button>'+
-                        '<button type="button" class="btn btn-danger btnRejectModal" data-dismiss="modal">Reject</button>'+
+        modalButtons = '<button type="button" class="btn btn-success btnAcceptModal mr-2" data-dismiss="modal">Accept</button>'+
+                        '<button type="button" class="btn btn-danger btnRejectModal mr-2" data-dismiss="modal">Reject</button>'+
                         '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
     }
     else if (thisFriend.status === 'blocked') {
         modalButtons = '<button type="button" class="btn btn-default btnUnblockModal" data-dismiss="modal">Unblock User</button>';
     }
     else if (thisFriend.status === 'none') {
-        modalButtons = '<button type="button" class="btn btn-success btnRequestModal" data-dismiss="modal">Send Friend Request</button>'+
+        modalButtons = '<button type="button" class="btn btn-success btnRequestModal mr-2" data-dismiss="modal">Send Friend Request</button>'+
                         '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
     }
     

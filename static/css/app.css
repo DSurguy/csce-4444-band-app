@@ -218,10 +218,7 @@ h1, h2{
     margin: 0 auto;
     float: none; 
     margin-bottom: 10px; 
-}
-
-#friendsPage .fa-plus{
-    background-color: #B291A2;
+    cursor: pointer;
 }
 
 #addFriendPage .search-user{
@@ -229,7 +226,8 @@ h1, h2{
 }
 
 #addFriendPage .card{
-    margin: 0 auto 10px auto;    
+    margin: 0 auto 10px auto;
+    cursor: pointer;    
 }
 
 #searchBandsPage .search-form{
