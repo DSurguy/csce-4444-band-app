@@ -1,17 +1,27 @@
 {
   "name": "band-app-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "A band management app created for CSCE 4444",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "gulp dist",
-    "prestart": "gulp dist",
+    "prestart": "gulp bundle",
     "start": "node app.js",
     "predebug": "gulp dist",
     "debug": "node --inspect --debug-brk app.js"
   },
-  "author": "",
+  "respository": {
+    "type": "git",
+    "url": "https://github.com/DSurguy/csce-4444-band-app.git"
+  },
+  "contributors": [{
+    "name": "Derek Surguy",
+    "email": "Surguy.Derek@gmail.com"
+  }, {
+    "name": "Andrew Tolle",
+    "email": "atolle@outlook.com"
+  }],
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.17.1",
@@ -28,6 +38,7 @@
   "devDependencies": {
     "browserify": "^14.3.0",
     "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
     "gulp-concat": "^2.6.1",
     "gulp-sourcemaps": "^2.6.0",
     "jasmine": "^2.5.3",
