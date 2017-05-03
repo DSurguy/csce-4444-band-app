@@ -4,7 +4,7 @@ var extend = require('extend'),
 var NotificationService = {
     getNotifications: function (connection, userId, unreadOnly){
         return new Promise(function (resolve, reject){
-            var query = `SELECT * FROM NOTIFICATION WHERE UserId='${userId}'${unreadOnly?' AND Unread = 1':''}`;
+            var query = `SELECT * FROM NOTIFICATION WHERE UserId=${userId}${unreadOnly?' AND Unread = 1':''}`;
             
             connection.query(query, function (err, result){
                 if( err ){
@@ -18,7 +18,7 @@ var NotificationService = {
     },
     getNotificationCount: function (connection, userId, unreadOnly){
         return new Promise(function (resolve, reject){
-            var query = `SELECT COUNT(NotificationID) AS total FROM NOTIFICATION WHERE UserId='${userId}'${unreadOnly?' AND Unread = 1':''}`;
+            var query = `SELECT COUNT(NotificationID) AS total FROM NOTIFICATION WHERE UserId=${userId}${unreadOnly?' AND Unread = 1':''}`;
             
             connection.query(query, function (err, result){
                 if( err ){
@@ -41,8 +41,7 @@ var NotificationService = {
             
             params.unread = true;
             
-            var query = `INSERT INTO NOTIFICATION (UserId, Type, Message, Link, Unread) VALUES (${params.userId}, ${params.type}, '${params.message}', '${params.link}', 0)`;
-            console.log(query);
+            var query = `INSERT INTO NOTIFICATION (UserId, Type, Message, Link, Unread) VALUES (${params.userId}, ${params.type}, '${params.message}', '${params.link}', 1)`;
             connection.query(query, function (err, result, fields){
                 if( err ){
                     reject(err); return;
