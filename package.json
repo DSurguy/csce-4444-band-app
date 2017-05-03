@@ -1,6 +1,6 @@
 {
   "name": "band-app-server",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A band management app created for CSCE 4444",
   "main": "app.js",
   "scripts": {
