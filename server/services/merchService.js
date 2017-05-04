@@ -271,6 +271,32 @@ function deleteItemAndInventory(bandId, itemId, connection) {
 	});
 }
 
+function updateCart(bandId, userId, itemId, quantities, inventoryIds, connection) {
+	return new Promise(function (resolve, reject) {
+		var query = '';
+		
+		if (Array.isArray(inventoryIds)) {
+			for (var i = 0; i < inventoryIds.length; i++){
+				query += "REPLACE INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES ("+itemId+","+inventoryIds[i]+","+bandId+","+userId+","+quantities[i]+"); ";
+			}
+		}
+		else{
+			query += "REPLACE INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES ("+itemId+","+inventoryIds+","+bandId+","+userId+","+quantities+")";
+		}
+		
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+            	console.log(query);
+                reject(err);
+                return;
+            }
+
+            resolve(true);
+        });
+		
+	});
+}
+
 module.exports = {
     createItem,
     uploadImage,
@@ -278,5 +304,6 @@ module.exports = {
     getImages,
     getItems,
     updateItemAndInventory,
-    deleteItemAndInventory 
+    deleteItemAndInventory,
+    updateCart
 }
