@@ -92,9 +92,10 @@ StoreView.prototype.init = function (){
                         '<p class="card-text">'+item.type+'<br>Color: '+item.color+'</p>'+
                     '</div>'+
                     '<ul class="list-group list-group-flush" name="inventory-list-'+item.id+'"></ul>'+
-                    '<input class"form-control" form="update-form" type="hidden" name="itemId" value="'+item.id+'"/>'+
+                    '<form id="update-form-'+item.id+'">'+
+                    '<input class"form-control" form="update-form-'+item.id+'" type="hidden" name="itemId" value="'+item.id+'"/>'+
                     '<div class="card-block">'+
-                        '<button class="btn btn-success btn-add-to-cart" type="submit" name="submit" form="update-form" data-item-id="'+item.id+'">Add To Cart</button>'+
+                        '<button class="btn btn-success btn-add-to-cart" type="submit" name="submit" form="update-form-'+item.id+'" data-item-id="'+item.id+'">Add To Cart</button>'+
                     '</div>'+
                 '</div>'+
             '</div>'+
@@ -107,14 +108,14 @@ StoreView.prototype.init = function (){
             if (inventory.size === 'none') {
                 inventoryElem.append(''+
                 '<li class="list-group-item clearfix">Quantity: '+inventory.quantity+
-                '<input class"form-control" id="inventoryId-'+inventory.id+'" form="update-form" type="hidden" name="inventoryId" value="'+inventory.id+'"/>'+
-                '<select class="form-control dynamicFields" id="quantity-'+inventory.id+'" form="update-form" name="quantity" required></select></li>');
+                '<input class"form-control" id="inventoryId-'+inventory.id+'" form="update-form-'+item.id+'" type="hidden" name="inventoryId" value="'+inventory.id+'"/>'+
+                '<select class="form-control dynamicFields" id="quantity-'+inventory.id+'" form="update-form-'+item.id+'" name="quantity" required></select></li>');
             }
             else {
                 inventoryElem.append(''+
                 '<li class="list-group-item">Size: '+inventory.size+'<br>Quantity: '+inventory.quantity+
-                '<input class"form-control" id="inventoryId-'+inventory.id+'" form="update-form" type="hidden" name="inventoryId" value="'+inventory.id+'"/>'+
-                '<select class="form-control dynamicFields" id="quantity-'+inventory.id+'" form="update-form" name="quantity" required></select></li>');
+                '<input class"form-control" id="inventoryId-'+inventory.id+'" form="update-form-'+item.id+'" type="hidden" name="inventoryId" value="'+inventory.id+'"/>'+
+                '<select class="form-control dynamicFields" id="quantity-'+inventory.id+'" form="update-form-'+item.id+'" name="quantity" required></select></li>');
             }  
             
             for (var i = 0; i <= inventory.quantity; i++){
@@ -134,10 +135,10 @@ StoreView.prototype.bindEvents = function (){
     var url = window.location.pathname;
     var id = url.split('/')[ url.split('/').indexOf('bands')+1];
 
-    pageElem.on('submit', '#update-form', function (e){
+    pageElem.on('click', '.btn-add-to-cart', function (e){
         e.preventDefault();
         e.stopPropagation();       
-        page.ctrl.updateCart(this)
+        page.ctrl.updateCart(this.form)
         .then(function (result) {
             window.location.reload();
         })

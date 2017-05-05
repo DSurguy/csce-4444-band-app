@@ -277,11 +277,17 @@ function updateCart(bandId, userId, itemId, quantities, inventoryIds, connection
 		
 		if (Array.isArray(inventoryIds)) {
 			for (var i = 0; i < inventoryIds.length; i++){
-				query += "REPLACE INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES ("+itemId+","+inventoryIds[i]+","+bandId+","+userId+","+quantities[i]+"); ";
+				query += ""+
+				"INSERT INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES "+
+				"("+itemId+","+inventoryIds[i]+","+bandId+","+userId+","+quantities[i]+") "+
+				"ON DUPLICATE KEY UPDATE QUANTITY = "+quantities[i]+";";
 			}
 		}
 		else{
-			query += "REPLACE INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES ("+itemId+","+inventoryIds+","+bandId+","+userId+","+quantities+")";
+			query += ""+
+			"INSERT INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES "+
+			"("+itemId+","+inventoryIds+","+bandId+","+userId+","+quantities+") "+
+			"ON DUPLICATE KEY UPDATE QUANTITY = "+quantities+";";
 		}
 		
         connection.query(query, function(err, results, fields) {
