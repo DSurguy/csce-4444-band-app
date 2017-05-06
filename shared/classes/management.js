@@ -5,6 +5,7 @@ function Management(json){
     this.bandName = json.bandName || '';
     this.description = json.description || '';
     this.members = json.members || [];
+    this.ownerName = json.store || '';
 }
 
 

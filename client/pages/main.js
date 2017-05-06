@@ -61,6 +61,9 @@ MainView.prototype.init = function (){
     $(page.elem).on('click', '.notifications', function (e){
         window.location = '/notifications';
     });
+    $(page.elem).on('click', '.store', function (e){
+        window.location = '/store';
+    });
     
     $(page.elem).find('.username').html(page.ctrl.user.username);
 };
