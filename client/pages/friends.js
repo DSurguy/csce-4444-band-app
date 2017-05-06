@@ -214,7 +214,7 @@ FriendsView.prototype.showFriendModal = function (friendId){
                         '<button type="button" class="btn btn-danger btnRejectModal mr-2" data-dismiss="modal">Reject</button>'+
                         '<button type="button" class="btn btn-default btnBlockModal" data-dismiss="modal">Block User</button>';
     }
-    else if (thisFriend.status === 'blocked') {
+    else if (thisFriend.status === 'blockedpw') {
         modalButtons = '<button type="button" class="btn btn-default btnUnblockModal" data-dismiss="modal">Unblock User</button>';
     }
     else if (thisFriend.status === 'none') {

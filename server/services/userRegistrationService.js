@@ -38,9 +38,11 @@ function checkUsername(data) {
             	reject(err);
             	return;
         	}
+        	
+        	console.log(results);
 
 	    	if (results.length > 0) {
-	    		resolve(false);
+	    		resolve(true);
 	    		return;
     		}	
 
@@ -60,9 +62,11 @@ function checkEmail(data) {
             	reject(err);
             	return;
         	}
+        	
+        	console.log(results);
 
 	    	if (results.length > 0) {
-	    		resolve(false);
+	    		resolve(true);
 	    		return;
     		}	
 
