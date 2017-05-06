@@ -319,6 +319,16 @@ h1, h2{
 #storePage .row {
     margin: 20px;
 }
+#storePage .cart-image-container{
+    width: 100px;
+    height: 100px;
+}
+#storePage .cart-item-container img{
+    position: relative;
+}
+#storePage th{
+    width: 200px;
+}
 #songsPage .song.search-hidden{
     display: none;
 }

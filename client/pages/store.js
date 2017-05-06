@@ -17,6 +17,7 @@ StorePage.prototype.constructor = StorePage;
 function StoreCtrl(page){
     PageCtrl.call(this, page);
     this.items = [];
+    this.cartItems = [];
     this.bandId = window.location.pathname.split('/').reduce(function (val, chunk, index, arr){
         return val || (chunk == 'bands' ? arr[index+1] : undefined);
     }, undefined);
@@ -27,10 +28,18 @@ StoreCtrl.prototype.init = function (){
     var defer = $.Deferred(),
         ctrl = this;
 
-    $.ajax('/api/bands/'+ctrl.bandId+'/inventory', {
+    $.ajax({
+        url: '/api/bands/'+ctrl.bandId+'/inventory', 
         method: 'GET'
-    }).then(function (data){
-        ctrl.items = data;
+    }).then(function (items){
+        ctrl.items = items;
+        
+        return $.ajax({
+            url: '/api/bands/'+ctrl.bandId+'/getcartitems', 
+            method: 'GET'
+        })
+    }).then(function (cartItems){
+        ctrl.cartItems = cartItems;
         defer.resolve();
     }).catch(defer.reject);
     
@@ -89,7 +98,7 @@ StoreView.prototype.init = function (){
                     '<img class="card-img-top img-fluid" src="/media/'+item.imagePath+'" alt="Card image cap">'+
                     '<div class="card-block img-block">'+
                         '<h4 class="card-title">'+item.name+'</h4>'+
-                        '<p class="card-text">'+item.type+'<br>Color: '+item.color+'</p>'+
+                        '<p class="card-text">'+item.type+'<br>Color: '+item.color+'<br>Price: $'+item.price+'</p>'+
                     '</div>'+
                     '<ul class="list-group list-group-flush" name="inventory-list-'+item.id+'"></ul>'+
                     '<form id="update-form-'+item.id+'">'+
@@ -144,44 +153,51 @@ StoreView.prototype.bindEvents = function (){
         })
         .fail(console.error);
     });
+    
+    pageElem.on('click', '.btn-view-cart', function (e){
+        page.view.showCartModal();
+    })
 };
 
-StoreView.prototype.showAddToCartModal = function (itemId){
-    var thisItem = this.page.ctrl.items.filter(function (item){
-        return item.id == itemId;
-    })[0]
-
-    $('.item-quantities').remove();
+StoreView.prototype.showCartModal = function (){
+    
+   $('.cart-list').remove();
 
     var that = this;
-    var storeFormFields = '';
-    var itemModal = $(this.page.elem).find('.item-modal');
+    var inventoryFields = '';
+    var cartModal = $(this.page.elem).find('.cart-modal');
+    var cartItems = this.page.ctrl.cartItems;
+    var cartTotal = 0;
     
-    $(this.page.elem).find('.modal-body').append('<div class="item-quantities"></div>');
-
-    thisItem.inventory.forEach(function (inventory){   
-        var quantities = '';
- /*       if (thisItem.type === 'Shirt' || thisItem.type === 'Sticker') {
-            storeFormFields = '<label class="mr-sm-2" for="quantity-'+inventory.id+'">'+inventory.size+'</label>';
-        }
-
-        // All types have a quantity
-        storeFormFields += ''+
-        '<select class="form-control dynamicFields" id="quantity-'+inventory.id+'" form="update-form" name="quantities" required></select>'+
-        '<input class"form-control" id="inventoryId-'+inventory.id+'" form="update-form" type="hidden" name="inventoryId"/>';
-
-        var storeFormFieldsDiv = $(that.page.elem).find('.item-quantities');
-        storeFormFieldsDiv.append(storeFormFields);*/
+  //  $(this.page.elem).find('.cart-table').append('<div class="cart-list"></div>');
+    var lastItem = $(that.page.elem).find('.cart-table tr:last');
+    cartItems.forEach(function (item){
+        lastItem.after(''+
+        '<tr>'+
+            '<td>'+item.type+': '+item.name+
+                '<div class="cart-image-container mb-2">'+
+                    '<img class="img-fluid cart-image" src="/media/'+item.imagePath+'">'+
+                '</div>'+
+            '</td>'+
+            '<td>'+
+                '<select class="form-control dynamicFields" form="cart-form" name="quantity" required>'+
+                '<option value="0">0</option>'+
+                '<option value="1">1</option>'+
+                '<option value="2">2</option>'+
+                '<option value="3">3</option>'+
+                '</select>'+
+            '</td>'+
+            '<td class="text-right">$'+item.price+'</td>'+
+        '</tr>');
         
-        for (var i = 0; i <= inventory.quantity; i++){
-            quantities += '<option value="'+i+'">'+i+'</option>'
-        }
-        
-        $('#quantity-'+inventory.id).append(quantities);
-        $('#inventoryId-'+inventory.id)[0].value = inventory.id;
-    });  
+        cartTotal += item.price;
+    })
+    
+    lastItem = $(that.page.elem).find('.cart-table tr:last');
+    
+    lastItem.after('<tr><td /><td /><td class="text-right"><strong>Total: </strong>$'+cartTotal+'</td>');
 
-    itemModal.find('.modal').attr('data-item-id',thisItem.id);
-    itemModal.find('.modal-title').html(thisItem.name);
-    itemModal.find('.modal').modal();
+    $(this.page.elem).find('.cart-total').html('$'+cartTotal)
+
+    cartModal.find('.modal').modal();
 };

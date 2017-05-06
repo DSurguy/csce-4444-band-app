@@ -570,6 +570,21 @@ app.delete('/api/bands/:bandId/inventory/:itemId', checkSession, function (req, 
     });
 });
 
+app.get('/api/bands/:bandId/getcartitems', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.getCartItems(req.params.bandId, req.session.userId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
 app.post('/api/bands/:bandId/updatecart', checkSession, function (req, res) {
     if (req.params == undefined) {
         res.sendStatus(400);

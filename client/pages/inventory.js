@@ -88,7 +88,7 @@ InventoryView.prototype.init = function (){
                     '<img class="card-img-top img-fluid" src="/media/'+item.imagePath+'" alt="Card image cap">'+
                     '<div class="card-block img-block">'+
                         '<h4 class="card-title">'+item.name+'</h4>'+
-                        '<p class="card-text">'+item.type+'<br>Color: '+item.color+'</p>'+
+                        '<p class="card-text">'+item.type+'<br>Color: '+item.color+'<br>Price: $'+item.price+'</p>'+
                     '</div>'+
                     '<ul class="list-group list-group-flush" name="inventory-list-'+item.id+'"></ul>'+
                     '<div class="card-block">'+

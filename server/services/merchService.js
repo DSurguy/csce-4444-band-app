@@ -1,6 +1,7 @@
 var fs = require('fs');
 var Item = require('../../shared/classes/item.js');
 var Inventory = require('../../shared/classes/inventory.js');
+var Cart = require('../../shared/classes/cart.js');
 var path = require('path');
 
 function uploadImage(bandId, imageFile, imageFilesRoot) {
@@ -237,7 +238,6 @@ function updateItemAndInventory(userId, bandId, itemId, name, description, price
 
                 connection.query(query, function(err) {
 	                if (err) {
-	                	console.log(query)
 	                    reject(err);
 	                    return connection.rollback(function() {});
 	                }
@@ -261,12 +261,67 @@ function deleteItemAndInventory(bandId, itemId, connection) {
 
         connection.query(query, function(err, results, fields) {
             if (err) {
-            	console.log(query);
                 reject(err);
                 return;
             }
 
             resolve(true);
+        });
+	});
+}
+
+function getCartItems(bandId, userId, connection) {
+	return new Promise(function (resolve, reject) {
+		var query = ""+
+		"SELECT DISTINCT I.* FROM CART C "+
+		"JOIN ITEM I ON C.ITEMID = I.ITEMID AND C.BANDID = I.BANDID "+
+		"WHERE C.USERID = "+userId+" AND C.BANDID = "+bandId+" AND QUANTITY <> 0";
+		
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            
+            var items = results.map(function (resultRow) {
+                return new Item({id : resultRow.ItemID, 
+                    name : resultRow.ItemName,
+                    type : resultRow.Type,
+                    color : resultRow.Color,
+                    description : resultRow.Description,
+                    imagePath : resultRow.ImageFilePath,
+                    price : resultRow.Price
+            	});
+            });
+
+    		var count = 0;
+        	items.forEach(function(item) {
+	    		var query = ""+
+	        	"SELECT I.INVENTORYID, I.SIZE, C.QUANTITY FROM INVENTORY I "+
+	        	"JOIN CART C ON I.ITEMID = C.ITEMID AND I.INVENTORYID = C.INVENTORYID "+
+	        	"WHERE I.ITEMID = "+item.id+" AND C.QUANTITY <> 0";
+	
+		        connection.query(query, function(err, results, fields) {
+		            if (err) {
+		                reject(err);
+		                return;
+		            }
+	
+		            item.inventory = results.map(function (resultRow) {
+		                return new Inventory({id : resultRow.INVENTORYID,
+		                	itemId : item.id,
+		                	size : resultRow.SIZE,
+		                	quantity : resultRow.QUANTITY
+		                });
+		            });
+	
+		            count++;
+	
+		            if (count === items.length){
+		            	resolve(items);
+		            }
+		        });
+        	});
         });
 	});
 }
@@ -292,7 +347,6 @@ function updateCart(bandId, userId, itemId, quantities, inventoryIds, connection
 		
         connection.query(query, function(err, results, fields) {
             if (err) {
-            	console.log(query);
                 reject(err);
                 return;
             }
@@ -311,5 +365,6 @@ module.exports = {
     getItems,
     updateItemAndInventory,
     deleteItemAndInventory,
-    updateCart
+    updateCart,
+    getCartItems
 }
