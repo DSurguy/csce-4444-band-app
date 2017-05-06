@@ -53,7 +53,6 @@ NotificationsCtrl.prototype.getNotifications = function (){
 };
 
 NotificationsCtrl.prototype.deleteNotification = function (){
-    
     return $.Deferred().resolve().promise();
 };
 
