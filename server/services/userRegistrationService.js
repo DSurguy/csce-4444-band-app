@@ -42,7 +42,7 @@ function checkUsername(data) {
         	console.log(results);
 
 	    	if (results.length > 0) {
-	    		resolve(true);
+	    		resolve(true);//was false
 	    		return;
     		}	
 
@@ -66,7 +66,7 @@ function checkEmail(data) {
         	console.log(results);
 
 	    	if (results.length > 0) {
-	    		resolve(true);
+	    		resolve(true);//was false
 	    		return;
     		}	
 
