@@ -1,4 +1,4 @@
-var User = require('../../shared/classes/user.js');
+var {User} = require('../../shared/classes/user.js');
 
 var UserService = {
     getUser: function (userId, connection){

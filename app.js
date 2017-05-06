@@ -13,6 +13,7 @@ var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
 var songService = require('./server/services/songService.js');
 var setListService = require('./server/services/setListService.js');
+var eventService = require('./server/services/eventService.js');
 var userService = require('./server/services/userService.js');
 var Song = require('./shared/classes/song.js');
 var SetList = require('./shared/classes/setList.js');
@@ -20,6 +21,7 @@ var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var path = require('path');
 var leftPad = require('./shared/utils/leftPad.js');
+var {Member} = require('./shared/classes/user.js');
 
 var imageFilesRoot= path.resolve('static/media');
 
@@ -149,6 +151,10 @@ app.get('/bands/:bandId/setlists/:id', checkSession, function (req, res){
     res.render('editSetList');
 });
 
+app.get('/bands/:bandId/events', checkSession, function (req, res){
+    res.render('events');
+});
+
 
 app.post('/api/login', function (req, res){
     if (!req.body) {
@@ -244,6 +250,30 @@ app.get('/api/bands/:bandId', checkSession, function (req, res) {
     })
     .catch(function (e) {
         res.status(500).send({error:e});
+    });
+});
+
+app.get('/api/bands/:bandId/members', checkSession, function(req, res, next){
+    //check to make sure this user is already a member of the band, if they aren't they can't get members.
+    bandService.getBandMemberRole(parseInt(req.session.userId,10), parseInt(req.params.bandId, 10), connection)
+    .then(function (data){
+        if( data.role != Member.ROLE.NONE ){
+            next();
+        }
+        else{
+            res.status(401).send();
+        }
+    })
+    .catch(function (e){
+        res.status(500).send({error:e});
+    });
+}, function (req, res){
+    bandService.getBandMembers(parseInt(req.params.bandId, 10), connection)
+    .then(function (members){
+        res.status(200).send(members);
+    })
+    .catch(function (e){
+        res.status(500).send({error: e});
     });
 });
 
@@ -730,6 +760,55 @@ app.get('/api/user', checkSession, function (req, res){
         res.status(500).send({error: err});
     });
 });
+
+/**
+ * EVENTS
+ **/
+ 
+/** Get Events **/
+app.get('/api/bands/:bandId/events', checkSession, function (req, res){
+    eventService.getEvents(parseInt(req.params.bandId, 10), connection)
+    .then(function (events){
+        res.status(200).send(events);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
+/** Create Event **/
+app.post('/api/bands/:bandId/events', checkSession, function (req, res){
+    eventService.createEvent(parseInt(req.params.bandId, 10), {}, connection)
+    .then(function (newEvent){
+        res.status(201).send(newEvent);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
+/** Edit Event **/
+app.put('/api/bands/:bandId/events/:eventId', checkSession, function (req, res){
+    eventService.editEvent(parseInt(req.params.bandId, 10), {}, connection)
+    .then(function (updatedEvent){
+        res.status(200).send(updatedEvent);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
+/** Delete Event **/
+app.delete('/api/bands/:bandId/events/:eventId', checkSession, function (req, res){
+    eventService.deleteEvent(parseInt(req.params.bandId, 10), parseInt(req.params.eventId, 10), connection)
+    .then(function (){
+        res.status(200).send();
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
 
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');
