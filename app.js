@@ -22,6 +22,8 @@ var MySQLStore = require('express-mysql-session')(session);
 var path = require('path');
 var leftPad = require('./shared/utils/leftPad.js');
 var {Member} = require('./shared/classes/user.js');
+var Time = require('./shared/utils/time.js');
+var Event = require('./shared/classes/event.js');
 
 var imageFilesRoot= path.resolve('static/media');
 
@@ -778,12 +780,31 @@ app.get('/api/bands/:bandId/events', checkSession, function (req, res){
 
 /** Create Event **/
 app.post('/api/bands/:bandId/events', checkSession, function (req, res){
-    eventService.createEvent(parseInt(req.params.bandId, 10), {}, connection)
+    var newEvent = new Event({
+        id: undefined,
+        bandId: parseInt(req.params.bandId, 10),
+        eventDate: req.body['event-date'],
+        eventTime: Time.fromAMPM(req.body['event-time']),
+        loadInTime: Time.fromAMPM(req.body['load-in-time']||'00:00:00'),
+        location: req.body['location'],
+        venue: req.body['venue'],
+        isShow: req.body['is-show'] == 'on' ? true : false,
+        description: req.body['description']
+    });
+
+    var keys = Object.keys(req.body);
+    for( var i=0; i<keys.length; i++ ){
+        if( keys[i].indexOf('member-') == 0 ){
+            newEvent.members.push(parseInt(keys[i].substr(7),10));
+        }
+    }
+    
+    eventService.createEvent(parseInt(req.params.bandId, 10), newEvent, connection)
     .then(function (newEvent){
         res.status(201).send(newEvent);
     })
     .catch(function (err){
-        res.status(500).send({error: err});
+        res.status(500).send({error: err, trace: err.stack});
     });
 });
 

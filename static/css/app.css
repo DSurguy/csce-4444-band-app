@@ -324,3 +324,6 @@ h1, h2{
     display: none;
 }
 
+#eventsPage .modal .show-dependent.hidden{
+    display: none;
+}

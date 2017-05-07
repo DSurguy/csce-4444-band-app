@@ -61,7 +61,7 @@ EventsCtrl.prototype.saveEvent = function (form){
     
     var modifiedForm = $.clone(form);
     //remove the unchecked members from the form before we serialize
-    $(modifiedForm).find('input[type=checkbox]:not(:checked)').remove();
+    $(modifiedForm).find('.member-check-label input:not(:checked)').remove();
     //serialize
     var formData = new FormData(modifiedForm);
     
@@ -265,53 +265,64 @@ EventsView.prototype.bindEvents = function (){
         //update the song's checked status
         view.eventMembers[currentIndex].checked = isChecked;
         
-        var movedMember = view.eventMembers.splice(currentIndex,1)[0];
-        if( isChecked ){
-            //item became checked
-            for( var i=0; i<view.eventMembers.length; i++ ){
-                if( view.eventMembers[i].name.toLowerCase() > movedMember.name.toLowerCase() || !view.eventMembers[i].checked ){
-                    view.eventMembers.splice(i,0,movedMember);
-                    newIndex = i;
-                    break;
+        if( view.eventMembers.length > 1 ){
+            var movedMember = view.eventMembers.splice(currentIndex,1)[0];
+            if( isChecked ){
+                //item became checked
+                for( var i=0; i<view.eventMembers.length; i++ ){
+                    if( view.eventMembers[i].name.toLowerCase() > movedMember.name.toLowerCase() || !view.eventMembers[i].checked ){
+                        view.eventMembers.splice(i,0,movedMember);
+                        newIndex = i;
+                        break;
+                    }
                 }
-            }
-            //now move the actual element and fix the element numbers
-            var existingElem = memberElem.siblings('[data-index='+newIndex+']');
-            existingElem.before(memberElem);
-        }
-        else{
-            //item became unchecked
-            for( var i=0; i<view.eventMembers.length; i++ ){
-                if( !view.eventMembers[i].checked && view.eventMembers[i].name.toLowerCase() > movedMember.name.toLowerCase() ){
-                    view.eventMembers.splice(i,0,movedMember);
-                    newIndex = i;
-                    break;
-                }
-            }
-            if( newIndex === undefined ){
-                //this sorts to the end of the list
-                newIndex = view.eventMembers.length;
-                view.eventMembers.push(movedMember);
                 //now move the actual element and fix the element numbers
-                var existingElem = memberElem.siblings('[data-index='+(newIndex)+']');
-                existingElem.after(memberElem);
-            }
-            else{
-                //now move the actual element and fix the element numbers
-                var existingElem = memberElem.siblings('[data-index='+(newIndex+1)+']');
+                var existingElem = memberElem.siblings('[data-index='+newIndex+']');
                 existingElem.before(memberElem);
             }
-        }
-        var allMemberElems = memberElem.parent().find('.member-check-label');
-        if( newIndex > currentIndex ){
-            for( var i=currentIndex; i<=newIndex; i++ ){
-                $(allMemberElems[i]).attr('data-index',i);
+            else{
+                //item became unchecked
+                for( var i=0; i<view.eventMembers.length; i++ ){
+                    if( !view.eventMembers[i].checked && view.eventMembers[i].name.toLowerCase() > movedMember.name.toLowerCase() ){
+                        view.eventMembers.splice(i,0,movedMember);
+                        newIndex = i;
+                        break;
+                    }
+                }
+                if( newIndex === undefined ){
+                    //this sorts to the end of the list
+                    newIndex = view.eventMembers.length;
+                    view.eventMembers.push(movedMember);
+                    //now move the actual element and fix the element numbers
+                    var existingElem = memberElem.siblings('[data-index='+(newIndex)+']');
+                    existingElem.after(memberElem);
+                }
+                else{
+                    //now move the actual element and fix the element numbers
+                    var existingElem = memberElem.siblings('[data-index='+(newIndex+1)+']');
+                    existingElem.before(memberElem);
+                }
             }
+            var allMemberElems = memberElem.parent().find('.member-check-label');
+            if( newIndex > currentIndex ){
+                for( var i=currentIndex; i<=newIndex; i++ ){
+                    $(allMemberElems[i]).attr('data-index',i);
+                }
+            }
+            else{
+                for( var i=newIndex; i<=currentIndex; i++ ){
+                    $(allMemberElems[i]).attr('data-index',i);
+                }
+            }
+        }
+    });
+    
+    pageElem.on('change', '.modal [name=is-show]', function (e){
+        if( this.checked ){
+            $(this).parents('.modal').find('.show-dependent').removeClass('hidden');
         }
         else{
-            for( var i=newIndex; i<=currentIndex; i++ ){
-                $(allMemberElems[i]).attr('data-index',i);
-            }
+            $(this).parents('.modal').find('.show-dependent').addClass('hidden');
         }
     });
 };
@@ -325,6 +336,19 @@ EventsView.prototype.showEventModal = function (event){
         eventModal.find('[name=event-id]').val(event.id);
         eventModal.find('[name=name]').val(event.name);
         eventModal.find('[name=description]').val(event.description);
+        eventModal.find('[name=location]').val(event.location);
+        eventModal.find('[name=event-date]').val(event.date);
+        eventModal.find('[name=event-time]').val(event.time);
+        eventModal.find('[name=load-in-time]').val(event.loadInTime);
+        eventModal.find('[name=venue]').val(event.venue);
+        if( event.isShow ){
+            eventModal.find('.show-dependent').removeClass('hidden');
+            eventModal.find('[name=is-show]').attr('checked','checked');
+        }
+        else{
+            eventModal.find('.show-dependent').addClass('hidden');
+            eventModal.find('[name=is-show]').removeAttr('checked');
+        }
         //TODO: Check items
         var checkedMembers = event.members.reduce(function (obj, member){
             obj[member.id] = true;
@@ -360,6 +384,13 @@ EventsView.prototype.showEventModal = function (event){
         eventModal.find('[name=event-id]').val('');
         eventModal.find('[name=name]').val('');
         eventModal.find('[name=description]').val('');
+        eventModal.find('[name=location]').val('');
+        eventModal.find('[name=event-date]').val('');
+        eventModal.find('[name=event-time]').val('');
+        eventModal.find('[name=is-show]').removeAttr('checked');
+        eventModal.find('[name=load-in-time]').val('');
+        eventModal.find('[name=venue]').val('');
+        eventModal.find('.show-dependent').addClass('hidden');
         view.eventMembers = $.extend([], view.page.ctrl.members).sort(function (a,b){
             if( a.checked && !b.checked ){
                 return -1;
@@ -381,15 +412,15 @@ EventsView.prototype.showEventModal = function (event){
         });
     }
     
-    var membersElem = eventModal.find('.songs').detach().empty();
+    var membersElem = eventModal.find('.members').detach().empty();
     view.eventMembers.forEach(function (member, index){
         membersElem.append(''+
         '<label class="form-check-label member-check-label" data-index="'+index+'">'+
-            '<input name="member-'+member.id+'" class="form-check-input" type="checkbox" value="" tabindex="-1" '+(member.checked?'checked':'')+'>'+
-            member.name+
+            '<input name="member-'+member.id+'" class="form-check-input" type="checkbox" value="" tabindex="-1" '+(member.checked?'checked':'')+'> '+
+            '('+member.username+') '+member.firstName+' '+member.lastName+
         '</label>');
     });
-    eventModal.find('.songs-parent').append(membersElem);
+    eventModal.find('.members-parent').append(membersElem);
     
     eventModal.find('.modal').modal();
 };
