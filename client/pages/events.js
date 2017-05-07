@@ -115,13 +115,13 @@ EventsView.prototype.init = function (){
 EventsView.prototype.render = function (){
     var view = this;
     //render the songs to the song modal
-    var eventsElem = $(view.page.elem).find('.events');
+    var eventsElem = $(view.page.elem).find('.event-list');
     eventsElem.empty();
     view.page.ctrl.events.forEach(function (event, index){
         eventsElem.append(`
         <a href="javascript://" class="event list-group-item list-group-item-action" data-event-index="${index}">
             <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">${event.name}</h5>
+                <h5 class="mb-1">${event.title}</h5>
             </div>
         </a>`);
     });
@@ -334,7 +334,7 @@ EventsView.prototype.showEventModal = function (event){
     //reorder the songs according to the new setlist order
     if( event ){
         eventModal.find('[name=event-id]').val(event.id);
-        eventModal.find('[name=name]').val(event.name);
+        eventModal.find('[name=title]').val(event.title);
         eventModal.find('[name=description]').val(event.description);
         eventModal.find('[name=location]').val(event.location);
         eventModal.find('[name=event-date]').val(event.date);
@@ -382,7 +382,7 @@ EventsView.prototype.showEventModal = function (event){
     }
     else{
         eventModal.find('[name=event-id]').val('');
-        eventModal.find('[name=name]').val('');
+        eventModal.find('[name=title]').val('');
         eventModal.find('[name=description]').val('');
         eventModal.find('[name=location]').val('');
         eventModal.find('[name=event-date]').val('');

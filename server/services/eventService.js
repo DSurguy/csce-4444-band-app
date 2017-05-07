@@ -1,14 +1,39 @@
-var Event = require('../../shared/classes/event.js'),
-    {Member} = require('../../shared/classes/user.js');
+var Event = require('../../shared/classes/event.js');
 
 var EventService = {
     getEvents: function (bandId, connection){
-        return Promise.resolve([]);
+        return new Promise(function (resolve, reject){
+            var query = `SELECT * FROM EVENT WHERE BandID = ${parseInt(bandId, 10)}`;
+            connection.query(query, function (err, results){
+                if( err ){
+                    reject(err); return;
+                }
+                
+                var eventHash = results.reduce(function (hash, row){
+                    hash[row.EventID] = new Event(row);
+                    return hash;
+                },{});
+                
+                getEventMembers(Object.keys(eventHash), connection)
+                .then(function (members){
+                    members.forEach(function (member){
+                        eventHash[member.eventId].members.push(member.userId);
+                    });
+                    resolve(Object.keys(eventHash).map(function (key){
+                        return eventHash[key];
+                    }));
+                })
+                .catch(function (err){
+                    reject(err);
+                });
+            });
+        });
     },
     createEvent: function (bandId, newEvent, connection){
         return new Promise(function (resolve, reject){
             var query = `INSERT INTO EVENT (BandID, EventDate, EventTime, LoadInTime, Location, Venue, Description, IsShow) 
-                VALUES (${parseInt(bandId, 10)}, 
+                VALUES (${parseInt(bandId, 10)},
+                ${connection.escape(newEvent.title)},
                 ${connection.escape(newEvent.eventDate)}, 
                 ${connection.escape(newEvent.eventTime)}, 
                 ${connection.escape(newEvent.loadInTime)}, 
@@ -33,10 +58,10 @@ var EventService = {
                     
                     updateMemberLinks(newEvent, connection)
                     .then(function (){
-                        return getEventMembers(newEvent.id, connection);
+                        return getEventMembers([newEvent.id], connection);
                     })
                     .then(function (members){
-                        newEvent.members = members;
+                        newEvent.members = members.map(function (o){return o.userId;});
                         connection.commit(function (err){
                             if (err) {
                                 return connection.rollback(function() {
@@ -55,23 +80,73 @@ var EventService = {
             });
         });
     },
-    editEvent: function (bandId, event, connection){
-        return Promise.resolve({});
+    editEvent: function (bandId, newEvent, connection){
+        return new Promise(function (resolve, reject){
+            var query = `UPDATE EVENT SET
+                BandID = ${parseInt(bandId, 10)}, 
+                Title = ${connection.escape(newEvent.title)},
+                EventDate = ${connection.escape(newEvent.eventDate)}, 
+                EventTime = ${connection.escape(newEvent.eventTime)}, 
+                LoadInTime = ${connection.escape(newEvent.loadInTime)}, 
+                Location = ${connection.escape(newEvent.location)}, 
+                Venue = ${connection.escape(newEvent.venue)}, 
+                Description = ${connection.escape(newEvent.description)}, 
+                IsShow = ${newEvent.isShow?1:0}
+                WHERE EventID = ${parseInt(newEvent.id,10)}`;
+            
+            connection.beginTransaction(function(err) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                connection.query(query, function (err, results){
+                    if (err) {
+                        return connection.rollback(function() {
+                            reject(err);
+                        });
+                    }
+                    
+                    updateMemberLinks(newEvent, connection)
+                    .then(function (){
+                        return getEventMembers([newEvent.id], connection);
+                    })
+                    .then(function (members){
+                        newEvent.members = members.map(function (o){return o.userId;});
+                        connection.commit(function (err){
+                            if (err) {
+                                return connection.rollback(function() {
+                                    reject(err);
+                                });
+                            }
+                            resolve(newEvent);
+                        });
+                    })
+                    .catch(function (err){
+                        connection.rollback(function() {
+                            reject(err);
+                        });
+                    });
+                });
+            });
+        });
     },
     deleteEvent: function (bandId, eventId, connection){
         return Promise.resolve();
     }
 };
 
-function getEventMembers(eventId, connection){
+function getEventMembers(eventIds, connection){
     return new Promise(function (resolve, reject){
-        var query = `SELECT MemberID FROM EVENT_MEMBERS WHERE EventID = ${eventId}`;
+        var query = `SELECT EM.EventID, U.UserID FROM EVENT_MEMBERS EM INNER JOIN USER U ON EM.MemberID = U.UserID WHERE EM.EventID IN (${eventIds.join(',')}) ORDER BY EventID ASC, UserID ASC`;
         connection.query(query, function (err, results){
             if( err ){
                 reject(err); return;
             }
             resolve(results.map(function (row){
-                return row.UserID;
+                return {
+                    eventId: row.EventID,
+                    userId: row.UserID
+                };
             }));
         });
     });
