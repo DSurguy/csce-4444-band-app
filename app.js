@@ -496,9 +496,6 @@ app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
             return Promise.resolve(false);
         }
     })
-/*    .then(function (result) {
-        return result == false ? false : merchService.getImages(result);
-    })*/
     .then(function (result) {
         return result == false ? false : merchService.getInventory(result, connection);
     })
