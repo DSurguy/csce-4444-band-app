@@ -318,7 +318,7 @@ EventsView.prototype.bindEvents = function (){
         
         var eventElems = pageElem.find('.event');
         view.page.ctrl.events.forEach(function (event, index){
-            if( event.name.indexOf(search) !== -1 ){
+            if( event.title.indexOf(search) !== -1 ){
                 $(eventElems[index]).removeClass('search-hidden');
             }
             else{
