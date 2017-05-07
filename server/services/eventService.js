@@ -1,4 +1,5 @@
-var Event = require('../../shared/classes/event.js');
+var Event = require('../../shared/classes/event.js'),
+    Notification = require('../../shared/classes/notification.js');
 
 var EventService = {
     getEvents: function (bandId, connection){
@@ -31,7 +32,7 @@ var EventService = {
     },
     createEvent: function (bandId, newEvent, connection){
         return new Promise(function (resolve, reject){
-            var query = `INSERT INTO EVENT (BandID, EventDate, EventTime, LoadInTime, Location, Venue, Description, IsShow) 
+            var query = `INSERT INTO EVENT (BandID, Title, EventDate, EventTime, LoadInTime, Location, Venue, Description, IsShow) 
                 VALUES (${parseInt(bandId, 10)},
                 ${connection.escape(newEvent.title)},
                 ${connection.escape(newEvent.eventDate)}, 
@@ -159,6 +160,56 @@ var EventService = {
                                 });
                             }
                             resolve();
+                        });
+                    });
+                });
+            });
+        });
+    },
+    notifyMembers: function (bandId, eventId, message, connection){
+        return new Promise(function (resolve, reject){
+            connection.beginTransaction(function (err){
+                if( err ){
+                    reject(err); return;
+                }
+                var query = `SELECT Title FROM EVENT WHERE EventID = ${parseInt(eventId,10)}`;
+                connection.query(query, function (err, result){
+                    if( err ){
+                        return connection.rollback(function() {
+                            reject(err);
+                        });
+                    }
+                    var title = result[0].Title;
+                    query = `SELECT MemberID FROM EVENT_MEMBERS WHERE EventID = ${parseInt(eventId,10)}`;
+                    connection.query(query, function (err, result){
+                        if( err ){
+                            return connection.rollback(function() {
+                                reject(err);
+                            });
+                        }
+                        query = result.map(function (row){
+                            return `INSERT INTO NOTIFICATION (UserId, Type, Message, Link, Unread) VALUES (
+                                ${parseInt(row.MemberID,10)},
+                                ${Notification.TYPE.EVENT_REMINDER},
+                                ${connection.escape('Event Notification for '+title.substr(0,100)+': '+message.toString())},
+                                ${connection.escape('/bands/'+parseInt(bandId,10)+'/events')},
+                                1
+                            ); `;
+                        }).join('');
+                        connection.query(query, function (err){
+                            if( err ){
+                                return connection.rollback(function() {
+                                    reject(err);
+                                });
+                            }
+                            connection.commit(function (err){
+                                if (err) {
+                                    return connection.rollback(function() {
+                                        reject(err);
+                                    });
+                                }
+                                resolve();
+                            });
                         });
                     });
                 });

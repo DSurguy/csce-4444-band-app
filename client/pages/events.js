@@ -100,6 +100,24 @@ EventsCtrl.prototype.deleteEvent = function (eventId){
     
     return defer.promise();
 };
+EventsCtrl.prototype.notifyMembers = function (form){
+    var defer = $.Deferred();
+    
+    var formData = new FormData(form);
+    
+    $.ajax({
+        url: '/api/bands/'+this.bandId+'/events/'+$(form).find('[name=event-id]').val()+'/notify',
+        type: 'POST',
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false
+    })
+    .then(defer.resolve)
+    .catch(defer.reject);
+    
+    return defer.promise();
+};
 
 function EventsView(page){
     PageView.call(this, page);
@@ -135,7 +153,7 @@ EventsView.prototype.bindEvents = function (){
         view.showEventModal();
     });
     
-    pageElem.on('click', '.modal .delete-event', function (e){
+    pageElem.on('click', '.event-modal .delete-event', function (e){
         if( view.page.ctrl.saving ){
             return false;
         }
@@ -143,7 +161,7 @@ EventsView.prototype.bindEvents = function (){
             view.page.ctrl.saving = true;
         }
         
-        var modal = $(this).parents('.modal');
+        var modal = $(this).parents('.event-modal');
         modal.find('.delete-event').html('<div class="fa fa-spinner animation-spin"></div>');
         
         var eventId = modal.find('[name=event-id]').val(),
@@ -179,7 +197,7 @@ EventsView.prototype.bindEvents = function (){
               +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
                 +'<span aria-hidden="true">&times;</span>'
               +'</button>'
-              +'<strong>Unable to delete set list!</strong>'
+              +'<strong>Unable to delete event!</strong>'
             +'</div>');
             console.error(err);
             view.page.ctrl.saving = false;
@@ -187,10 +205,10 @@ EventsView.prototype.bindEvents = function (){
         });
     });
     
-    pageElem.on('click', '.modal .save-event', function (e){
-        $(this).parents('.modal').find('form').submit();
+    pageElem.on('click', '.event-modal .save-event', function (e){
+        $(this).parents('.event-modal').find('form').submit();
     });
-    pageElem.on('submit', '.modal form', function (e){
+    pageElem.on('submit', '.event-modal form', function (e){
         e.preventDefault();
         e.stopPropagation();
         if( view.page.ctrl.saving ){
@@ -201,7 +219,7 @@ EventsView.prototype.bindEvents = function (){
         }
         
         var form = $(this);
-        form.parents('.modal').find('.save-event').html('<div class="fa fa-spinner animation-spin"></div>');
+        form.parents('.event-modal').find('.save-event').html('<div class="fa fa-spinner animation-spin"></div>');
         view.page.ctrl.saveEvent(this)
         .then(function (newEvent){
             
@@ -219,9 +237,9 @@ EventsView.prototype.bindEvents = function (){
                 });
             }
             view.render();
-            form.parents('.modal').modal('hide');
-            form.parents('.modal').find('.save-event').html('Save Event');
-            form.parents('.modal').find('.alert').remove();
+            form.parents('.event-modal').modal('hide');
+            form.parents('.event-modal').find('.save-event').html('Save Event');
+            form.parents('.event-modal').find('.alert').remove();
             view.page.ctrl.saving = false;
         })
         .catch(function (err){
@@ -230,12 +248,65 @@ EventsView.prototype.bindEvents = function (){
               +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
                 +'<span aria-hidden="true">&times;</span>'
               +'</button>'
-              +'<strong>Unable to save set list!</strong>'
+              +'<strong>Unable to save event!</strong>'
             +'</div>');
             console.error(err);
             view.page.ctrl.saving = false;
-            form.parents('.modal').find('.save-event').html('Save Event');
+            form.parents('.event-modal').find('.save-event').html('Save Event');
         });
+    });
+    
+    pageElem.on('click', '.event-modal .notify-members', function (e){
+        view.showNotifyModal($(this).parents('.modal').find('[name=event-id]').val());
+    });
+    
+    pageElem.on('click', '.notify-modal .send-message', function (e){
+        $(this).parents('.notify-modal').find('form').submit();
+    });
+    pageElem.on('submit', '.notify-modal form', function (e){
+        e.preventDefault();
+        e.stopPropagation();
+        if( view.page.ctrl.saving ){
+            return false;
+        }
+        else{
+            view.page.ctrl.saving = true;
+        }
+        
+        var form = $(this);
+        form.parents('.notify-modal').find('.send-message').html('<div class="fa fa-spinner animation-spin"></div>');
+        view.page.ctrl.notifyMembers(this)
+        .then(function (){
+            form.prepend('<div class="alert alert-success alert-dismissible fade show" role="alert">'
+              +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                +'<span aria-hidden="true">&times;</span>'
+              +'</button>'
+              +'<strong>Message Sent!</strong>'
+            +'</div>');
+            form.parents('.notify-modal').find('.send-message').html('<div class="fa fa-check"></div>');
+            setTimeout(function (){
+                form.parents('.notify-modal .modal').modal('hide');
+                form.parents('.notify-modal').find('.send-message').html('Send Message');
+                form.parents('.notify-modal').find('.alert').remove();
+                view.page.ctrl.saving = false;
+            }, 2000);
+        })
+        .catch(function (err){
+            //display login failure
+            form.prepend('<div class="alert alert-danger alert-dismissible fade show" role="alert">'
+              +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                +'<span aria-hidden="true">&times;</span>'
+              +'</button>'
+              +'<strong>Unable to send message!</strong>'
+            +'</div>');
+            console.error(err);
+            view.page.ctrl.saving = false;
+            form.parents('.notify-modal').find('.send-message').html('Send Message');
+        });
+    });
+    
+    pageElem.on('hide.bs.modal', '.notify-modal .modal', function (e){
+        pageElem.find('.event-modal .modal').css('display','block');
     });
     
     pageElem.on('click', '.event', function (e){
@@ -256,7 +327,7 @@ EventsView.prototype.bindEvents = function (){
         });
     });
     
-    pageElem.on('change', '.modal .member-check-label input', function (e){
+    pageElem.on('change', '.event-modal .member-check-label input', function (e){
         var memberElem = $(this).parents('.member-check-label'),
             currentIndex = memberElem.attr('data-index'),
             isChecked = this.checked,
@@ -317,12 +388,12 @@ EventsView.prototype.bindEvents = function (){
         }
     });
     
-    pageElem.on('change', '.modal [name=is-show]', function (e){
+    pageElem.on('change', '.event-modal [name=is-show]', function (e){
         if( this.checked ){
-            $(this).parents('.modal').find('.show-dependent').removeClass('hidden');
+            $(this).parents('.event-modal').find('.show-dependent').removeClass('hidden');
         }
         else{
-            $(this).parents('.modal').find('.show-dependent').addClass('hidden');
+            $(this).parents('.event-modal').find('.show-dependent').addClass('hidden');
         }
     });
 };
@@ -423,4 +494,12 @@ EventsView.prototype.showEventModal = function (event){
     eventModal.find('.members-parent').append(membersElem);
     
     eventModal.find('.modal').modal();
+};
+
+EventsView.prototype.showNotifyModal = function (eventId){
+    var notifyModal = $(this.page.elem).find('.notify-modal');
+        
+    notifyModal.find('[name=event-id]').val(eventId);
+    notifyModal.find('.modal').modal();
+    $(this.page.elem).find('.event-modal .modal').css('display','none');
 };

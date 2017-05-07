@@ -75,4 +75,31 @@
             </div>
         </div>
 	</div>
+	<div class="notify-modal">
+	    <div class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <h4 class="modal-title">Notify Members</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <input type="hidden" name="event-id" value="">
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea class="form-control" name="message"></textarea>
+                                <p class="form-text text-muted">
+                                    Enter up to 300 characters to send a message to all members attending this event.
+                                </p>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="send-message btn btn-success">Send Message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+	</div>
 </div>

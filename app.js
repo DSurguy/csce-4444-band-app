@@ -852,6 +852,16 @@ app.delete('/api/bands/:bandId/events/:eventId', checkSession, function (req, re
     });
 });
 
+/** Notify Members of Event **/
+app.post('/api/bands/:bandId/events/:eventId/notify', checkSession, function (req, res){
+    eventService.notifyMembers(parseInt(req.params.bandId, 10), parseInt(req.params.eventId, 10), req.body.message, connection)
+    .then(function (){
+        res.status(200).send();
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
 
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');
