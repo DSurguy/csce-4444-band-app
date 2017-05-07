@@ -337,8 +337,8 @@ EventsView.prototype.showEventModal = function (event){
         eventModal.find('[name=title]').val(event.title);
         eventModal.find('[name=description]').val(event.description);
         eventModal.find('[name=location]').val(event.location);
-        eventModal.find('[name=event-date]').val(event.date);
-        eventModal.find('[name=event-time]').val(event.time);
+        eventModal.find('[name=event-date]').val(event.eventDate);
+        eventModal.find('[name=event-time]').val(event.eventTime);
         eventModal.find('[name=load-in-time]').val(event.loadInTime);
         eventModal.find('[name=venue]').val(event.venue);
         if( event.isShow ){
@@ -350,8 +350,8 @@ EventsView.prototype.showEventModal = function (event){
             eventModal.find('[name=is-show]').removeAttr('checked');
         }
         //TODO: Check items
-        var checkedMembers = event.members.reduce(function (obj, member){
-            obj[member.id] = true;
+        var checkedMembers = event.members.reduce(function (obj, memberId){
+            obj[memberId] = true;
             return obj;
         }, {});
         

@@ -42,6 +42,7 @@ catch (e){
         }
     };
 }
+config.db.dateStrings = true;
 
 var app = express();
 
