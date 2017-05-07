@@ -120,7 +120,7 @@ function MenuView(page){
         class: 'band-profile',
         action: function (e){
             var newPath = window.location.pathname.split('/');
-            newPath = newPath.slice(0, newPath.indexOf('bands')+1).concat('profile').join('/');
+            newPath = newPath.slice(0, newPath.indexOf('bands')+2).join('/');
             window.location = newPath;
         },
         render: function (){

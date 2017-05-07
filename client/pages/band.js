@@ -75,9 +75,13 @@ BandView.prototype.bindEvents = function (){
     pageElem.on('click', '.songs', function (e){
         window.location = window.location.pathname+'/songs';
     });
-    
+   
     pageElem.on('click', '.store', function (e){
         window.location = window.location.pathname+'/store';
     });
-    
+  
+    pageElem.on('click', '.events', function (e){
+        window.location = window.location.pathname+'/events';
+    });
+
 };

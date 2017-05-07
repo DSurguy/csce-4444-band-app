@@ -347,3 +347,10 @@ h1, h2{
     display: none;
 }
 
+#eventsPage .event-modal .show-dependent.hidden{
+    display: none;
+}
+
+#eventsPage .event-modal .modal.hidden{
+    display: none;
+}
