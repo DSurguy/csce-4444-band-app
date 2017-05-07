@@ -3,6 +3,7 @@ var Band = require('../../shared/classes/band.js');
 var SearchedBand = require('../../shared/classes/searchedBand.js');
 var Application = require('../../shared/classes/application.js');
 var BandMember = require('../../shared/classes/bandMember.js');
+var {Member} = require('../../shared/classes/user.js');
 
 function registerBand(userId, bandName, description, genre, connection) {
     return new Promise((resolve, reject) => {
@@ -349,6 +350,22 @@ function getBandMemberRole(userId, bandId, connection) {
     });
 }
 
+function getBandMembers(bandId, connection){
+    return new Promise(function (resolve, reject){
+        var query = `SELECT U.*, B.Role FROM USER U INNER JOIN BANDMEMBER B on B.UserID = U.UserID AND B.BandID = ${bandId}`;
+        connection.query(query, function (err, results){
+            if (err) {
+                reject(err);
+                return;
+            }
+            
+            resolve(results.map(function (member){
+                return new Member(member);
+            }));
+        });
+    });
+}
+
 module.exports = {
     registerBand, 
     getAllBands, 
@@ -357,5 +374,6 @@ module.exports = {
     cancelApplication, 
     getAllApplications, 
     processApplication,
-    getBandMemberRole
+    getBandMemberRole,
+    getBandMembers
 };
