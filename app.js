@@ -21,7 +21,7 @@ var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var path = require('path');
 var leftPad = require('./shared/utils/leftPad.js');
-var {Member} = require('./shared/classes/user.js');
+var Member = require('./shared/classes/user.js');
 var Time = require('./shared/utils/time.js');
 var Event = require('./shared/classes/event.js');
 
