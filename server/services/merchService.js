@@ -283,6 +283,11 @@ function getCartItems(bandId, userId, connection) {
                 return;
             }
             
+            if (results.length === 0){
+            	resolve([]);
+            	return;
+            }
+            
             var items = results.map(function (resultRow) {
                 return new Item({id : resultRow.ItemID, 
                     name : resultRow.ItemName,
@@ -297,7 +302,7 @@ function getCartItems(bandId, userId, connection) {
     		var count = 0;
         	items.forEach(function(item) {
 	    		var query = ""+
-	        	"SELECT I.INVENTORYID, I.SIZE, C.QUANTITY FROM INVENTORY I "+
+	        	"SELECT I.INVENTORYID, I.SIZE, C.QUANTITY AS CART_QUANTITY, I.QUANTITY AS INVENTORY_QUANTITY FROM INVENTORY I "+
 	        	"JOIN CART C ON I.ITEMID = C.ITEMID AND I.INVENTORYID = C.INVENTORYID "+
 	        	"WHERE I.ITEMID = "+item.id+" AND C.QUANTITY <> 0";
 	
@@ -311,7 +316,8 @@ function getCartItems(bandId, userId, connection) {
 		                return new Inventory({id : resultRow.INVENTORYID,
 		                	itemId : item.id,
 		                	size : resultRow.SIZE,
-		                	quantity : resultRow.QUANTITY
+		                	quantity : resultRow.INVENTORY_QUANTITY,
+		                	cartQuantity : resultRow.CART_QUANTITY
 		                });
 		            });
 	
@@ -326,23 +332,27 @@ function getCartItems(bandId, userId, connection) {
 	});
 }
 
-function updateCart(bandId, userId, itemId, quantities, inventoryIds, connection) {
+function addToCart(bandId, userId, itemId, quantities, inventoryIds, connection) {
 	return new Promise(function (resolve, reject) {
 		var query = '';
 		
 		if (Array.isArray(inventoryIds)) {
 			for (var i = 0; i < inventoryIds.length; i++){
-				query += ""+
-				"INSERT INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES "+
-				"("+itemId+","+inventoryIds[i]+","+bandId+","+userId+","+quantities[i]+") "+
-				"ON DUPLICATE KEY UPDATE QUANTITY = "+quantities[i]+";";
+				if (quantities[i] > 0){
+					query += ""+
+					"INSERT INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES "+
+					"("+itemId+","+inventoryIds[i]+","+bandId+","+userId+","+quantities[i]+") "+
+					"ON DUPLICATE KEY UPDATE QUANTITY = "+quantities[i]+";";
+				}
 			}
 		}
 		else{
-			query += ""+
-			"INSERT INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES "+
-			"("+itemId+","+inventoryIds+","+bandId+","+userId+","+quantities+") "+
-			"ON DUPLICATE KEY UPDATE QUANTITY = "+quantities+";";
+			if (quantities > 0){
+				query += ""+
+				"INSERT INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES "+
+				"("+itemId+","+inventoryIds+","+bandId+","+userId+","+quantities+") "+
+				"ON DUPLICATE KEY UPDATE QUANTITY = "+quantities+";";
+			}
 		}
 		
         connection.query(query, function(err, results, fields) {
@@ -357,6 +367,95 @@ function updateCart(bandId, userId, itemId, quantities, inventoryIds, connection
 	});
 }
 
+function updateCart(bandId, userId, itemIds, quantities, inventoryIds, connection) {
+	return new Promise(function (resolve, reject) {
+		var query = '';
+		
+		if (Array.isArray(inventoryIds)) {
+			for (var i = 0; i < inventoryIds.length; i++){
+				if (quantities[i] === 0){
+					query += ""+
+					"DELETE FROM CART WHERE USERID = "+userId+" AND BANDID = "+bandId+" AND INVENTORYID = "+inventoryIds[i]+"; ";
+				}
+				else {
+					query += ""+
+					"INSERT INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES "+
+					"("+itemIds[i]+","+inventoryIds[i]+","+bandId+","+userId+","+quantities[i]+") "+
+					"ON DUPLICATE KEY UPDATE QUANTITY = "+quantities[i]+";";
+				}
+			}
+		}
+		else{
+			if (quantities === 0){
+				query += ""+
+				"DELETE FROM CART WHERE USERID = "+userId+" AND BANDID = "+bandId+" AND INVENTORYID = "+inventoryIds+" AND ITEMID = "+itemIds+"; ";
+			}
+			else {
+				query += ""+
+				"INSERT INTO CART (ITEMID, INVENTORYID, BANDID, USERID, QUANTITY) VALUES "+
+				"("+itemIds+","+inventoryIds+","+bandId+","+userId+","+quantities+") "+
+				"ON DUPLICATE KEY UPDATE QUANTITY = "+quantities+";";
+			}
+		}
+		
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            resolve(true);
+        });
+		
+	});
+}
+
+function emptyCart(bandId, userId, connection) {
+	return new Promise(function (resolve, reject) {
+		var query = "DELETE FROM CART WHERE BANDID = "+bandId+" AND USERID = "+userId;
+
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            resolve(true);
+        });
+	});
+}
+
+function payOut(bandId, userId, itemIds, inventoryIds, quantities, connection) {
+	return new Promise(function (resolve, reject) {
+		if (itemIds === undefined){
+			resolve(true);
+			return;
+		}
+		var query = "";
+
+		if (Array.isArray(inventoryIds)) {
+			for (var i = 0; i < inventoryIds.length; i++){
+				query += ""+
+				"UPDATE INVENTORY SET QUANTITY = QUANTITY - "+quantities[i]+" "+
+				"WHERE ITEMID = "+itemIds[i]+" AND INVENTORYID = "+inventoryIds[i]+"; ";	
+			}
+		}
+		else{
+			query += ""+
+			"UPDATE INVENTORY SET QUANTITY = QUANTITY - "+quantities+" "+
+			"WHERE ITEMID = "+itemIds+" AND INVENTORYID = "+inventoryIds;	
+		}
+        connection.query(query, function(err, results, fields) {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            resolve(true);
+        });
+	});
+}
+
 module.exports = {
     createItem,
     uploadImage,
@@ -365,6 +464,9 @@ module.exports = {
     getItems,
     updateItemAndInventory,
     deleteItemAndInventory,
-    updateCart,
-    getCartItems
+    addToCart,
+    getCartItems,
+    emptyCart,
+    payOut,
+    updateCart
 }

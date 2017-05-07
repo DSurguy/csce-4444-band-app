@@ -2,6 +2,7 @@
 /* global PageView */
 /* global PageCtrl */
 /* global $ */
+/* global MenuComponent */
 
 function InventoryPage(app, data){
     Page.call(this, app, $('#inventoryPage')[0], InventoryCtrl, InventoryView, {
@@ -23,18 +24,33 @@ function InventoryCtrl(page){
 InventoryCtrl.prototype = Object.create(PageCtrl.prototype);
 InventoryCtrl.prototype.constructor = InventoryCtrl;
 InventoryCtrl.prototype.init = function (){
-    var defer = $.Deferred(),
-        ctrl = this;
-
-    $.ajax('/api/bands/'+ctrl.bandId+'/inventory', {
-        method: 'GET'
-    }).then(function (data){
-        ctrl.items = data;
-        defer.resolve();
-    }).catch(defer.reject);
+    var defer = $.Deferred();
+    this.getInventory()
+    .then(defer.resolve)
+    .fail(console.error);
     
     return defer.promise();
 };
+
+InventoryCtrl.prototype.getInventory = function (){
+    var defer = $.Deferred(),
+        ctrl = this,
+        that = this;
+
+    $.ajax({
+        url: '/api/bands/'+ctrl.bandId+'/inventory', 
+        method: 'GET'
+    })
+    .then(function (items){
+        ctrl.items = items;
+        return that.page.view.buildInventoryList();
+    })
+    .then(defer.resolve)
+    .catch(defer.reject);
+    
+    return defer.promise();
+}
+
 
 InventoryCtrl.prototype.updateInventory = function (form){
     var defer = $.Deferred(),
@@ -77,6 +93,11 @@ InventoryView.prototype = Object.create(PageView.prototype);
 InventoryView.prototype.constructor = InventoryView;
 InventoryView.prototype.init = function (){
     this.bindEvents();
+};
+
+InventoryView.prototype.buildInventoryList = function (){
+    $(this.page.elem).find('.inventory').remove();
+    $('.inventory-container').append('<div class="inventory card-group"></div>');
     var itemElem = $(this.page.elem).find('.inventory');
     var that = this;
 
@@ -112,7 +133,7 @@ InventoryView.prototype.init = function (){
             }   
         });
     });
-};
+}
 
 InventoryView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
@@ -135,9 +156,7 @@ InventoryView.prototype.bindEvents = function (){
         e.stopPropagation();       
         $('.modal').modal('hide');   
         page.ctrl.updateInventory(this)
-        .then(function (result) {
-            window.location.reload();
-        })
+        .then(page.ctrl.getInventory())
         .fail(console.error);
     });
 
@@ -145,9 +164,7 @@ InventoryView.prototype.bindEvents = function (){
         e.preventDefault();
         e.stopPropagation();       
         page.ctrl.deleteInventory(parseInt($(this).attr('data-item-id'),10))
-        .then(function (result) {
-            window.location.reload();
-        })
+        .then(page.ctrl.getInventory())
         .fail(console.error);
     });
 
@@ -178,10 +195,10 @@ InventoryView.prototype.showEditModal = function (itemId){
             inventoryFields = ''+
             '<label for="size-'+inventory.id+'">Size</label>'+
             '<select class="form-control dynamicFields" id="size-'+inventory.id+'" form="update-form" name="size" required>'+
-                '<option value="s">S</option>'+
-                '<option value="m">M</option>'+
-                '<option value="l">L</option>'+
-                '<option value="xl">XL</option>'+
+                '<option value="S">S</option>'+
+                '<option value="M">M</option>'+
+                '<option value="L">L</option>'+
+                '<option value="XL">XL</option>'+
             '</select>';                        
         }
         else if (thisItem.type === 'CD') {
@@ -243,7 +260,6 @@ InventoryView.prototype.addSizeField = function (type){
     }
     else if (type === 'CD') {
         inventoryFields = '<input class"form-control" form="update-form" type="hidden" name="size"/>';
-        modalButtons = '';
     }
     else if (type === 'Sticker') {
         inventoryFields = ''+
