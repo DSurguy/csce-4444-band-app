@@ -131,24 +131,61 @@ var EventService = {
         });
     },
     deleteEvent: function (bandId, eventId, connection){
-        return Promise.resolve();
+        return new Promise(function (resolve, reject){
+            connection.beginTransaction(function (err){
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                
+                var query = `DELETE FROM EVENT_MEMBERS WHERE EventID = ${parseInt(eventId,10)}`;
+                connection.query(query, function (err){
+                    if( err ){
+                        return connection.rollback(function() {
+                            reject(err);
+                        });
+                    }
+                    query = `DELETE FROM EVENT WHERE EventID = ${parseInt(eventId,10)}`;
+                    connection.query(query, function (err){
+                        if( err ){
+                            return connection.rollback(function() {
+                                reject(err);
+                            });
+                        }
+                        connection.commit(function (err){
+                            if (err) {
+                                return connection.rollback(function() {
+                                    reject(err);
+                                });
+                            }
+                            resolve();
+                        });
+                    });
+                });
+            });
+        });
     }
 };
 
 function getEventMembers(eventIds, connection){
     return new Promise(function (resolve, reject){
-        var query = `SELECT EM.EventID, U.UserID FROM EVENT_MEMBERS EM INNER JOIN USER U ON EM.MemberID = U.UserID WHERE EM.EventID IN (${eventIds.join(',')}) ORDER BY EventID ASC, UserID ASC`;
-        connection.query(query, function (err, results){
-            if( err ){
-                reject(err); return;
-            }
-            resolve(results.map(function (row){
-                return {
-                    eventId: row.EventID,
-                    userId: row.UserID
-                };
-            }));
-        });
+        if( eventIds.length === 0 ){
+            resolve([]);
+        }
+        else{
+            var query = `SELECT EM.EventID, U.UserID FROM EVENT_MEMBERS EM INNER JOIN USER U ON EM.MemberID = U.UserID WHERE EM.EventID IN (${eventIds.join(',')}) ORDER BY EventID ASC, UserID ASC`;
+            connection.query(query, function (err, results){
+                if( err ){
+                    reject(err); return;
+                }
+                resolve(results.map(function (row){
+                    return {
+                        eventId: row.EventID,
+                        userId: row.UserID
+                    };
+                }));
+            });
+        }
     });
 }
 

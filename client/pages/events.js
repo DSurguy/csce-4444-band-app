@@ -92,7 +92,7 @@ EventsCtrl.prototype.saveEvent = function (form){
 EventsCtrl.prototype.deleteEvent = function (eventId){
     var defer = $.Deferred();
     $.ajax({
-        url: '/api/bands/${ctrl.bandId}/setlists/'+eventId,
+        url: '/api/bands/${ctrl.bandId}/events/'+eventId,
         type: 'DELETE'
     })
     .then(defer.resolve)
