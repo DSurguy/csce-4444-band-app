@@ -784,13 +784,14 @@ app.post('/api/bands/:bandId/events', checkSession, function (req, res){
     var newEvent = new Event({
         id: undefined,
         bandId: parseInt(req.params.bandId, 10),
+        title: req.body['title'],
+        description: req.body['description'],
         eventDate: req.body['event-date'],
         eventTime: Time.fromAMPM(req.body['event-time']),
         loadInTime: Time.fromAMPM(req.body['load-in-time']||'00:00:00'),
         location: req.body['location'],
         venue: req.body['venue'],
-        isShow: req.body['is-show'] == 'on' ? true : false,
-        description: req.body['description']
+        isShow: req.body['is-show'] == 'on' ? true : false
     });
 
     var keys = Object.keys(req.body);
@@ -811,7 +812,27 @@ app.post('/api/bands/:bandId/events', checkSession, function (req, res){
 
 /** Edit Event **/
 app.put('/api/bands/:bandId/events/:eventId', checkSession, function (req, res){
-    eventService.editEvent(parseInt(req.params.bandId, 10), {}, connection)
+    var newEvent = new Event({
+        id: parseInt(req.params.eventId, 10),
+        bandId: parseInt(req.params.bandId, 10),
+        title: req.body['title'],
+        description: req.body['description'],
+        eventDate: req.body['event-date'],
+        eventTime: Time.fromAMPM(req.body['event-time']),
+        loadInTime: Time.fromAMPM(req.body['load-in-time']||'00:00:00'),
+        location: req.body['location'],
+        venue: req.body['venue'],
+        isShow: req.body['is-show'] == 'on' ? true : false
+    });
+
+    var keys = Object.keys(req.body);
+    for( var i=0; i<keys.length; i++ ){
+        if( keys[i].indexOf('member-') == 0 ){
+            newEvent.members.push(parseInt(keys[i].substr(7),10));
+        }
+    }
+    
+    eventService.editEvent(parseInt(req.params.bandId, 10), newEvent, connection)
     .then(function (updatedEvent){
         res.status(200).send(updatedEvent);
     })
