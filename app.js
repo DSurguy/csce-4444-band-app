@@ -143,6 +143,10 @@ app.get('/bands/:bandId/inventory', checkSession, function (req, res){
     res.render('inventory');
 });
 
+app.get('/bands/:bandId/store', checkSession, function (req, res){
+    res.render('store');
+});
+
 app.get('/bands/:bandId/songs', checkSession, function (req, res){
     res.render('songs');
 });
@@ -526,9 +530,6 @@ app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
         }
     })
     .then(function (result) {
-        return result == false ? false : merchService.getImages(result);
-    })
-    .then(function (result) {
         return result == false ? false : merchService.getInventory(result, connection);
     })
     .then(function (result) {
@@ -590,6 +591,86 @@ app.delete('/api/bands/:bandId/inventory/:itemId', checkSession, function (req, 
             return Promise.resolve(false);
         }
     })
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Get Cart **/
+app.get('/api/bands/:bandId/getcartitems', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.getCartItems(req.params.bandId, req.session.userId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Add Items To Cart **/
+app.post('/api/bands/:bandId/addtocart', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.addToCart(req.params.bandId, req.session.userId, req.body.itemId, req.body.quantity, req.body.inventoryId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Update Cart **/
+app.post('/api/bands/:bandId/updatecart', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.updateCart(req.params.bandId, req.session.userId, req.body.itemId, req.body.quantity, req.body.inventoryId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Empty Cart **/
+app.delete('/api/bands/:bandId/emptycart', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.emptyCart(req.params.bandId, req.session.userId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Pay Out Cart **/
+app.post('/api/bands/:bandId/payout', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.payOut(req.params.bandId, req.session.userId, req.body.itemId, req.body.inventoryId, req.body.quantity, connection)
     .then(function (result) {
         res.status(200);
         res.send(result);
