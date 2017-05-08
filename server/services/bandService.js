@@ -3,7 +3,7 @@ var Band = require('../../shared/classes/band.js');
 var SearchedBand = require('../../shared/classes/searchedBand.js');
 var Application = require('../../shared/classes/application.js');
 var BandMember = require('../../shared/classes/bandMember.js');
-var {Member} = require('../../shared/classes/user.js');
+var Member = require('../../shared/classes/user.js');
 
 function registerBand(userId, bandName, description, genre, connection) {
     return new Promise((resolve, reject) => {
