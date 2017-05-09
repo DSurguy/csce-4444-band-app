@@ -5,6 +5,7 @@
 /* global MenuComponent */
 /* global Friend */
 
+//Send user data to friends page 
 function FriendsPage(app, data){
     Page.call(this, app, $('#friendsPage')[0], FriendsCtrl, FriendsView, {
         menu: new MenuComponent(app, {
@@ -15,13 +16,14 @@ function FriendsPage(app, data){
 FriendsPage.prototype = Object.create(Page.prototype);
 FriendsPage.prototype.constructor = FriendsPage;
 
+//Intilize array for friends
 function FriendsCtrl(page){
     PageCtrl.call(this, page);
     this.friends = [];
 }
 FriendsCtrl.prototype = Object.create(PageCtrl.prototype);
 FriendsCtrl.prototype.constructor = FriendsCtrl;
-FriendsCtrl.prototype.init = function (){
+FriendsCtrl.prototype.init = function (){//Collect all friends of the user
     var defer = $.Deferred();
     
     var that = this;
@@ -37,6 +39,7 @@ FriendsCtrl.prototype.init = function (){
     return defer.promise();
 };
 
+//Update friend and user relationship
 FriendsCtrl.prototype.updateStatus = function (toUserId, status){
     var defer = $.Deferred();
     
@@ -51,12 +54,13 @@ FriendsCtrl.prototype.updateStatus = function (toUserId, status){
     return defer.promise();
 };
 
+//Send all the data to page to view
 function FriendsView(page){
     PageView.call(this, page);
 }
 FriendsView.prototype = Object.create(PageView.prototype);
 FriendsView.prototype.constructor = FriendsView;
-FriendsView.prototype.init = function (){
+FriendsView.prototype.init = function (){//Add bind events and updated list 
     this.bindEvents();
     this.updateUserList();
 };
@@ -151,6 +155,7 @@ FriendsView.prototype.bindEvents = function (){
     });        
 };
 
+//Clear any current cards from previous search and rebuild 
 FriendsView.prototype.updateUserList = function (){
     var friendsElem = $(this.page.elem).find('.friends');
     var cardColor = '';
@@ -195,6 +200,7 @@ FriendsView.prototype.updateUserList = function (){
     }
 };
 
+//Set up show friend page model
 FriendsView.prototype.showFriendModal = function (friendId){
     var thisFriend = this.page.ctrl.friends.filter(function (friend){
         return friend.id == friendId;

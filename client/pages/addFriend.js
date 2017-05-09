@@ -19,9 +19,10 @@ function AddFriendCtrl(page){
     PageCtrl.call(this, page);
     this.friends = [];
 }
-AddFriendCtrl.prototype = Object.create(PageCtrl.prototype);
+AddFriendCtrl.prototype = Object.create(PageCtrl.prototype);//Get users list of friends
 AddFriendCtrl.prototype.constructor = AddFriendCtrl;
 
+//Create form to add friend
 AddFriendCtrl.prototype.search = function (form){
     var defer = $.Deferred();
     
@@ -55,6 +56,7 @@ AddFriendCtrl.prototype.updateStatus = function (toUserId, status){
     return defer.promise();
 };
 
+//Add bindevents and search timeout to this function
 function AddFriendView(page){
     PageView.call(this, page);
 }
@@ -222,6 +224,7 @@ AddFriendView.prototype.updateUserList = function (){
     }
 };
 
+//Display the cards wanted
 AddFriendView.prototype.showFriendModal = function (friendId){
     var thisFriend = this.page.ctrl.friends.filter(function (friend){
         return friend.id == friendId;

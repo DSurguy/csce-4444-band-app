@@ -5,6 +5,7 @@
 /* global MenuComponent */
 /* global Song */
 
+//Get user data for song page
 function SongsPage(app, data){
     Page.call(this, app, $('#songsPage')[0], SongsCtrl, SongsView, {
         menu: new MenuComponent(app, {
@@ -15,6 +16,7 @@ function SongsPage(app, data){
 SongsPage.prototype = Object.create(Page.prototype);
 SongsPage.prototype.constructor = SongsPage;
 
+//Attach a controler to the page
 function SongsCtrl(page){
     PageCtrl.call(this, page);
     this.saving = false;
@@ -87,6 +89,7 @@ SongsCtrl.prototype.deleteSong = function (songId){
     return defer.promise();
 };
 
+//Render the page 
 function SongsView(page){
     PageView.call(this, page);
 }

@@ -5,7 +5,7 @@ var NotificationService = {
     getNotifications: function (connection, userId, unreadOnly){
         return new Promise(function (resolve, reject){
             var query = `SELECT * FROM NOTIFICATION WHERE UserId=${userId}${unreadOnly?' AND Unread = 1':''}`;
-            
+            //Get all unread notification or user
             connection.query(query, function (err, result){
                 if( err ){
                     reject(err);
@@ -15,7 +15,7 @@ var NotificationService = {
                 }
             });
         });
-    },
+    },//Get the count of unread notification
     getNotificationCount: function (connection, userId, unreadOnly){
         return new Promise(function (resolve, reject){
             var query = `SELECT COUNT(NotificationID) AS total FROM NOTIFICATION WHERE UserId=${userId}${unreadOnly?' AND Unread = 1':''}`;
@@ -29,7 +29,7 @@ var NotificationService = {
                 }
             });
         });
-    },
+    },//Send the notification to user
     notifyUser: function (connection, params){
         return new Promise(function (resolve, reject){
             params = extend(true, {

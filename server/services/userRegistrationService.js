@@ -1,5 +1,6 @@
 var crypto = require('crypto');
 
+//Get info and check if user can be created 
 function registerUser(username, password, firstName, lastName, bio, email, connection) {
 	return new Promise((resolve, reject) => {
 		var obj = {username, password, firstName, lastName, bio, email, connection};
@@ -27,6 +28,7 @@ function registerUser(username, password, firstName, lastName, bio, email, conne
 	});
 }
 
+//Check if username isn't already in the database 
 function checkUsername(data) {
 	return new Promise((resolve, reject) => {
 		var query = 'SELECT USERNAME FROM USER WHERE USERNAME = \'' + data.username + '\'';
@@ -49,6 +51,7 @@ function checkUsername(data) {
 	});
 }
 
+//Check if email isn't already in the database 
 function checkEmail(data) {
 	return new Promise((resolve, reject) => {
 		var query = 'SELECT EMAIL FROM USER WHERE EMAIL = \'' + data.email + '\'';
@@ -71,6 +74,7 @@ function checkEmail(data) {
 	});
 }
 
+//Take password and hash it and store it 
 function hashPassword(data) {
 	return new Promise((resolve, reject) => {
    		var salt = crypto.randomBytes(10).toString('base64');
@@ -103,6 +107,7 @@ function hashPassword(data) {
 	});  
 }
 
+//Submit data to database
 function createUser(data) {
 	return new Promise((resolve, reject) => {
 		var query = 'INSERT INTO USER (USERNAME, PASSWORD, SALT, FIRSTNAME, LASTNAME, BIO, EMAIL) VALUES ( \'' + 

@@ -5,6 +5,7 @@
 /* global MenuComponent */
 var searching = false;
 
+// user data to search band page
 function SearchBandsPage(app, data){
     Page.call(this, app, $('#searchBandsPage')[0], SearchBandsCtrl, SearchBandsView, {
         menu: new MenuComponent(app, {
@@ -15,6 +16,7 @@ function SearchBandsPage(app, data){
 SearchBandsPage.prototype = Object.create(Page.prototype);
 SearchBandsPage.prototype.constructor = SearchBandsPage;
 
+//Add control to this page, also intiliz array of bands, set search false 
 function SearchBandsCtrl(page){
     PageCtrl.call(this, page);
     this.bands = [];
@@ -23,6 +25,7 @@ function SearchBandsCtrl(page){
 SearchBandsCtrl.prototype = Object.create(PageCtrl.prototype);
 SearchBandsCtrl.prototype.constructor = SearchBandsCtrl;
 
+//Create the bar for searching and its contorls
 SearchBandsCtrl.prototype.search = function (form){
     var defer = $.Deferred();
     var that = this;
@@ -79,6 +82,7 @@ SearchBandsCtrl.prototype.cancelApplication = function (bandId){
     return defer.promise();
 };
 
+//Adjust form for different type application
 SearchBandsCtrl.prototype.expandBandModal = function(applicationType, applicationStatus, bandId) {
     $('.modal-body').remove();
     $('.modal-footer').remove();    
@@ -116,13 +120,14 @@ SearchBandsCtrl.prototype.expandBandModal = function(applicationType, applicatio
     '</div>');
 };
 
+//Attach search results  to page and reset searchTimeout
 function SearchBandsView(page){
     PageView.call(this, page);
     this.searchTimeout = undefined;
 }
 SearchBandsView.prototype = Object.create(PageView.prototype);
 SearchBandsView.prototype.constructor = SearchBandsView;
-SearchBandsView.prototype.init = function (){   
+SearchBandsView.prototype.init = function (){ //Attach bindevent to page 
     this.bindEvents();
 };
 

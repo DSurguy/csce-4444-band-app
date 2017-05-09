@@ -5,6 +5,7 @@
 /* global $ */
 /* global User */
 
+//Send user data to main page
 function MainPage(app, data){
     Page.call(this, app, $('#mainPage')[0], MainCtrl, MainView, {
         menu: new MenuComponent(app, {
@@ -15,6 +16,7 @@ function MainPage(app, data){
 MainPage.prototype = Object.create(Page.prototype);
 MainPage.prototype.constructor = MainPage;
 
+//Set up the controller for main page
 function MainCtrl(page){
     PageCtrl.call(this, page);
     this.user = undefined;
@@ -38,13 +40,13 @@ MainCtrl.prototype.init = function (){
     return defer.promise();
 };
 
-
+//Set page view to main page
 function MainView(page){
     PageView.call(this, page);
 }
 MainView.prototype = Object.create(PageView.prototype);
 MainView.prototype.constructor = MainView;
-MainView.prototype.init = function (){
+MainView.prototype.init = function (){//takes user to different pages
     var page = this.page;
     $(page.elem).on('click', '.bands', function (e){
         window.location = '/bands';

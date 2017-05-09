@@ -4,6 +4,7 @@
 /* global MenuComponent */
 /* global $ */
 
+//Send user data to register band page
 function RegisterBandPage(app, data){
     Page.call(this, app, $('#registerBandPage')[0], RegisterBandCtrl, RegisterBandView, {
         menu: new MenuComponent(app, {
@@ -14,13 +15,14 @@ function RegisterBandPage(app, data){
 RegisterBandPage.prototype = Object.create(Page.prototype);
 RegisterBandPage.prototype.constructor = RegisterBandPage;
 
+//Add control to this page and set it false 
 function RegisterBandCtrl(page){
     PageCtrl.call(this, page);
     this.registering = false;
 }
 RegisterBandCtrl.prototype = Object.create(PageCtrl.prototype);
 RegisterBandCtrl.prototype.constructor = RegisterBandCtrl;
-RegisterBandCtrl.prototype.login = function (form){
+RegisterBandCtrl.prototype.login = function (form){//Build the form for new user to register for band
     var defer = $.Deferred();
     
     $.ajax({
@@ -34,15 +36,17 @@ RegisterBandCtrl.prototype.login = function (form){
     return defer.promise();
 };
 
+//Add form to page
 function RegisterBandView(page){
     PageView.call(this, page);
 }
 RegisterBandView.prototype = Object.create(PageView.prototype);
 RegisterBandView.prototype.constructor = RegisterBandView;
-RegisterBandView.prototype.init = function (){
+RegisterBandView.prototype.init = function (){//Attach bindevent to page 
     this.bindEvents();
 };
 
+//Creat new band into the system
 RegisterBandView.prototype.bindEvents = function (){
     var page = this.page,
         pageElem = $(this.page.elem);

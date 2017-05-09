@@ -1,5 +1,6 @@
 var crypto = require('crypto');
 
+//Check the login data
 function authLogin(username, password, connection) {
 	return new Promise((resolve, reject) => {
 		var obj = {username, password, connection};

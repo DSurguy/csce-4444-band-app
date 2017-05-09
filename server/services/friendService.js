@@ -92,6 +92,7 @@ function search(userId, searchString, connection) {
     });
 }
 
+//Send the request to user with message
 function requestFriend(from, to, connection){
     return new Promise((resolve, reject) =>{
         updateFriendStatus(from, to, Friend.STATUS.REQUESTED, connection)
@@ -135,6 +136,7 @@ function updateFriendStatus(fromUserId, toUserId, status, connection) {
     });
 }
 
+//Check current users relations
 function _checkExistingRelation(from, to, connection){
     return new Promise(function (resolve, reject){
         var query = ''+
@@ -154,6 +156,7 @@ function _checkExistingRelation(from, to, connection){
     });
 }
 
+//Notify user new friend request or are friends now 
 function _notifyStatusUpdate(from, to, status, connection){
     if( status !== Friend.STATUS.REQUESTED && status !== Friend.STATUS.FRIEND ){
         return Promise.resolve();

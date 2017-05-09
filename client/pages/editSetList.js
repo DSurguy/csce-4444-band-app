@@ -5,6 +5,7 @@
 /* global MenuComponent */
 /* global SetList */
 
+//Get user data for edit set list page
 function EditSetListPage(app, data){
     Page.call(this, app, $('#editSetListPage')[0], EditSetListCtrl, EditSetListView, {
         menu: new MenuComponent(app, {
@@ -15,6 +16,7 @@ function EditSetListPage(app, data){
 EditSetListPage.prototype = Object.create(Page.prototype);
 EditSetListPage.prototype.constructor = EditSetListPage;
 
+//Attach a controler to the page
 function EditSetListCtrl(page){
     PageCtrl.call(this, page);
     this.setList = new SetList({
@@ -29,6 +31,7 @@ function EditSetListCtrl(page){
 EditSetListCtrl.prototype = Object.create(PageCtrl.prototype);
 EditSetListCtrl.prototype.constructor = EditSetListCtrl;
 
+//Render the page 
 function EditSetListView(page){
     PageView.call(this, page);
 }

@@ -22,7 +22,7 @@ function LoginCtrl(page){
 LoginCtrl.prototype = Object.create(PageCtrl.prototype);
 LoginCtrl.prototype.constructor = LoginCtrl;
 
-LoginCtrl.prototype.login = function (form){
+LoginCtrl.prototype.login = function (form){//Check if the input is valid
     var defer = $.Deferred();
     $.ajax({
         url: '/api/login',
@@ -44,10 +44,11 @@ function LoginView(page){
 }
 LoginView.prototype = Object.create(PageView.prototype);
 LoginView.prototype.constructor = LoginView;
-LoginView.prototype.init = function (){
+LoginView.prototype.init = function (){//Add bindevents to login page
     this.bindEvents();
 };
 
+//Waits till submit is hit and processes the log in details 
 LoginView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
         page = this.page;

@@ -22,6 +22,7 @@ function RegisterCtrl(page){
 RegisterCtrl.prototype = Object.create(PageCtrl.prototype);
 RegisterCtrl.prototype.constructor = RegisterCtrl;
 
+//Build the form for new user to register
 RegisterCtrl.prototype.register = function (form){
     var defer = $.Deferred();
     
@@ -44,10 +45,11 @@ function RegisterView(page){
 }
 RegisterView.prototype = Object.create(PageView.prototype);
 RegisterView.prototype.constructor = RegisterView;
-RegisterView.prototype.init = function (){
+RegisterView.prototype.init = function (){//Attach bindevent to page 
     this.bindEvents();
 };
 
+//Create new user into the system
 RegisterView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem),
         page = this.page;

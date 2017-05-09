@@ -4,6 +4,7 @@
 /* global MenuComponent */
 /* global $ */
 
+//Go to band page and send data
 function BandPage(app, data){
     Page.call(this, app, $('#bandPage')[0], BandCtrl, BandView, {
         menu: new MenuComponent(app, {
@@ -14,13 +15,14 @@ function BandPage(app, data){
 BandPage.prototype = Object.create(Page.prototype);
 BandPage.prototype.constructor = BandPage;
 
+//Load band page with control
 function BandCtrl(page){
     PageCtrl.call(this, page);
     this.band = {};
 }
 BandCtrl.prototype = Object.create(PageCtrl.prototype);
 BandCtrl.prototype.constructor = BandCtrl;
-BandCtrl.prototype.init = function (){
+BandCtrl.prototype.init = function (){//Gather data for the controllor 
     var url = window.location.pathname;
     var id = url.split('/')[ url.split('/').indexOf('bands')+1];
 
@@ -37,12 +39,13 @@ BandCtrl.prototype.init = function (){
     return defer.promise();
 };
 
+//Get band profile page
 function BandView(page){
     PageView.call(this, page);
 }
 BandView.prototype = Object.create(PageView.prototype);
 BandView.prototype.constructor = BandView;
-BandView.prototype.init = function (){
+BandView.prototype.init = function (){//Puts all the band information togethere so it is ready to display for user
     var bandElem = $(this.page.elem).find('.band');
     bandElem.append('<h2 class="card-title">My Band</h2>');
     bandElem.append('<div class="card-block"></div>');
@@ -57,6 +60,7 @@ BandView.prototype.init = function (){
     this.bindEvents();
 };
 
+//Display band's application form
 BandView.prototype.bindEvents = function (){
     var pageElem = $(this.page.elem);
 

@@ -4,6 +4,7 @@
 /* global $ */
 /* global MenuComponent */
 
+//Get user data for inventory page
 function InventoryPage(app, data){
     Page.call(this, app, $('#inventoryPage')[0], InventoryCtrl, InventoryView, {
         menu: new MenuComponent(app, {
@@ -14,6 +15,7 @@ function InventoryPage(app, data){
 InventoryPage.prototype = Object.create(Page.prototype);
 InventoryPage.prototype.constructor = InventoryPage;
 
+//Attach a controler to the page
 function InventoryCtrl(page){
     PageCtrl.call(this, page);
     this.items = [];
@@ -86,6 +88,7 @@ InventoryCtrl.prototype.deleteInventory = function (itemId){
     return defer.promise();
 };
 
+//Render the page 
 function InventoryView(page){
     PageView.call(this, page);
 }

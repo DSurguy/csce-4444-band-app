@@ -6,6 +6,7 @@
 /* global Song */
 /* global SetList */
 
+//Get user data for set list page
 function SetListsPage(app, data){
     Page.call(this, app, $('#setListsPage')[0], SetListsCtrl, SetListsView, {
         menu: new MenuComponent(app, {
@@ -16,6 +17,7 @@ function SetListsPage(app, data){
 SetListsPage.prototype = Object.create(Page.prototype);
 SetListsPage.prototype.constructor = SetListsPage;
 
+//Attach a controler to the page
 function SetListsCtrl(page){
     PageCtrl.call(this, page);
     this.songs = [];
@@ -101,6 +103,7 @@ SetListsCtrl.prototype.deleteSetList = function (setListId){
     return defer.promise();
 };
 
+//Render the page 
 function SetListsView(page){
     PageView.call(this, page);
     this.setListSongs = [];

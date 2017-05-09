@@ -6,6 +6,7 @@
 /* global Application */
 /* global BandMember */
 
+//Go to applications page  and send data
 function ApplicationsPage(app, data){
     Page.call(this, app, $('#applicationsPage')[0], ApplicationsCtrl, ApplicationsView, {
         menu: new MenuComponent(app, {
@@ -16,13 +17,14 @@ function ApplicationsPage(app, data){
 ApplicationsPage.prototype = Object.create(Page.prototype);
 ApplicationsPage.prototype.constructor = ApplicationsPage;
 
+//Load all applications open for the user
 function ApplicationsCtrl(page){
     PageCtrl.call(this, page);
     this.applications = [];
 }
 ApplicationsCtrl.prototype = Object.create(PageCtrl.prototype);
 ApplicationsCtrl.prototype.constructor = ApplicationsCtrl;
-ApplicationsCtrl.prototype.init = function (){
+ApplicationsCtrl.prototype.init = function (){//Collect all data for intilizing 
     var defer = $.Deferred();
     
     var url = window.location.pathname;
@@ -46,6 +48,7 @@ ApplicationsCtrl.prototype.init = function (){
     return defer.promise();
 };
 
+//Post all the apllications on the page 
 ApplicationsCtrl.prototype.processApplication = function (applicationId, processStatus, applicationStatus) {
     var defer = $.Deferred();
     
@@ -62,12 +65,13 @@ ApplicationsCtrl.prototype.processApplication = function (applicationId, process
     return defer.promise();
 };
 
+//Refresh application page 
 function ApplicationsView(page){
     PageView.call(this, page);
 }
 ApplicationsView.prototype = Object.create(PageView.prototype);
 ApplicationsView.prototype.constructor = ApplicationsView;
-ApplicationsView.prototype.init = function (){
+ApplicationsView.prototype.init = function (){//Load card according to type of application
     var applicationsElem = $(this.page.elem).find('.applications');
     var badge = '';
 
@@ -127,6 +131,7 @@ ApplicationsView.prototype.bindEvents = function (){
     });
 };
 
+//Set up application page model
 ApplicationsView.prototype.showApplicationModal = function (applicationId, applicationStatus){
     var thisApplication = this.page.ctrl.applications.filter(function (application){
         return application.id == applicationId;

@@ -5,6 +5,7 @@ var Application = require('../../shared/classes/application.js');
 var BandMember = require('../../shared/classes/bandMember.js');
 var {Member} = require('../../shared/classes/user.js');
 
+//Take info and make a band object
 function registerBand(userId, bandName, description, genre, connection) {
     return new Promise((resolve, reject) => {
         var obj = {userId, bandName, description, genre, connection}
@@ -24,6 +25,7 @@ function registerBand(userId, bandName, description, genre, connection) {
     })
 }
 
+//Check if band object can be made
 function checkBandAndUser(data) {
     return new Promise((resolve, reject) => {
         var query = ""+
@@ -48,6 +50,7 @@ function checkBandAndUser(data) {
     });
 }
 
+//Create band object
 function createBand(data) {
     return new Promise((resolve, reject) => {
         var query = "INSERT INTO BAND (OWNERID, BANDNAME, DESCRIPTION, GENRE) VALUES ( '"+data.userId+"','"+data.bandName+"','"+data.description+"','"+data.genre+"')";
@@ -65,6 +68,7 @@ function createBand(data) {
     });
 }
 
+//Return a list of all bands
 function getAllBands(userId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
@@ -91,6 +95,7 @@ function getAllBands(userId, connection) {
     });
 }
 
+//Gets bands info
 function getBand(bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
@@ -118,6 +123,7 @@ function getBand(bandId, connection) {
     });
 }
 
+//Returns a list of bands that fit the search
 function search(userId, searchString, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
@@ -160,6 +166,7 @@ function search(userId, searchString, connection) {
     });
 }
 
+//Pull bands application form
 function getAllApplications(userId, bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
@@ -190,6 +197,7 @@ function getAllApplications(userId, bandId, connection) {
     });    
 }
 
+//Fill band application with data then send to the band object
 function submitApplication(userId, bandId, instrument, message, applicationStatus, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
@@ -223,6 +231,7 @@ function submitApplication(userId, bandId, instrument, message, applicationStatu
     });
 }
 
+//Cancel a submited appliction
 function cancelApplication(userId, bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = "SELECT USERID, BANDID, STATUS FROM APPLICATION WHERE USERID = "+userId+" AND BANDID = "+bandId;
@@ -256,6 +265,7 @@ function cancelApplication(userId, bandId, connection) {
     });
 }
 
+//Pick  option for the application and check if user has permission
 function processApplication(userId, bandId, applicationId, processStatus, applicationStatus, connection) {
     return new Promise((resolve, reject) => {
         var role = '';
@@ -329,6 +339,7 @@ function processApplication(userId, bandId, applicationId, processStatus, applic
     });
 }
 
+//Get band members and their roles
 function getBandMemberRole(userId, bandId, connection) {
     return new Promise((resolve, reject) => {
         var query = ""+
@@ -350,6 +361,7 @@ function getBandMemberRole(userId, bandId, connection) {
     });
 }
 
+//Get band members
 function getBandMembers(bandId, connection){
     return new Promise(function (resolve, reject){
         var query = `SELECT U.*, B.Role FROM USER U INNER JOIN BANDMEMBER B on B.UserID = U.UserID AND B.BandID = ${bandId}`;
