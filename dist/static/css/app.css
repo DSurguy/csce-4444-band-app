@@ -305,7 +305,30 @@ h1, h2{
 #inventoryPage .btn-delete {
     float: right;
 }
+#storePage .btn-add-to-cart{
+    display: block; 
+    margin: 0 auto;
+}
+#storePage .card {
+    float: none;
+    max-width: 200px; 
+    margin: 10px;
+    display: flex;
+}
 
+#storePage .row {
+    margin: 20px;
+}
+#storePage .cart-image-container{
+    width: 100px;
+    height: 100px;
+}
+#storePage .cart-item-container img{
+    position: relative;
+}
+#storePage th{
+    width: 200px;
+}
 #songsPage .song.search-hidden{
     display: none;
 }
@@ -324,3 +347,10 @@ h1, h2{
     display: none;
 }
 
+#eventsPage .event-modal .show-dependent.hidden{
+    display: none;
+}
+
+#eventsPage .event-modal .modal.hidden{
+    display: none;
+}

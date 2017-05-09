@@ -1,0 +1,40 @@
+{{#contentFor "page-title"}}Store{{/contentFor}}
+{{#contentFor "page-constructor"}}StorePage{{/contentFor}}
+<div id="storePage" class="page">
+    <div class="menu-button-container"></div>
+    <h1>Merchandise Store</h1>
+    <div class="container">
+        <button class="btn btn-primary btn-view-cart">View Cart</button>
+    </div>
+    <div class="container inventory-container">
+        <div class="inventory card-group"></div>
+    </div>
+	<div class="cart-modal">
+	    <div data-item-id="" class="modal fade" role="dialog">
+	        <div class="modal-dialog">
+	            <div class="modal-content">
+	                <div class="modal-header">
+	                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+	                    <h4 class="modal-title">Cart</h4>
+	                </div>
+	                <div class="modal-body">
+		            	<table class="cart-table">
+							<tr>
+								<th class="text-left">Item</th>
+								<th class="text-center">Quantity</th>
+								<th class="text-right">Price</th>
+							</tr>
+		              	</table>
+		                <form class="form-inline" id="cart-form" />
+	                </div>
+	                <div class="modal-footer">
+	                    <button class="btn btn-success mr-1 btn-pay-out" form="cart-form" data-dismiss="modal">Pay Out</button>
+	                    <button class="btn btn-primary mr-1 btn-update-cart" form="cart-form" data-dismiss="modal">Update Cart</button>
+	                    <button class="btn btn-danger mr-1 btn-empty-cart" data-dismiss="modal">Empty Cart</button>
+	                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Close</button>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
+</div>

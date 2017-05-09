@@ -13,6 +13,7 @@ var friendService = require('./server/services/friendService.js');
 var notificationService = require('./server/services/notificationService.js');
 var songService = require('./server/services/songService.js');
 var setListService = require('./server/services/setListService.js');
+var eventService = require('./server/services/eventService.js');
 var userService = require('./server/services/userService.js');
 var Song = require('./shared/classes/song.js');
 var SetList = require('./shared/classes/setList.js');
@@ -20,6 +21,9 @@ var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var path = require('path');
 var leftPad = require('./shared/utils/leftPad.js');
+var {Member} = require('./shared/classes/user.js');
+var Time = require('./shared/utils/time.js');
+var Event = require('./shared/classes/event.js');
 
 var imageFilesRoot= path.resolve('static/media');
 
@@ -38,6 +42,7 @@ catch (e){
         }
     };
 }
+config.db.dateStrings = true;
 
 var app = express();
 
@@ -138,6 +143,10 @@ app.get('/bands/:bandId/inventory', checkSession, function (req, res){
     res.render('inventory');
 });
 
+app.get('/bands/:bandId/store', checkSession, function (req, res){
+    res.render('store');
+});
+
 app.get('/bands/:bandId/songs', checkSession, function (req, res){
     res.render('songs');
 });
@@ -147,6 +156,10 @@ app.get('/bands/:bandId/setlists', checkSession, function (req, res){
 });
 app.get('/bands/:bandId/setlists/:id', checkSession, function (req, res){
     res.render('editSetList');
+});
+
+app.get('/bands/:bandId/events', checkSession, function (req, res){
+    res.render('events');
 });
 
 
@@ -244,6 +257,30 @@ app.get('/api/bands/:bandId', checkSession, function (req, res) {
     })
     .catch(function (e) {
         res.status(500).send({error:e});
+    });
+});
+
+app.get('/api/bands/:bandId/members', checkSession, function(req, res, next){
+    //check to make sure this user is already a member of the band, if they aren't they can't get members.
+    bandService.getBandMemberRole(parseInt(req.session.userId,10), parseInt(req.params.bandId, 10), connection)
+    .then(function (data){
+        if( data.role != Member.ROLE.NONE ){
+            next();
+        }
+        else{
+            res.status(401).send();
+        }
+    })
+    .catch(function (e){
+        res.status(500).send({error:e});
+    });
+}, function (req, res){
+    bandService.getBandMembers(parseInt(req.params.bandId, 10), connection)
+    .then(function (members){
+        res.status(200).send(members);
+    })
+    .catch(function (e){
+        res.status(500).send({error: e});
     });
 });
 
@@ -493,9 +530,6 @@ app.get('/api/bands/:bandId/inventory', checkSession, function (req, res) {
         }
     })
     .then(function (result) {
-        return result == false ? false : merchService.getImages(result);
-    })
-    .then(function (result) {
         return result == false ? false : merchService.getInventory(result, connection);
     })
     .then(function (result) {
@@ -557,6 +591,86 @@ app.delete('/api/bands/:bandId/inventory/:itemId', checkSession, function (req, 
             return Promise.resolve(false);
         }
     })
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Get Cart **/
+app.get('/api/bands/:bandId/getcartitems', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.getCartItems(req.params.bandId, req.session.userId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Add Items To Cart **/
+app.post('/api/bands/:bandId/addtocart', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.addToCart(req.params.bandId, req.session.userId, req.body.itemId, req.body.quantity, req.body.inventoryId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Update Cart **/
+app.post('/api/bands/:bandId/updatecart', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.updateCart(req.params.bandId, req.session.userId, req.body.itemId, req.body.quantity, req.body.inventoryId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Empty Cart **/
+app.delete('/api/bands/:bandId/emptycart', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.emptyCart(req.params.bandId, req.session.userId, connection)
+    .then(function (result) {
+        res.status(200);
+        res.send(result);
+    })
+    .catch(function (e) {
+        res.status(500).send({error:e});
+    });
+});
+
+/** Pay Out Cart **/
+app.post('/api/bands/:bandId/payout', checkSession, function (req, res) {
+    if (req.params == undefined) {
+        res.sendStatus(400);
+    }
+    // Check that the user has rights to update merch
+    merchService.payOut(req.params.bandId, req.session.userId, req.body.itemId, req.body.inventoryId, req.body.quantity, connection)
     .then(function (result) {
         res.status(200);
         res.send(result);
@@ -725,6 +839,105 @@ app.get('/api/user', checkSession, function (req, res){
     userService.getUser(req.session.userId, connection)
     .then(function (user){
         res.status(200).send(user);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
+/**
+ * EVENTS
+ **/
+ 
+/** Get Events **/
+app.get('/api/bands/:bandId/events', checkSession, function (req, res){
+    eventService.getEvents(parseInt(req.params.bandId, 10), connection)
+    .then(function (events){
+        res.status(200).send(events);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
+/** Create Event **/
+app.post('/api/bands/:bandId/events', checkSession, function (req, res){
+    var newEvent = new Event({
+        id: undefined,
+        bandId: parseInt(req.params.bandId, 10),
+        title: req.body['title'],
+        description: req.body['description'],
+        eventDate: req.body['event-date'],
+        eventTime: Time.fromAMPM(req.body['event-time']),
+        loadInTime: Time.fromAMPM(req.body['load-in-time']||'00:00:00'),
+        location: req.body['location'],
+        venue: req.body['venue'],
+        isShow: req.body['is-show'] == 'on' ? true : false
+    });
+
+    var keys = Object.keys(req.body);
+    for( var i=0; i<keys.length; i++ ){
+        if( keys[i].indexOf('member-') == 0 ){
+            newEvent.members.push(parseInt(keys[i].substr(7),10));
+        }
+    }
+    
+    eventService.createEvent(parseInt(req.params.bandId, 10), newEvent, connection)
+    .then(function (newEvent){
+        res.status(201).send(newEvent);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err, trace: err.stack});
+    });
+});
+
+/** Edit Event **/
+app.put('/api/bands/:bandId/events/:eventId', checkSession, function (req, res){
+    var newEvent = new Event({
+        id: parseInt(req.params.eventId, 10),
+        bandId: parseInt(req.params.bandId, 10),
+        title: req.body['title'],
+        description: req.body['description'],
+        eventDate: req.body['event-date'],
+        eventTime: Time.fromAMPM(req.body['event-time']),
+        loadInTime: Time.fromAMPM(req.body['load-in-time']||'00:00:00'),
+        location: req.body['location'],
+        venue: req.body['venue'],
+        isShow: req.body['is-show'] == 'on' ? true : false
+    });
+
+    var keys = Object.keys(req.body);
+    for( var i=0; i<keys.length; i++ ){
+        if( keys[i].indexOf('member-') == 0 ){
+            newEvent.members.push(parseInt(keys[i].substr(7),10));
+        }
+    }
+    
+    eventService.editEvent(parseInt(req.params.bandId, 10), newEvent, connection)
+    .then(function (updatedEvent){
+        res.status(200).send(updatedEvent);
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
+/** Delete Event **/
+app.delete('/api/bands/:bandId/events/:eventId', checkSession, function (req, res){
+    eventService.deleteEvent(parseInt(req.params.bandId, 10), parseInt(req.params.eventId, 10), connection)
+    .then(function (){
+        res.status(200).send();
+    })
+    .catch(function (err){
+        res.status(500).send({error: err});
+    });
+});
+
+/** Notify Members of Event **/
+app.post('/api/bands/:bandId/events/:eventId/notify', checkSession, function (req, res){
+    eventService.notifyMembers(parseInt(req.params.bandId, 10), parseInt(req.params.eventId, 10), req.body.message, connection)
+    .then(function (){
+        res.status(200).send();
     })
     .catch(function (err){
         res.status(500).send({error: err});
